@@ -1,6 +1,5 @@
 import type { TimelinesSettings } from './types';
-import { DEFAULT_SETTINGS } from './constants';
-import { TimelinesSettingTab } from './settings';
+import { TimelinesSettingTab, DEFAULT_SETTINGS } from './settings';
 import { TimelineProcessor } from './block';
 import { Plugin, MarkdownView } from 'obsidian';
 
@@ -8,30 +7,27 @@ export default class TimelinesPlugin extends Plugin {
 	settings: TimelinesSettings;
 
 	async onload() {
-		// Load message
 		await this.loadSettings();
-		console.log('Loaded Timelines Plugin');
+		console.log('Loaded Plugin: Timelines (Revamped)');
+		const proc = new TimelineProcessor(this.settings);
 
 		// Register timeline block renderer
-		this.registerMarkdownCodeBlockProcessor('timeline', async (source, el, ctx) => {
-			const proc = new TimelineProcessor();
-			await proc.run(source, el, this.settings, this.app.vault.getMarkdownFiles(), this.app.metadataCache, this.app.vault, false);
+		this.registerMarkdownCodeBlockProcessor('ob-timeline', async (source, el, ctx) => {
+			await proc.run(source, el, this.app.vault.getMarkdownFiles(), this.app.metadataCache, this.app.vault, false);
 		});
 
 		// Register vis-timeline block renderer
-		this.registerMarkdownCodeBlockProcessor('timeline-vis', async (source, el, ctx) => {
-			const proc = new TimelineProcessor();
-			await proc.run(source, el, this.settings, this.app.vault.getMarkdownFiles(), this.app.metadataCache, this.app.vault, true);
+		this.registerMarkdownCodeBlockProcessor('ob-timeline-flat', async (source, el, ctx) => {
+			await proc.run(source, el, this.app.vault.getMarkdownFiles(), this.app.metadataCache, this.app.vault, true);
 		});
 
 		this.addCommand({
 			id: "render-timeline",
-			name: "Render Timeline",
+			name: "Render Static Timeline",
 			callback: async () => {
-				const proc = new TimelineProcessor();
 				let view = this.app.workspace.getActiveViewOfType(MarkdownView);
 				if (view) {
-					await proc.insertTimelineIntoCurrentNote(view, this.settings, this.app.vault.getMarkdownFiles(), this.app.metadataCache, this.app.vault);
+					await proc.insertTimelineIntoCurrentNote(view, this.app.vault.getMarkdownFiles(), this.app.metadataCache, this.app.vault);
 				}
 			}
 		});
@@ -40,7 +36,7 @@ export default class TimelinesPlugin extends Plugin {
 	}
 
 	onunload() {
-		console.log('unloading plugin');
+		console.log('Unloaded Plugin: Timelines (Revamped)');
 	}
 
 	async loadSettings() {

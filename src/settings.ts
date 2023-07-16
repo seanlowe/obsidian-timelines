@@ -1,5 +1,14 @@
+import type { TimelinesSettings } from './types'
+
 import { App, PluginSettingTab, Setting } from 'obsidian'
 import TimelinesPlugin from './main'
+
+export const DEFAULT_SETTINGS: TimelinesSettings = {
+    timelineTag: 'timeline',
+    sortDirection: true
+}
+
+export const RENDER_TIMELINE: RegExp = /<!--TIMELINE BEGIN tags=['"]([^"]*?)['"]-->([\s\S]*?)<!--TIMELINE END-->/i;
 
 export class TimelinesSettingTab extends PluginSettingTab {
 	plugin: TimelinesPlugin;
@@ -13,7 +22,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
 		let { containerEl } = this;
 
 		containerEl.empty();
-		containerEl.createEl('h2', { text: 'Obsidian Timelines Settings' });
+		containerEl.createEl('h2', { text: 'Timelines (Revamped) Settings' });
 
 		new Setting(containerEl)
 			.setName('Default timeline tag')
@@ -35,6 +44,6 @@ export class TimelinesSettingTab extends PluginSettingTab {
 					this.plugin.settings.sortDirection = value;
 					await this.plugin.saveSettings();
 				});
-			})
+			});
 	}
 }

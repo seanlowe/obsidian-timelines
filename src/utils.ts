@@ -1,7 +1,14 @@
 import type { TFile, MetadataCache, DataAdapter } from 'obsidian';
 import { getAllTags } from 'obsidian';
 
-export function parseTag(tag: string, tagList: string[]) {
+/**
+ * Parse a tag and all its subtags into a list.
+ *
+ * @param {String} tag - tag to parse 
+ * @param {String[]} tagList - list of tags to add to 
+ * @returns 
+ */
+export function parseTag(tag: String, tagList: String[]): void {
 	tag = tag.trim();
 
 	// Skip empty tags
@@ -18,27 +25,37 @@ export function parseTag(tag: string, tagList: string[]) {
 	}
 }
 
-export function FilterMDFiles(file: TFile, tagList: String[], metadataCache: MetadataCache) {
+/**
+ * Filter markdown files by tag
+ *
+ * @param {TFile} file - file to filter, see Obsidian's {@link TFile}
+ * @param {String[]} tagList - list of tags to filter by
+ * @param {MetadataCache} metadataCache - See Obsidian's {@link MetadataCache}
+ * @returns {boolean} true if file contains all tags in tagList, false otherwise
+ */
+export function FilterMDFiles(file: TFile, tagList: String[], metadataCache: MetadataCache): boolean {
 	if (!tagList || tagList.length === 0) {
 		return true;
 	}
 
-	let tags = getAllTags(metadataCache.getFileCache(file)).map(e => e.slice(1, e.length));
+	let tags = getAllTags(metadataCache.getFileCache(file)).map(e => e.slice(1));
 
 	if (tags && tags.length > 0) {
-		let filetags: string[] = [];
-		tags.forEach(tag => parseTag(tag, filetags));
-		return tagList.every(val => { return filetags.indexOf(val as string) >= 0; });
+		let fileTags: string[] = [];
+		tags.forEach(tag => parseTag(tag, fileTags));
+		return tagList.every(val => fileTags.includes(val as string));
 	}
 
 	return false;
 }
 
 /**
- * Create date of passed string
- * @date - string date in the format YYYY-MM-DD-HH
+ * Create date from passed string
+ *
+ * @param {String} date - string date in the format *YYYY-MM-DD-HH*
+ * @returns {Date} newly created date object
  */
-export function createDate(date: string): Date {
+export function createDate(date: String): Date {
 	let dateComp = date.split(',');
 	// cannot simply replace '-' as need to support negative years
 	return new Date(+(dateComp[0] ?? 0), +(dateComp[1] ?? 0), +(dateComp[2] ?? 0), +(dateComp[3] ?? 0));
@@ -46,10 +63,12 @@ export function createDate(date: string): Date {
 
 /**
  * Return URL for specified image path
- * @param path - image path
+ *
+ * @param {String} path - image path
+ * @param {DataAdapter} vaultAdaptor - See Obsidian's {@link DataAdapter}
+ * @returns {string|null} URL for image
  */
 export function getImgUrl(vaultAdaptor: DataAdapter, path: string): string {
-
 	if (!path) {
 		return null;
 	}

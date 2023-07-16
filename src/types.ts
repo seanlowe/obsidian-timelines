@@ -4,11 +4,11 @@ export interface TimelinesSettings {
 }
 
 export interface TimelineArgs {
-	[key: string]: string
+	[key: string]: string;
 }
 
 export interface CardContainer {
-	date: string;
+	startDate: string;
 	title: string;
 	img: string;
 	innerHTML: string;
