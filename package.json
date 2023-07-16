@@ -1,7 +1,7 @@
 {
-    "name": "Timelines",
-    "version": "0.3.2",
-    "description": "Create a timeline view of all notes with the specified combination of tags",
+    "name": "timelines-revamped",
+    "version": "0.1.0",
+    "description": "Generate a chronological timeline in which all 'events' are notes that include a specific tag or set of tags.",
     "main": "main.js",
     "scripts": {
         "dev": "rollup --config rollup.config.js -w",
@@ -15,13 +15,13 @@
         "@rollup/plugin-node-resolve": "^9.0.0",
         "@rollup/plugin-typescript": "^6.0.0",
         "@types/node": "^14.14.2",
-        "obsidian": "https://github.com/obsidianmd/obsidian-api/tarball/master",
+        "obsidian": "^1.2.8",
         "rollup": "^2.32.1",
         "tslib": "^2.0.3",
         "typescript": "^4.0.3"
     },
     "dependencies": {
-        "rollup-plugin-styles": "^3.14.1",
+        "rollup-plugin-styles": "^4.0.0",
         "vis-timeline": "^7.4.6"
     }
 }
