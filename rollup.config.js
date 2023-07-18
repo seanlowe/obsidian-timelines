@@ -6,7 +6,7 @@ import styles from "rollup-plugin-styles";
 export default {
     input: './src/main.ts',
     output: {
-        dir: '.',
+        dir: './dist/',
         sourcemap: 'inline',
         format: 'cjs',
         exports: 'default'
