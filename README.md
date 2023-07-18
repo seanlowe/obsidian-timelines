@@ -22,14 +22,8 @@ Below, I've edited the original README primarily to add clarity, but also to hig
 Generate a chronological timeline in which all "events" are notes that include a specific tag or set of tags.
 
 ## Examples
-<div style="width: 100vw">
-  <a>
-    <img src="./images/horizontal_example.png" align="left" style="width: 60vw; height: 500px;">
-  </a>
-  <a>
-    <img src="./images/vertical_example.png" align="right" style="width: 39vw; height: 500px;">
-  </a>
-</div>
+<img src="./images/horizontal_example.png" align="left">
+<img src="./images/vertical_example.png" align="right">
 
 <h2 style="padding-top: 525px"> Inserting a Timeline </h2>
 
@@ -201,7 +195,7 @@ Note: Currently only assets specified via `http` or `absolute local path` will r
   - Optional
   - Adds the applied css class to the note card associated with the timeline entry
 
-Note: Acceptable values for `data-class` are `orange`. More colors will be added at a later date. If the value is not supplied, events will be colored white on the timeline.
+Note: Acceptable values for `data-class` are `orange`, `yellow`, `red`, `blue`, `green`, and `purple`. If the value is not supplied, events will be colored white (or grey for background events) on the timeline.
 
 #### Type (`data-type`):
   - Optional
