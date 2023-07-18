@@ -4,7 +4,6 @@
 
 root = true
 
-
 [*]
 
 # Change these settings to your own preference
@@ -18,8 +17,8 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 
 [*.{js,ts}]
-indent_style = tab
-indent_size = 4
+indent_style = space
+indent_size = 2
 
 [*.md]
 trim_trailing_whitespace = false
