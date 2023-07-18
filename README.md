@@ -209,7 +209,16 @@ Note: Acceptable values for `data-type` are:
 
 ## Release Notes
 
-### v0.1.0 (legacy v0.3.3)
+### v1.0.1
+Added more colors to the horizontal timeline!
+
+More technical stuff:
+- refactored styling to use SCSS instead of CSS
+- created a mixin / function combo that will allow me to easily add support for new colors in the future.
+- added functionality to use color on background style events.
+- replaced the asset in the README with an updated version that shows off the new colors we can use.
+
+### v1.0.0 (legacy v0.3.3)
 - refactored most of the plugin. 
   - Introduced additional type checking and assertions. 
   - Broke up functionality into smaller functions for better readability and maintenance.
