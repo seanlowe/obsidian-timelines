@@ -1,0 +1,59 @@
+@use './vertical-timeline.scss';
+@use './horizontal-timeline.scss';
+
+.ob-timelines {
+  display: none;
+}
+
+.timeline-card {
+  grid-auto-rows: min-content;
+  color: #d1c077;
+  padding: 1px;
+  background: var(--background-secondary);
+  text-decoration: none !important;
+  color: var(--text-normal);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  position: relative;
+  top: 0;
+  transition: all 0.1s ease-in;
+  margin-block-end: 20px;
+  border-radius: 10px;
+
+  &:hover {
+    top: -2px;
+    box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
+  }
+
+  .thumb {
+    padding-bottom: 60%;
+    background-size: cover;
+    background-position: center center;
+    border-radius: 10px 10px 0px 0px;
+  }
+
+  article {
+    padding-left: 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  p {
+    padding-left: 15px;
+    padding-right: 15px;
+    flex: 1;
+    margin-block-start: 0em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    word-break: break-word;
+    white-space: normal;
+  }
+}

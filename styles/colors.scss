@@ -1,0 +1,17 @@
+@function lighten-background($color) {
+  $lightness: 20%;
+  $alpha: 0.3;
+  $colorObj: if(type-of($color) == 'string', str-to-color($color), $color);
+  $lighterColor: lighten($colorObj, $lightness);
+  $lighterColorWithAlpha: rgba($lighterColor, $alpha);
+
+  @return $lighterColorWithAlpha;
+}
+
+@mixin add-color($color, $starting-element) {
+  @at-root #{$starting-element}.#{$color} {
+    filter: none;
+    background-color: lighten-background($color);
+    border-color: $color;
+  }
+}
