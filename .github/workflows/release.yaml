@@ -1,0 +1,40 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifacts from previous job
+        uses: actions/download-artifact@v3
+        with:
+          name: release-assets
+          path: /tmp/release/
+
+      - name: Extract version from manifest.json
+        id: extract_version
+        run: |
+          VERSION=$(cat /tmp/release/manifest.json | grep 'version' | awk '{print $2}' | sed 's/[",]//g')
+          echo "Extracted Version: $VERSION"
+          echo "::set-output name=version::$VERSION"
+
+      - name: Create Git Tag
+        if: steps.extract_version.outputs.version
+        run: |
+          VERSION=${{ steps.extract_version.outputs.version }}
+          git tag $VERSION
+          git push origin $VERSION
+
+      - name: Create GitHub Release
+        if: steps.extract_version.outputs.version
+        uses: softprops/action-gh-release@v1
+        with:
+          files: /tmp/release/*
+          tag_name: ${{ steps.extract_version.outputs.version }}
+          release_title: Release ${{ steps.extract_version.outputs.version }}
+          generate_release_notes: true
