@@ -14,7 +14,7 @@ jobs:
         id: download-artifact
         uses: dawidd6/action-download-artifact@v2
         with:
-          workflow: build.yml
+          workflow: build.yaml
           workflow_conclusion: success
           name: release_assets
           path: /tmp/release/
