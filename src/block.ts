@@ -2,7 +2,7 @@ import type { TimelinesSettings, TimelineArgs, AllNotesData, CardContainer, Even
 import type { TFile, MarkdownView, MetadataCache, Vault } from 'obsidian'
 
 import { RENDER_TIMELINE } from './settings'
-import { FilterMDFiles, createDate, getImgUrl, parseTag } from './utils'
+import { FilterMDFiles, buildTimelineDate, createDateArgument, getImgUrl, parseTag } from './utils'
 
 // Horizontal (Vis-Timeline) specific imports
 import { Timeline } from 'vis-timeline/esnext'
@@ -27,11 +27,11 @@ export class TimelineProcessor {
 
   /**
    * Insert the statically generated timeline into the current note
-   * 
-   * @param sourceView 
-   * @param vaultFiles 
-   * @param fileCache 
-   * @param appVault 
+   *
+   * @param sourceView
+   * @param vaultFiles
+   * @param fileCache
+   * @param appVault
    */
   async insertTimelineIntoCurrentNote(
     sourceView: MarkdownView,
@@ -42,16 +42,12 @@ export class TimelineProcessor {
     // const editor = sourceView.sourceMode.cmEditor
     const editor = sourceView.editor
 
-    if ( !editor ) {
-      return 
-    }
+    if ( !editor ) return
 
     const source = editor.getValue()
     const match = RENDER_TIMELINE.exec( source )
 
-    if ( !match || match.length === 1 ) {
-      return 
-    }
+    if ( !match || match.length === 1 ) return
 
     const tagList = match[1]
 
@@ -71,7 +67,7 @@ export class TimelineProcessor {
 
   /**
    * Read the arguments from the codeblock
-   * 
+   *
    * @param visTimeline - whether or not we're rendering a vis-timeline
    * @param source - the codeblock source string
    */
@@ -85,23 +81,19 @@ export class TimelineProcessor {
     }
 
     source.split( '\n' ).map(( entry ) => {
-      if ( !entry ) {
-        return 
-      }
-      
+      if ( !entry ) return
+
       entry = entry.trim()
       const [ tag, value ] = entry.split( '=' )
       this.args[tag] = value.trim()
     })
-
-    return
   }
 
   /**
    * Parse the list of files from the vault and extract the timeline data
-   * 
-   * @param fileList 
-   * @param appVault 
+   *
+   * @param fileList
+   * @param appVault
    * @param timelineNotes - notes which have our timeline tags
    * @param timelineDates - dates we parse from event data
    */
@@ -117,9 +109,7 @@ export class TimelineProcessor {
       const timelineData = doc.getElementsByClassName( 'ob-timelines' )
 
       for ( const event of timelineData as unknown as HTMLElement[] ) {
-        if ( !( event instanceof HTMLElement )) {
-          continue 
-        }
+        if ( !( event instanceof HTMLElement )) continue
 
         const {
           dataset: {
@@ -135,13 +125,11 @@ export class TimelineProcessor {
         const notePath = '/' + file.path
 
         // check if a valid date is specified
-        const noteId = ( startDate[0] === '-' ) 
-          ? -parseInt( startDate.substring( 1 ).split( '-' ).join( '' )) 
+        const noteId = ( startDate[0] === '-' )
+          ? -parseInt( startDate.substring( 1 ).split( '-' ).join( '' ))
           : parseInt( startDate.split( '-' ).join( '' ))
 
-        if ( !Number.isInteger( noteId )) {
-          continue 
-        }
+        if ( !Number.isInteger( noteId )) continue
 
         const defaultNoteData = {
           startDate,
@@ -173,9 +161,9 @@ export class TimelineProcessor {
 
   /**
    * Create an internal link on the a timeline's event "note" card
-   * 
-   * @param event 
-   * @param noteCard 
+   *
+   * @param event
+   * @param noteCard
    */
   createInternalLinkOnNoteCard( event: CardContainer, noteCard: HTMLElement ) {
     noteCard
@@ -186,13 +174,11 @@ export class TimelineProcessor {
         attr: { href: `${event.path}` },
         text: event.title
       })
-
-    return
   }
 
   /**
    * Build a vertical timeline
-   * 
+   *
    * @param timelineDiv - the timeline html element
    * @param timelineNotes - notes which have our timeline tags
    * @param timelineDates - dates we parsed from event data
@@ -210,9 +196,9 @@ export class TimelineProcessor {
       const noteContainer = timelineDiv.createDiv({ cls: 'timeline-container' })
       const eventContainer = noteContainer.createDiv({
         cls: 'timeline-event-list',
-        attr: { 'style': 'display: block' } 
+        attr: { 'style': 'display: block' }
       })
-      const noteHeader = noteContainer.createEl( 'h2', { 
+      const noteHeader = noteContainer.createEl( 'h2', {
         text: timelineNotes[date][0].startDate
           .replace( /-0*$/g, '' ).replace( /-0*$/g, '' ).replace( /-0*$/g, '' )
       })
@@ -224,6 +210,7 @@ export class TimelineProcessor {
           currentStyle.setProperty( 'display', 'block' )
           return
         }
+
         currentStyle.setProperty( 'display', 'none' )
       })
 
@@ -231,9 +218,7 @@ export class TimelineProcessor {
       noteContainer.addClass( `timeline-${alignment}` )
       noteHeader.setAttribute( 'style', `text-align: ${alignment};` )
 
-      if ( !timelineNotes[date] ) {
-        continue
-      }
+      if ( !timelineNotes[date] ) continue
 
       for ( const eventAtDate of timelineNotes[date] ) {
         const noteCard = eventContainer.createDiv({ cls: 'timeline-card' })
@@ -244,6 +229,7 @@ export class TimelineProcessor {
             attr: { style: `background-image: url(${eventAtDate.img});` }
           })
         }
+
         if ( eventAtDate.class ) {
           noteCard.addClass( eventAtDate.class )
         }
@@ -261,7 +247,7 @@ export class TimelineProcessor {
 
   /**
    * Build a horizontal timeline
-   * 
+   *
    * @param timelineDiv - the timeline html element
    * @param timelineNotes - notes which have our timeline tags
    * @param timelineDates - dates we parsed from event data
@@ -302,17 +288,16 @@ export class TimelineProcessor {
         this.createInternalLinkOnNoteCard( event, noteCard )
         noteCard.createEl( 'p', { text: event.innerHTML })
 
-        const startDate = event.startDate?.replace( /(.*)-\d*$/g, '$1' )
-        const endDate = event.endDate?.replace( /(.*)-\d*$/g, '$1' )
-        const start = createDate( startDate )
-        const end = createDate( endDate )
+        const start = buildTimelineDate( event.startDate )
+        const end = buildTimelineDate( event.endDate )
 
-        if ( start.toString() === 'Invalid Date' ) {
+        if (
+          start.toString() === 'Invalid Date' ||
+          ( [ 'range', 'background' ].includes( event.type ) && end.toString() === 'Invalid Date' )
+        ) {
+          console.warn( 'Invalid start or end date', { start, end })
+
           return
-        }
-
-        if ( [ 'range', 'background' ].includes( event.type ) && end.toString() === 'Invalid Date' ) {
-          return 
         }
 
         // Add Event data
@@ -330,10 +315,10 @@ export class TimelineProcessor {
 
     // Configuration for the Timeline
     const options = {
-      start: createDate( this.args.startDate ),
-      end: createDate( this.args.endDate ),
-      min: createDate( this.args.minDate ),
-      max: createDate( this.args.maxDate ),
+      start: createDateArgument( this.args.startDate ),
+      end: createDateArgument( this.args.endDate ),
+      min: createDateArgument( this.args.minDate ),
+      max: createDateArgument( this.args.maxDate ),
       minHeight: Number( this.args.divHeight ),
       showCurrentTime: false,
       showTooltips: false,
@@ -347,7 +332,7 @@ export class TimelineProcessor {
         eventContainer.addEventListener( 'click', ( event ) => {
           event.preventDefault()
 
-          const el = ( eventContainer.getElementsByClassName( 'timeline-card' )[0] as HTMLElement )
+          const el = eventContainer.getElementsByClassName( 'timeline-card' )[0] as HTMLElement
           el.style.setProperty( 'display', 'block' )
           el.style.setProperty( 'top', `-${el.clientHeight + 10}px` )
         })
@@ -377,17 +362,16 @@ export class TimelineProcessor {
 
     const tagList: string[] = []
     this.args.tags.split( ';' ).forEach(( tag: string ) => {
-      return parseTag( tag, tagList ) 
+      return parseTag( tag, tagList )
     })
     tagList.push( this.settings.timelineTag )
 
     // Filter all markdown files to only those containing the tag list
     const fileList = vaultFiles.filter(( file ) => {
-      return FilterMDFiles( file, tagList, fileCache ) 
+      return FilterMDFiles( file, tagList, fileCache )
     })
-    if ( !fileList ) {
-      return 
-    }
+
+    if ( !fileList ) return
 
     // Keep only the files that have the time info
     const timelineNotes = [] as AllNotesData

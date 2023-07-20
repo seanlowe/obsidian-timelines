@@ -59,10 +59,10 @@ export function FilterMDFiles( file: TFile, tagList: string[], metadataCache: Me
 /**
  * Create date from passed string
  *
- * @param {String} date - string date in the format *YYYY-MM-DD-HH*
+ * @param {String} date - string date in the format *YYYY*
  * @returns {Date} newly created date object
  */
-export function createDate( date: string ): Date {
+export function createDateArgument( date: string ): Date {
   const dateComp = date.split( ',' )
   // cannot simply replace '-' as need to support negative years
   return new Date( +( dateComp[0] ?? 0 ), +( dateComp[1] ?? 0 ), +( dateComp[2] ?? 0 ), +( dateComp[3] ?? 0 ))
@@ -85,4 +85,26 @@ export function getImgUrl( vaultAdaptor: DataAdapter, path: string ): string {
   }
 
   return vaultAdaptor.getResourcePath( path )
+}
+
+
+/**
+ * Format an event date for display
+ *
+ * @param {string} rawDate - string from of date in format "YYYY-MM-DD"
+ * @returns {Date | null}
+ */
+export const buildTimelineDate = ( rawDate: string ): Date|null => {
+  const cleanedDate = rawDate?.replace( /(.*)-\d*$/g, '$1' )
+  if ( !cleanedDate ) {
+    return null
+  }
+
+  if ( cleanedDate[0] === '-' ) {
+    // handle negative year
+    const comps = cleanedDate.substring( 1, cleanedDate.length ).split( '-' )
+    return new Date( +`-${comps[0]}`, +comps[1], +comps[2] )
+  }
+
+  return new Date( cleanedDate )
 }
