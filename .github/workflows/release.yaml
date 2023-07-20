@@ -10,11 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download artifacts from previous job
-        uses: actions/download-artifact@v3
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v2
         with:
-          name: release-assets
+          workflow: build.yml
+          workflow_conclusion: success
+          name: release_assets
           path: /tmp/release/
+          if_no_artifact_found: fail
 
       - name: Extract version from manifest.json
         id: extract_version
