@@ -1,6 +1,8 @@
 export interface TimelinesSettings {
   timelineTag: string,
-  sortDirection: boolean
+  sortDirection: boolean,
+  eventElement: AcceptableEventElements,
+  showRibbonCommand: boolean
 }
 
 export interface TimelineArgs {
@@ -30,3 +32,8 @@ export interface EventItem {
 
 export type NoteData = CardContainer[]
 export type AllNotesData = NoteData[]
+
+export enum AcceptableEventElements {
+  div = 'div',
+  span = 'span',
+}

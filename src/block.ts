@@ -39,7 +39,6 @@ export class TimelineProcessor {
     fileCache: MetadataCache,
     appVault: Vault
   ) {
-    // const editor = sourceView.sourceMode.cmEditor
     const editor = sourceView.editor
 
     if ( !editor ) return
@@ -63,6 +62,36 @@ export class TimelineProcessor {
     div.appendChild( document.createComment( 'TIMELINE END' ))
 
     editor.setValue( source.replace( match[0], div.innerHTML ))
+  }
+
+  async createTimelineEventInCurrentNote(
+    sourceView: MarkdownView
+  ) {
+    const editor = sourceView.editor
+
+    if ( !editor ) return
+
+    // create a div element with the correct data attributes
+    const newEventElement = document.createElement( this.settings.eventElement )
+    newEventElement.setAttribute( 'class', 'ob-timelines' )
+    newEventElement.setAttribute( 'data-start-date', '' )
+    newEventElement.setAttribute( 'data-title', '' )
+    newEventElement.setAttribute( 'data-class', '' )
+    newEventElement.setAttribute( 'data-description', '' )
+    newEventElement.setAttribute( 'data-type', '' )
+    newEventElement.setAttribute( 'data-end-date', '' )
+    newEventElement.setText( 'New Event' )
+
+    // add a newline and a tab after each data attribute
+    let newElHtml = newEventElement.outerHTML.replace( /" /g, '"\n\t' )
+
+    const regex = new RegExp( `>(\\s*.*?)\\s*</(${this.settings.eventElement})>`, 'g' )
+
+    // put the new element's content text on it's own line and indent it, then add a newline
+    newElHtml = newElHtml.replace( regex, `>\n\t$1\n</${this.settings.eventElement}>\n` )
+
+    // insert the new element at the cursor position
+    editor.replaceSelection( newElHtml )
   }
 
   /**
