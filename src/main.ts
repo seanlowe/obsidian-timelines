@@ -39,6 +39,20 @@ export default class TimelinesPlugin extends Plugin {
       }
     })
 
+    if ( this.settings.showRibbonCommand ) {
+      this.addRibbonIcon( 'code-2', 'Insert Timeline Event', async () => {
+        await this.addTimelineEvent( proc )
+      })
+    }
+
+    this.addCommand({
+      id: 'insert-timeline-event',
+      name: 'Insert Timeline Event',
+      callback: async () => {
+        return await this.addTimelineEvent( proc )
+      }
+    })
+
     this.addSettingTab( new TimelinesSettingTab( this.app, this ))
   }
 
@@ -52,5 +66,12 @@ export default class TimelinesPlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData( this.settings )
+  }
+
+  async addTimelineEvent( proc: TimelineProcessor ) {
+    const view = this.app.workspace.getActiveViewOfType( MarkdownView )
+    if ( view ) {
+      await proc.createTimelineEventInCurrentNote( view )
+    }
   }
 }

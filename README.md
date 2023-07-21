@@ -126,6 +126,13 @@ A timeline entry can be created using a `<span></span>` or `<div></div>` HTML el
 </div>
 ```
 
+There are multiple ways to insert an event. Of course, you can do it manually, but there also exist two additional ways to quickly insert an event into your note (at your current mouse position):
+
+  1. Click the `</>` button on the ribbon
+  2. Open the command palette and run the `Insert Timeline Event`
+
+Both of these will insert a new event `div` or `span` (it uses whichever value you've set in Settings but defaults to `div`) with all `data-*` attributes present but empty. Delete what you don't need, fill in what you want. 
+
 ### Customization
 
 Timeline span and div entries (.ob-timelines class) are hidden in preview by default, however, if you wish to display content, try a snippet like this: 
