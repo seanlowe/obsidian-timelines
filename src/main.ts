@@ -6,21 +6,22 @@ import { Plugin, MarkdownView } from 'obsidian'
 
 export default class TimelinesPlugin extends Plugin {
   settings: TimelinesSettings
+  statusBarItem: HTMLElement
+  proc: TimelineProcessor
 
   async onload() {
     await this.loadSettings()
     console.log( 'Loaded Plugin: Timelines (Revamped)' )
-    const proc = new TimelineProcessor( this.settings )
-    const files = this.app.vault.getMarkdownFiles()
+    this.proc = new TimelineProcessor( this.settings, this.app.metadataCache, this.app.vault )
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     this.registerMarkdownCodeBlockProcessor( 'ob-timeline', async ( source, el, ctx ) => {
-      await proc.run( source, el, files, this.app.metadataCache, this.app.vault, false )
+      await this.proc.run( source, el, false )
     })
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     this.registerMarkdownCodeBlockProcessor( 'ob-timeline-flat', async ( source, el, ctx ) => {
-      await proc.run( source, el, files, this.app.metadataCache, this.app.vault, true )
+      await this.proc.run( source, el, true )
     })
 
     this.addCommand({
@@ -29,19 +30,14 @@ export default class TimelinesPlugin extends Plugin {
       callback: async () => {
         const view = this.app.workspace.getActiveViewOfType( MarkdownView )
         if ( view ) {
-          await proc.insertTimelineIntoCurrentNote(
-            view,
-            files,
-            this.app.metadataCache,
-            this.app.vault
-          )
+          await this.proc.insertTimelineIntoCurrentNote( view )
         }
       }
     })
 
     if ( this.settings.showRibbonCommand ) {
       this.addRibbonIcon( 'code-2', 'Insert Timeline Event', async () => {
-        await this.addTimelineEvent( proc )
+        await this.addTimelineEvent( this.proc )
       })
     }
 
@@ -49,11 +45,19 @@ export default class TimelinesPlugin extends Plugin {
       id: 'insert-timeline-event',
       name: 'Insert Timeline Event',
       callback: async () => {
-        return await this.addTimelineEvent( proc )
+        return await this.addTimelineEvent( this.proc )
       }
     })
 
+    if ( this.settings.showEventCounter ) {
+      this.createStatusBar()
+    }
+
     this.addSettingTab( new TimelinesSettingTab( this.app, this ))
+  }
+
+  async onFileOpen() {
+    this.handleStatusBarUpdates()
   }
 
   onunload() {
@@ -65,13 +69,52 @@ export default class TimelinesPlugin extends Plugin {
   }
 
   async saveSettings() {
+    this.handleStatusBarUpdates()
+
     await this.saveData( this.settings )
   }
+
+  /* ----------------- */
 
   async addTimelineEvent( proc: TimelineProcessor ) {
     const view = this.app.workspace.getActiveViewOfType( MarkdownView )
     if ( view ) {
       await proc.createTimelineEventInCurrentNote( view )
     }
+  }
+
+  async handleStatusBarUpdates() {
+    if ( !this.settings.showEventCounter ) {
+      // ensure the status bar item is removed
+      if ( this.statusBarItem ) {
+        this.statusBarItem.remove()
+        this.statusBarItem = null
+      }
+
+      return
+    }
+
+    // if the status bar item has not been created yet, create it
+    if ( !this.statusBarItem ) {
+      this.createStatusBar()
+
+      return
+    }
+
+    this.updateStatusBarText()
+  }
+
+  async createStatusBar() {
+    this.statusBarItem = this.addStatusBarItem()
+    this.statusBarItem.createEl( 'span', { text: '', })
+    this.updateStatusBarText()
+    this.registerEvent(
+      this.app.workspace.on( 'file-open', this.onFileOpen.bind( this ))
+    )
+  }
+
+  async updateStatusBarText() {
+    const text = await this.proc.getStatusBarText( this.app.workspace )
+    this.statusBarItem.setText( text )
   }
 }

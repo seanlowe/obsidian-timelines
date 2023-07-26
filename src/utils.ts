@@ -1,4 +1,4 @@
-import type { TFile, MetadataCache, DataAdapter } from 'obsidian'
+import type { TFile, MetadataCache, DataAdapter, Vault } from 'obsidian'
 
 import { getAllTags } from 'obsidian'
 
@@ -34,7 +34,7 @@ export function parseTag( tag: string, tagList: string[] ): void {
  * @param {MetadataCache} metadataCache - See Obsidian's {@link MetadataCache}
  * @returns {boolean} true if file contains all tags in tagList, false otherwise
  */
-export function FilterMDFiles( file: TFile, tagList: string[], metadataCache: MetadataCache ): boolean {
+export function filterMDFiles( file: TFile, tagList: string[], metadataCache: MetadataCache ): boolean {
   if ( !tagList || tagList.length === 0 ) {
     return true
   }
@@ -54,6 +54,24 @@ export function FilterMDFiles( file: TFile, tagList: string[], metadataCache: Me
   }
 
   return false
+}
+
+export async function getNumEventsInFile( file: TFile, appVault: Vault ): Promise<number> {
+  const events = await getEventsInFile( file, appVault )
+
+  return events.length
+}
+
+export async function getEventsInFile( file: TFile, appVault: Vault ): Promise<HTMLCollectionOf<Element>> {
+  if ( !file ) {
+    return new HTMLCollection()
+  }
+
+  const domParser = new DOMParser()
+  const doc = domParser.parseFromString( await appVault.cachedRead( file ), 'text/html' )
+  const events = doc.getElementsByClassName( 'ob-timelines' )
+
+  return events
 }
 
 /**
@@ -86,7 +104,6 @@ export function getImgUrl( vaultAdaptor: DataAdapter, path: string ): string {
 
   return vaultAdaptor.getResourcePath( path )
 }
-
 
 /**
  * Format an event date for display

@@ -1,8 +1,17 @@
 import type { TimelinesSettings, TimelineArgs, AllNotesData, CardContainer, EventItem } from './types'
-import type { TFile, MarkdownView, MetadataCache, Vault } from 'obsidian'
+import type { TFile, MetadataCache, Vault, Workspace } from 'obsidian'
+import { MarkdownView } from 'obsidian'
 
 import { RENDER_TIMELINE } from './settings'
-import { FilterMDFiles, buildTimelineDate, createDateArgument, getImgUrl, parseTag } from './utils'
+import {
+  filterMDFiles,
+  buildTimelineDate,
+  createDateArgument,
+  getEventsInFile,
+  getImgUrl,
+  getNumEventsInFile,
+  parseTag,
+} from './utils'
 
 // Horizontal (Vis-Timeline) specific imports
 import { Timeline } from 'vis-timeline/esnext'
@@ -10,10 +19,16 @@ import { DataSet } from 'vis-data'
 import 'vis-timeline/styles/vis-timeline-graph2d.css'
 
 export class TimelineProcessor {
+  appVault: Vault
   args: TimelineArgs
+  files: TFile[]
+  metadataCache: MetadataCache
   settings: TimelinesSettings
 
-  constructor( settings: TimelinesSettings ) {
+  constructor( settings: TimelinesSettings, metadataCache: MetadataCache, appVault: Vault ) {
+    this.appVault = appVault
+    this.files = this.appVault.getMarkdownFiles()
+    this.metadataCache = metadataCache
     this.settings = settings
     this.args = {
       tags: '',
@@ -35,9 +50,6 @@ export class TimelineProcessor {
    */
   async insertTimelineIntoCurrentNote(
     sourceView: MarkdownView,
-    vaultFiles: TFile[],
-    fileCache: MetadataCache,
-    appVault: Vault
   ) {
     const editor = sourceView.editor
 
@@ -56,7 +68,7 @@ export class TimelineProcessor {
     rendered.setText( new Date().toString())
 
     div.appendChild( document.createComment( `TIMELINE BEGIN tags='${match[1]}'` ))
-    await this.run( tagList, div, vaultFiles, fileCache, appVault, false )
+    await this.run( tagList, div, false )
 
     div.appendChild( rendered )
     div.appendChild( document.createComment( 'TIMELINE END' ))
@@ -93,7 +105,19 @@ export class TimelineProcessor {
     newElHtml = newElHtml.replace( regex, `>\n\t$1\n</${this.settings.eventElement}>\n` )
 
     // insert the new element at the cursor position
-    editor.replaceSelection( newElHtml )
+    editor.replaceRange( newElHtml, editor.getCursor())
+  }
+
+  async getStatusBarText( workspace: Workspace ): Promise<string | null> {
+    const file = workspace.getActiveViewOfType( MarkdownView ).file
+
+    if ( !file ) {
+      return null
+    }
+
+    const numEvents = await getNumEventsInFile( file, this.appVault )
+
+    return `Timeline: ${numEvents} ${numEvents === 1 ? 'event' : 'events'}`
   }
 
   /**
@@ -129,15 +153,11 @@ export class TimelineProcessor {
    * @param timelineDates - dates we parse from event data
    */
   async parseFiles(
-    fileList: TFile[],
-    appVault: Vault,
     timelineNotes: AllNotesData,
     timelineDates: number[]
   ) {
-    for ( const file of fileList ) {
-      const domParser = new DOMParser()
-      const doc = domParser.parseFromString( await appVault.read( file ), 'text/html' )
-      const timelineData = doc.getElementsByClassName( 'ob-timelines' )
+    for ( const file of this.files ) {
+      const timelineData = await getEventsInFile( file, this.appVault )
 
       for ( const event of timelineData as unknown as HTMLElement[] ) {
         if ( !( event instanceof HTMLElement )) continue
@@ -167,7 +187,7 @@ export class TimelineProcessor {
         const defaultNoteData = {
           startDate,
           title: noteTitle,
-          img: getImgUrl( appVault.adapter, eventImg ),
+          img: getImgUrl( this.appVault.adapter, eventImg ),
           innerHTML: event.innerHTML,
           path: notePath,
           class: noteClass,
@@ -387,9 +407,6 @@ export class TimelineProcessor {
   async run(
     source: string,
     el: HTMLElement,
-    vaultFiles: TFile[],
-    fileCache: MetadataCache,
-    appVault: Vault,
     visTimeline: boolean
   ) {
     // read arguments
@@ -402,8 +419,8 @@ export class TimelineProcessor {
     tagList.push( this.settings.timelineTag )
 
     // Filter all markdown files to only those containing the tag list
-    const fileList = vaultFiles.filter(( file ) => {
-      return FilterMDFiles( file, tagList, fileCache )
+    const fileList = this.files.filter(( file ) => {
+      return filterMDFiles( file, tagList, this.metadataCache )
     })
 
     if ( !fileList ) return
@@ -412,7 +429,7 @@ export class TimelineProcessor {
     const timelineNotes = [] as AllNotesData
     let timelineDates = [] as number[]
 
-    await this.parseFiles( fileList, appVault, timelineNotes, timelineDates )
+    await this.parseFiles( timelineNotes, timelineDates )
 
     // Sort events based on setting
     timelineDates = timelineDates.sort(( d1, d2 ) => {

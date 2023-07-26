@@ -4,10 +4,11 @@ import { App, PluginSettingTab, Setting } from 'obsidian'
 import TimelinesPlugin from './main'
 
 export const DEFAULT_SETTINGS: TimelinesSettings = {
-  timelineTag: 'timeline',
-  sortDirection: true,
   eventElement: AcceptableEventElements.div,
+  showEventCounter: true,
   showRibbonCommand: true,
+  sortDirection: true,
+  timelineTag: 'timeline',
 }
 
 export const RENDER_TIMELINE: RegExp = /<!--TIMELINE BEGIN tags=['"]([^"]*?)['"]-->([\s\S]*?)<!--TIMELINE END-->/i
@@ -49,9 +50,10 @@ export class TimelinesSettingTab extends PluginSettingTab {
         })
       })
 
+    const acceptableValuesString = Object.values( AcceptableEventElements ).join( ', ' )
     new Setting( containerEl )
       .setName( 'Event Element Tag (HTML)' )
-      .setDesc( 'Default: div. Right now the two acceptable values are: div, and span.' )
+      .setDesc( `Default: div. Acceptable values are: ${acceptableValuesString}` )
       .addText(( text ) => {
         return text
           .setPlaceholder( this.plugin.settings.eventElement )
@@ -74,6 +76,20 @@ export class TimelinesSettingTab extends PluginSettingTab {
         toggle.setValue( this.plugin.settings.showRibbonCommand )
         toggle.onChange( async ( value: boolean ) => {
           this.plugin.settings.showRibbonCommand = value
+          await this.plugin.saveSettings()
+        })
+      })
+
+    new Setting( containerEl )
+      .setName( 'Show Event Counter' )
+      .setDesc(
+        `Default: on. Adds an element to the editor status bar showing the total number
+        of events in the current file. Helpful for vaults with lots of events.`
+      )
+      .addToggle(( toggle ) => {
+        toggle.setValue( this.plugin.settings.showEventCounter )
+        toggle.onChange( async ( value: boolean ) => {
+          this.plugin.settings.showEventCounter = value
           await this.plugin.saveSettings()
         })
       })
