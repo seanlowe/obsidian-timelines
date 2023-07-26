@@ -198,6 +198,11 @@ For statically generated timelines, events that occur at the same time are group
 
 Note: Currently only assets specified via `http` or `absolute local path` will render. Obsidian release `v0.10.13` blocked obsidian links for background images. 
 
+#### Era (`data-era`):
+  - Optional
+  - Adds this text to the date span in the timeline as an era designation. Useful for fictional calendars.
+  - Applied after the date is formatted. So `2300-00-00-00` with the era set to `AB` would display `2300 AB`.
+
 #### CSS Class (`data-class`):
   - Optional
   - Adds the applied css class to the note card associated with the timeline entry
@@ -214,24 +219,26 @@ Note: Acceptable values for `data-type` are:
   - `point`, which is exactly what it sounds like, and
   - `range`
 
+#### Path (`data-path`):
+  - Optional
+  - An alternate path to link the title to (excluding `[[` and `]]`). Default to the note the event is defined in, but you can use this to specify other notes or link to headers or blocks internally within the note. For example, `data-path='My Note#Event Subhead'` would link directly to the `Event Subhead` header in `My Note`
+  - If you use the "Page preview" plugin, this contents of this header will display when hovering over the title. Useful for quickly viewing expanded details without leaving the current timeline.
+
 ## Release Notes
 
-### v1.0.1
-Added more colors to the horizontal timeline!
+### v1.1.0
+Merged PR from upstream repository - `Added 'Era' suffix; Remove '.md' from titles; Enable alternative path` [#20](https://github.com/Darakah/obsidian-timelines/pull/20)
 
-More technical stuff:
-- refactored styling to use SCSS instead of CSS
-- created a mixin / function combo that will allow me to easily add support for new colors in the future.
-- added functionality to use color on background style events.
-- replaced the asset in the README with an updated version that shows off the new colors we can use.
+His notes about the change:
+> - Added optional span attribute 'era', allowing an era suffix to be displayed on the timeline.
+> - Removes the `.md` extension when auto-filling the title
+> - Ability to specify an alternative path to link the event to.
 
-### v1.0.0 (legacy v0.3.3)
-- refactored most of the plugin. 
-  - Introduced additional type checking and assertions. 
-  - Broke up functionality into smaller functions for better readability and maintenance.
-- updated readme to include better examples and instructions for creating and rendering a timeline.
-- audited and updated package dependencies for security vulnerabilities
-- updated to latest obsidian package
+Additional notes:
+- updated README to cover new changes to data attributes
+- created new changelog file for historical records of release notes
+
+See the [changelog](./changelog.md) for more details on previous releases.
 
 ## License
 

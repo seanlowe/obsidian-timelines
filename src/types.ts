@@ -17,7 +17,8 @@ export interface CardContainer {
   path: string,
   endDate: string,
   type: string,
-  class: string
+  class: string,
+  era: string
 }
 
 export interface EventItem {

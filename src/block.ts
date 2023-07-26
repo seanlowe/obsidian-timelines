@@ -74,12 +74,14 @@ export class TimelineProcessor {
     // create a div element with the correct data attributes
     const newEventElement = document.createElement( this.settings.eventElement )
     newEventElement.setAttribute( 'class', 'ob-timelines' )
-    newEventElement.setAttribute( 'data-start-date', '' )
     newEventElement.setAttribute( 'data-title', '' )
-    newEventElement.setAttribute( 'data-class', '' )
     newEventElement.setAttribute( 'data-description', '' )
+    newEventElement.setAttribute( 'data-class', '' )
     newEventElement.setAttribute( 'data-type', '' )
+    newEventElement.setAttribute( 'data-start-date', '' )
     newEventElement.setAttribute( 'data-end-date', '' )
+    newEventElement.setAttribute( 'data-era', '' )
+    newEventElement.setAttribute( 'data-path', '' )
     newEventElement.setText( 'New Event' )
 
     // add a newline and a tab after each data attribute
@@ -144,14 +146,16 @@ export class TimelineProcessor {
           dataset: {
             startDate,
             // if no title is specified, use the note's name
-            title: noteTitle = file.name,
+            title: noteTitle = file.name.replace( '.md', '' ),
             class: noteClass = '',
             type = 'box',
             endDate = null,
-            img: eventImg = null
+            img: eventImg = null,
+            path,
+            era,
           }
         } = event
-        const notePath = '/' + file.path
+        const notePath = path ?? '/' + file.path
 
         // check if a valid date is specified
         const noteId = ( startDate[0] === '-' )
@@ -168,7 +172,8 @@ export class TimelineProcessor {
           path: notePath,
           class: noteClass,
           type,
-          endDate
+          endDate,
+          era,
         }
 
         if ( !timelineNotes[noteId] ) {
@@ -227,10 +232,11 @@ export class TimelineProcessor {
         cls: 'timeline-event-list',
         attr: { 'style': 'display: block' }
       })
-      const noteHeader = noteContainer.createEl( 'h2', {
-        text: timelineNotes[date][0].startDate
-          .replace( /-0*$/g, '' ).replace( /-0*$/g, '' ).replace( /-0*$/g, '' )
-      })
+      let dateText = timelineNotes[date][0].startDate.replace( /-0*$/g, '' ).replace( /-0*$/g, '' ).replace( /-0*$/g, '' )
+      if ( timelineNotes[date][0].era ) {
+        dateText += ` ${timelineNotes[date][0].era}`
+      }
+      const noteHeader = noteContainer.createEl( 'h2', { text: dateText })
 
       noteContainer.addEventListener( 'click', ( event ) => {
         event.preventDefault()
