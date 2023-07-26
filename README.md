@@ -226,17 +226,12 @@ Note: Acceptable values for `data-type` are:
 
 ## Release Notes
 
-### v1.1.0
-Merged PR from upstream repository - `Added 'Era' suffix; Remove '.md' from titles; Enable alternative path` [#20](https://github.com/Darakah/obsidian-timelines/pull/20)
+### v1.1.1
+Added an item to the editor status bar to indicate how many events are in the current file.
 
-His notes about the change:
-> - Added optional span attribute 'era', allowing an era suffix to be displayed on the timeline.
-> - Removes the `.md` extension when auto-filling the title
-> - Ability to specify an alternative path to link the event to.
-
-Additional notes:
-- updated README to cover new changes to data attributes
-- created new changelog file for historical records of release notes
+- add status bar item and logic to populate content in it
+- utilize new logic in other places that do the same thing
+- add new setting to toggle status bar element on/off
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

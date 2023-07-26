@@ -1,5 +1,17 @@
 ## Changelog
 
+### v1.1.0
+Merged PR from upstream repository - `Added 'Era' suffix; Remove '.md' from titles; Enable alternative path` [#20](https://github.com/Darakah/obsidian-timelines/pull/20)
+
+His notes about the change:
+> - Added optional span attribute 'era', allowing an era suffix to be displayed on the timeline.
+> - Removes the `.md` extension when auto-filling the title
+> - Ability to specify an alternative path to link the event to.
+
+Additional notes:
+- updated README to cover new changes to data attributes
+- created new changelog file for historical records of release notes
+
 ### v1.0.2
 Added 2 new ways to insert events.
 
