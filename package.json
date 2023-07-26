@@ -1,6 +1,6 @@
 {
     "name": "timelines-revamped",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Generate a chronological timeline in which all 'events' are notes that include a specific tag or set of tags.",
     "main": "main.js",
     "scripts": {
