@@ -1,8 +1,17 @@
 import type { TimelinesSettings, TimelineArgs, AllNotesData, CardContainer, EventItem } from './types'
-import type { TFile, MarkdownView, MetadataCache, Vault } from 'obsidian'
+import type { TFile, MetadataCache, Vault, Workspace } from 'obsidian'
+import { MarkdownView } from 'obsidian'
 
 import { RENDER_TIMELINE } from './settings'
-import { FilterMDFiles, buildTimelineDate, createDateArgument, getImgUrl, parseTag } from './utils'
+import {
+  filterMDFiles,
+  buildTimelineDate,
+  createDateArgument,
+  getEventsInFile,
+  getImgUrl,
+  getNumEventsInFile,
+  parseTag,
+} from './utils'
 
 // Horizontal (Vis-Timeline) specific imports
 import { Timeline } from 'vis-timeline/esnext'
@@ -10,10 +19,17 @@ import { DataSet } from 'vis-data'
 import 'vis-timeline/styles/vis-timeline-graph2d.css'
 
 export class TimelineProcessor {
+  appVault: Vault
   args: TimelineArgs
+  currentFileList: TFile[]
+  files: TFile[]
+  metadataCache: MetadataCache
   settings: TimelinesSettings
 
-  constructor( settings: TimelinesSettings ) {
+  constructor( settings: TimelinesSettings, metadataCache: MetadataCache, appVault: Vault ) {
+    this.appVault = appVault
+    this.files = this.appVault.getMarkdownFiles()
+    this.metadataCache = metadataCache
     this.settings = settings
     this.args = {
       tags: '',
@@ -29,15 +45,9 @@ export class TimelineProcessor {
    * Insert the statically generated timeline into the current note
    *
    * @param sourceView
-   * @param vaultFiles
-   * @param fileCache
-   * @param appVault
    */
   async insertTimelineIntoCurrentNote(
     sourceView: MarkdownView,
-    vaultFiles: TFile[],
-    fileCache: MetadataCache,
-    appVault: Vault
   ) {
     const editor = sourceView.editor
 
@@ -56,7 +66,7 @@ export class TimelineProcessor {
     rendered.setText( new Date().toString())
 
     div.appendChild( document.createComment( `TIMELINE BEGIN tags='${match[1]}'` ))
-    await this.run( tagList, div, vaultFiles, fileCache, appVault, false )
+    await this.run( tagList, div, false )
 
     div.appendChild( rendered )
     div.appendChild( document.createComment( 'TIMELINE END' ))
@@ -64,6 +74,11 @@ export class TimelineProcessor {
     editor.setValue( source.replace( match[0], div.innerHTML ))
   }
 
+  /**
+   * Create an empty timeline event in the current note
+   *
+   * @param sourceView
+   */
   async createTimelineEventInCurrentNote(
     sourceView: MarkdownView
   ) {
@@ -93,7 +108,24 @@ export class TimelineProcessor {
     newElHtml = newElHtml.replace( regex, `>\n\t$1\n</${this.settings.eventElement}>\n` )
 
     // insert the new element at the cursor position
-    editor.replaceSelection( newElHtml )
+    editor.replaceRange( newElHtml, editor.getCursor())
+  }
+
+  /**
+   * Get the number of events to build the "Timeline: X event(s)" span in the status bar
+   *
+   * @param workspace
+   */
+  async getStatusBarText( workspace: Workspace ): Promise<string | null> {
+    const file = workspace.getActiveViewOfType( MarkdownView ).file
+
+    if ( !file ) {
+      return null
+    }
+
+    const numEvents = await getNumEventsInFile( file, this.appVault )
+
+    return `Timeline: ${numEvents} ${numEvents === 1 ? 'event' : 'events'}`
   }
 
   /**
@@ -123,21 +155,15 @@ export class TimelineProcessor {
   /**
    * Parse the list of files from the vault and extract the timeline data
    *
-   * @param fileList
-   * @param appVault
    * @param timelineNotes - notes which have our timeline tags
    * @param timelineDates - dates we parse from event data
    */
   async parseFiles(
-    fileList: TFile[],
-    appVault: Vault,
     timelineNotes: AllNotesData,
     timelineDates: number[]
   ) {
-    for ( const file of fileList ) {
-      const domParser = new DOMParser()
-      const doc = domParser.parseFromString( await appVault.read( file ), 'text/html' )
-      const timelineData = doc.getElementsByClassName( 'ob-timelines' )
+    for ( const file of this.currentFileList ) {
+      const timelineData = await getEventsInFile( file, this.appVault )
 
       for ( const event of timelineData as unknown as HTMLElement[] ) {
         if ( !( event instanceof HTMLElement )) continue
@@ -158,7 +184,7 @@ export class TimelineProcessor {
         const notePath = path ?? '/' + file.path
 
         // check if a valid date is specified
-        const noteId = ( startDate[0] === '-' )
+        const noteId = ( startDate?.charAt( 0 ) === '-' )
           ? -parseInt( startDate.substring( 1 ).split( '-' ).join( '' ))
           : parseInt( startDate.split( '-' ).join( '' ))
 
@@ -167,7 +193,7 @@ export class TimelineProcessor {
         const defaultNoteData = {
           startDate,
           title: noteTitle,
-          img: getImgUrl( appVault.adapter, eventImg ),
+          img: getImgUrl( this.appVault.adapter, eventImg ),
           innerHTML: event.innerHTML,
           path: notePath,
           class: noteClass,
@@ -330,7 +356,7 @@ export class TimelineProcessor {
           start.toString() === 'Invalid Date' ||
           ( [ 'range', 'background' ].includes( event.type ) && end.toString() === 'Invalid Date' )
         ) {
-          console.warn( 'Invalid start or end date', { start, end })
+          console.warn( 'Invalid start or end date - check for Month/Day values that are 0', { start, end, event })
 
           return
         }
@@ -387,9 +413,6 @@ export class TimelineProcessor {
   async run(
     source: string,
     el: HTMLElement,
-    vaultFiles: TFile[],
-    fileCache: MetadataCache,
-    appVault: Vault,
     visTimeline: boolean
   ) {
     // read arguments
@@ -402,17 +425,20 @@ export class TimelineProcessor {
     tagList.push( this.settings.timelineTag )
 
     // Filter all markdown files to only those containing the tag list
-    const fileList = vaultFiles.filter(( file ) => {
-      return FilterMDFiles( file, tagList, fileCache )
+    this.currentFileList = this.files.filter(( file ) => {
+      return filterMDFiles( file, tagList, this.metadataCache )
     })
 
-    if ( !fileList ) return
+    if ( !this.currentFileList || this.currentFileList.length === 0 ) {
+      console.log( 'No files found for the timeline' )
+      return
+    }
 
     // Keep only the files that have the time info
     const timelineNotes = [] as AllNotesData
     let timelineDates = [] as number[]
 
-    await this.parseFiles( fileList, appVault, timelineNotes, timelineDates )
+    await this.parseFiles( timelineNotes, timelineDates )
 
     // Sort events based on setting
     timelineDates = timelineDates.sort(( d1, d2 ) => {

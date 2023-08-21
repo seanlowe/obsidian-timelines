@@ -1,8 +1,9 @@
 export interface TimelinesSettings {
-  timelineTag: string,
-  sortDirection: boolean,
   eventElement: AcceptableEventElements,
-  showRibbonCommand: boolean
+  showEventCounter: boolean,
+  showRibbonCommand: boolean,
+  sortDirection: boolean,
+  timelineTag: string,
 }
 
 export interface TimelineArgs {
