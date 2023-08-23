@@ -28,7 +28,9 @@ Generate a chronological timeline in which all "events" are notes that include a
 <h2 style="padding-top: 525px"> Inserting a Timeline </h2>
 
 Rendering a timeline requires a couple *separate* pieces, the main two are:
-1. a note or notes with events specified by a `div` or a `span` HTML element, and
+1. "events" within a note, which can be specified by:
+    - a `div` or a `span` HTML element, or
+    - keys in the front matter to use the entire file as an "event", and
 2. a `ob-timeline` code block or a timeline HTML comment in the note you wish to display the timeline in.
 
 ### Using a Timeline codeblock for dynamic rendering
@@ -69,6 +71,8 @@ Timeline event changes will not be detected using this method, but as it is crea
 
 ## Tagging a note for a Timeline
 
+There are 2 ways to include a note in a timeline: **Frontmatter** or **HTML tags**. If HTML tags are included in the note, they will be used. Otherwise, the timeline will default to gathering data from the frontmatter. See [Timeline Entries](#timeline-entries) for more information on how to create events. This section is for overarching information on how a note is considered valid.
+
 For a note to be included in a timeline, the following must be valid:
 
 1. The `timeline` tag must be included in that note. You can put the tags in your front matter, or in a #tag somewhere in the note body.
@@ -81,7 +85,7 @@ tags: [timeline, test, me, now]
 
 2. The note must have all the specified tags to be included in the search. The front matter example above will be included in all of the following searches for any events within the note body: `test`, `test;me`, `test;me;now`, `me;now`, `test;now`
 
-3. The note must contain at least one timeline `span` or `div` element containing the event information, see the next section.
+3. The note must contain either the appropriate frontmatter keys or at least one timeline `span` or `div` element containing the event information, see the next section.
 
 When generating a timeline, a note will be ignored in the following cases:
 - The note does not have the `timeline` tag (the tag specified in plugin settings)
@@ -98,7 +102,28 @@ All other fields are optional.
 
 Invalid timeline events will be skipped.
 
-### Timeline Entries (span/div)
+### Timeline Entries
+
+#### Method 1: Frontmatter
+
+```
+---
+start-date: 2010-06-34
+end-date: 2020-01-12
+title: A Time Range
+type: range
+color: blue
+tags: [timeline, history]
+---
+```
+
+Key specific notes:
+- if a `title` key is not provided, it will use the name of the note by default.
+- `color` supports the same values as listed below under the **CSS Class (`data-class`)** argument block.
+- `type` supports the same values as listed below under the **Type (`data-type`)** argument block.
+- `start-date`, `end-date`, and `title` may all be customized to match other installed plugins that use tags such as FC-Calendar or Digital Garden within settings. It will default to the keys listed but will search in order of specification should the user wish to add values. Multiple values are also accepted when comma-separated. 
+
+#### Method 2: HTML
 
 A timeline entry can be created using a `<span></span>` or `<div></div>` HTML element, with the following attributes: 
 
@@ -207,7 +232,7 @@ Note: Currently only assets specified via `http` or `absolute local path` will r
   - Optional
   - Adds the applied css class to the note card associated with the timeline entry
 
-Note: Acceptable values for `data-class` are `orange`, `yellow`, `red`, `blue`, `green`, and `purple`. If the value is not supplied, events will be colored white (or grey for background events) on the timeline.
+Note: Acceptable values for `data-class` are `orange`, `yellow`, `red`, `blue`, `green`, `purple`, `pink`, and `gray`. If the value is not supplied, events will be colored white (or grey for background events) on the timeline.
 
 #### Type (`data-type`):
   - Optional
@@ -226,12 +251,20 @@ Note: Acceptable values for `data-type` are:
 
 ## Release Notes
 
-### v1.1.1
-Added an item to the editor status bar to indicate how many events are in the current file.
+### v2.0.0
 
-- add status bar item and logic to populate content in it
-- utilize new logic in other places that do the same thing
-- add new setting to toggle status bar element on/off
+Substantial change that vastly affects the functionality of **Timelines (Revamped)**: Merged PR from upstream repository - `Support frontmatter to add timeline entries` [#58](https://github.com/Darakah/obsidian-timelines/pull/58)
+
+His notes about the change:
+- added functionality to use frontmatter to add a note to the timeline
+- added functionality to customize the frontmatter keys for better compatibility with other plugins
+- added a hover preview setting for viewing notes within a timeline without having to click on the header to open them. 
+
+Additional notes:
+- added some additional types and type checking
+- tweaked scss mixin `add-color` to make it easier to add additional color states depending on element state (selected, hover, etc.)
+- added a render option for when there are no files that match the timeline's parameters
+- added `pink` and `gray` to list of available colors
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

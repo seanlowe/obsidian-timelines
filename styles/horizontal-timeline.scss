@@ -1,6 +1,6 @@
 @use './colors.scss' as *;
 
-$available-colors: orange, blue, green, red, purple, yellow;
+$available-colors: orange, blue, green, red, purple, yellow, pink, gray;
 
 .vis-timeline {
   border: 1px solid transparent;
@@ -16,20 +16,35 @@ $available-colors: orange, blue, green, red, purple, yellow;
   }
 }
 
+div.vis-item-content > a,
+div.vis-item-overflow > div > a {
+  text-decoration: none !important;
+  color: inherit;
+  padding: 6px;
+}
+
+.vis-item:hover div.vis-item-content > a,
+.vis-item:hover div.vis-item-overflow > div > a,
+.vis-item.vis-selected div.vis-item-content > a,
+.vis-item.vis-selected div.vis-item-overflow > div > a {
+  font-weight: bold;
+}
+
 .vis-item {
+  cursor: pointer;
+  box-sizing: border-box !important;
+
+
   .vis-item-overflow {
-    overflow: visible;
+    overflow: visible !important;
   }
 
   @each $color in $available-colors {
     @include add-color($color, &);
     @include add-color($color, '&.vis-background');
+    @include add-color($color, '&.vis-selected', $alpha: .45);
+    @include add-color($color, &, $addon: ':hover', $alpha: .45);
   }
-
-  // &.vis-selected.orange {
-  //   background-color: orange;
-  //   border-color: orangered;
-  // }
 }
 
 .vis-panel {

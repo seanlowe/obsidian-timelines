@@ -1,8 +1,8 @@
-import type { TimelinesSettings, TimelineArgs, AllNotesData, CardContainer, EventItem } from './types'
+import type { TimelinesSettings, TimelineArgs, AllNotesData, EventItem } from './types'
 import type { TFile, MetadataCache, Vault, Workspace } from 'obsidian'
 import { MarkdownView } from 'obsidian'
 
-import { RENDER_TIMELINE } from './settings'
+import { RENDER_TIMELINE } from './constants'
 import {
   filterMDFiles,
   buildTimelineDate,
@@ -11,6 +11,8 @@ import {
   getImgUrl,
   getNumEventsInFile,
   parseTag,
+  createInternalLinkOnNoteCard,
+  getEventData,
 } from './utils'
 
 // Horizontal (Vis-Timeline) specific imports
@@ -123,7 +125,7 @@ export class TimelineProcessor {
       return null
     }
 
-    const numEvents = await getNumEventsInFile( file, this.appVault )
+    const numEvents = await getNumEventsInFile( file, this.appVault, this.metadataCache )
 
     return `Timeline: ${numEvents} ${numEvents === 1 ? 'event' : 'events'}`
   }
@@ -137,8 +139,7 @@ export class TimelineProcessor {
   async readArguments( visTimeline: boolean, source: string ) {
     if ( !visTimeline ) {
       // Parse the tags to search for the proper files
-      const lines = source.trim()
-      this.args.tags = lines
+      this.args.tags = source.trim()
 
       return
     }
@@ -163,25 +164,22 @@ export class TimelineProcessor {
     timelineDates: number[]
   ) {
     for ( const file of this.currentFileList ) {
-      const timelineData = await getEventsInFile( file, this.appVault )
+      const [timelineData, frontMatter] = await getEventsInFile( file, this.appVault, this.metadataCache )
 
       for ( const event of timelineData as unknown as HTMLElement[] ) {
         if ( !( event instanceof HTMLElement )) continue
 
+        const eventData = getEventData( event, file, frontMatter, this.settings.frontMatterKeys )
         const {
-          dataset: {
-            startDate,
-            // if no title is specified, use the note's name
-            title: noteTitle = file.name.replace( '.md', '' ),
-            class: noteClass = '',
-            type = 'box',
-            endDate = null,
-            img: eventImg = null,
-            path,
-            era,
-          }
-        } = event
-        const notePath = path ?? '/' + file.path
+          startDate,
+          noteTitle,
+          noteClass,
+          notePath,
+          type,
+          endDate,
+          eventImg,
+          era,
+        } = eventData
 
         // check if a valid date is specified
         const noteId = ( startDate?.charAt( 0 ) === '-' )
@@ -190,11 +188,14 @@ export class TimelineProcessor {
 
         if ( !Number.isInteger( noteId )) continue
 
-        const defaultNoteData = {
+        const imgUrl = getImgUrl( this.appVault.adapter, eventImg )
+          ?? getImgUrl( this.appVault.adapter, frontMatter?.img )
+
+        const note = {
           startDate,
           title: noteTitle,
-          img: getImgUrl( this.appVault.adapter, eventImg ),
-          innerHTML: event.innerHTML,
+          img: imgUrl,
+          innerHTML: event.innerHTML ?? frontMatter?.html ?? '',
           path: notePath,
           class: noteClass,
           type,
@@ -203,37 +204,14 @@ export class TimelineProcessor {
         }
 
         if ( !timelineNotes[noteId] ) {
-          timelineNotes[noteId] = []
-          timelineNotes[noteId][0] = defaultNoteData
-
+          timelineNotes[noteId] = [note]
           timelineDates.push( noteId )
         } else {
-          const note = defaultNoteData
-
           // if note_id already present prepend or append to it
           timelineNotes[noteId][this.settings.sortDirection ? 'unshift' : 'push']( note )
-
-          console.log( 'Repeat date: %o', timelineNotes[noteId] )
         }
       }
     }
-  }
-
-  /**
-   * Create an internal link on the a timeline's event "note" card
-   *
-   * @param event
-   * @param noteCard
-   */
-  createInternalLinkOnNoteCard( event: CardContainer, noteCard: HTMLElement ) {
-    noteCard
-      .createEl( 'article' )
-      .createEl( 'h3' )
-      .createEl( 'a', {
-        cls: 'internal-link',
-        attr: { href: `${event.path}` },
-        text: event.title
-      })
   }
 
   /**
@@ -272,6 +250,9 @@ export class TimelineProcessor {
           return
         }
 
+        // TODO: Stop Propagation: don't close timeline-card when clicked.
+        // `vis-timeline-graph2d.js` contains a method called `_updateContents` that makes the display
+        // attribute disappear on click via line 7426: `element.innerHTML = '';`
         currentStyle.setProperty( 'display', 'none' )
       })
 
@@ -295,7 +276,7 @@ export class TimelineProcessor {
           noteCard.addClass( eventAtDate.class )
         }
 
-        this.createInternalLinkOnNoteCard( eventAtDate, noteCard )
+        createInternalLinkOnNoteCard( eventAtDate, noteCard )
         noteCard.createEl( 'p', { text: eventAtDate.innerHTML.trim() })
       }
       eventCount++
@@ -346,7 +327,7 @@ export class TimelineProcessor {
           noteCard.addClass( event.class )
         }
 
-        this.createInternalLinkOnNoteCard( event, noteCard )
+        createInternalLinkOnNoteCard( event, noteCard )
         noteCard.createEl( 'p', { text: event.innerHTML })
 
         const start = buildTimelineDate( event.startDate )
@@ -361,16 +342,19 @@ export class TimelineProcessor {
           return
         }
 
-        // Add Event data
-        items.add({
+        const eventItem: EventItem = {
           id: items.length + 1,
           content: event.title ?? '',
           title: noteCard.outerHTML as string,
           start: start,
           className: event.class ?? '',
           type: event.type,
-          end: end ?? null
-        })
+          end: end ?? null,
+          path: event.path,
+        }
+
+        // Add Event data
+        items.add( eventItem )
       })
     })
 
@@ -383,8 +367,13 @@ export class TimelineProcessor {
       minHeight: Number( this.args.divHeight ),
       showCurrentTime: false,
       showTooltips: false,
-      template: function ( item: EventItem ) {
-        const eventContainer = document.createElement( 'div' )
+      template: ( item: EventItem ) => {
+        const eventContainer = document.createElement( this.settings.notePreviewOnHover ? 'a' : 'div' )
+        if ( 'href' in eventContainer ) {
+          eventContainer.addClass( 'internal-link' )
+          eventContainer.href = item.path
+        }
+
         eventContainer.setText( item.content )
 
         const eventCard = eventContainer.createDiv()
@@ -410,6 +399,15 @@ export class TimelineProcessor {
     el.appendChild( timelineDiv )
   }
 
+  async showEmptyTimelineMessage( el: HTMLElement, tagList: string[] ) {
+    const timelineDiv = document.createElement( 'div' )
+    timelineDiv.setAttribute( 'class', 'empty-timeline' )
+    const message = `No events found for tags: [ '${tagList.join( "', '" )}' ]`
+
+    timelineDiv.createEl( 'p', { text: message })
+    el.appendChild( timelineDiv )
+  }
+
   async run(
     source: string,
     el: HTMLElement,
@@ -431,6 +429,7 @@ export class TimelineProcessor {
 
     if ( !this.currentFileList || this.currentFileList.length === 0 ) {
       console.log( 'No files found for the timeline' )
+      await this.showEmptyTimelineMessage( el, tagList )
       return
     }
 

@@ -1,6 +1,7 @@
-import type { TFile, MetadataCache, DataAdapter, Vault } from 'obsidian'
+import type { TFile, MetadataCache, DataAdapter, Vault, FrontMatterCache } from 'obsidian'
 
-import { getAllTags } from 'obsidian'
+import { Notice, getAllTags } from 'obsidian'
+import { CardContainer, EventDataObject, FrontMatterKeys } from './types'
 
 /**
  * Parse a tag and all its subtags into a list.
@@ -56,22 +57,30 @@ export function filterMDFiles( file: TFile, tagList: string[], metadataCache: Me
   return false
 }
 
-export async function getNumEventsInFile( file: TFile, appVault: Vault ): Promise<number> {
-  const events = await getEventsInFile( file, appVault )
+export async function getNumEventsInFile( file: TFile, appVault: Vault, fileCache: MetadataCache ): Promise<number> {
+  const [ events, frontMatter ] = await getEventsInFile( file, appVault, fileCache )
 
-  return events.length
+  return frontMatter ? events.length + 1 : events.length
 }
 
-export async function getEventsInFile( file: TFile, appVault: Vault ): Promise<HTMLCollectionOf<Element>> {
+export async function getEventsInFile( file: TFile, appVault: Vault, fileCache: MetadataCache ):
+  Promise<[HTMLCollectionOf<Element> | HTMLElement[], FrontMatterCache]> {
   if ( !file ) {
-    return new HTMLCollection()
+    return [new HTMLCollection(), null]
   }
 
-  const domParser = new DOMParser()
-  const doc = domParser.parseFromString( await appVault.cachedRead( file ), 'text/html' )
+  const frontMatter = fileCache.getFileCache( file ).frontmatter
+  const doc = new DOMParser().parseFromString( await appVault.cachedRead( file ), 'text/html' )
   const events = doc.getElementsByClassName( 'ob-timelines' )
 
-  return events
+  if ( events.length > 0 ) {
+    return [events, frontMatter]
+  }
+
+  // If there are no timelineData elements, add a default "dummy" element to capture data from the frontmatter
+  const timelineData = [ doc.createElement( 'div' ) ]
+
+  return [timelineData, frontMatter]
 }
 
 /**
@@ -124,4 +133,66 @@ export const buildTimelineDate = ( rawDate: string ): Date|null => {
   }
 
   return new Date( cleanedDate )
+}
+
+/**
+ * Create an internal link on the a timeline's event "note" card
+ *
+ * @param event
+ * @param noteCard
+ */
+export const createInternalLinkOnNoteCard = ( event: CardContainer, noteCard: HTMLElement ) => {
+  noteCard
+    .createEl( 'article' )
+    .createEl( 'h3' )
+    .createEl( 'a', {
+      cls: 'internal-link',
+      attr: { href: `${event.path}` },
+      text: event.title
+    })
+}
+
+export const getEventData = (
+  event: HTMLElement,
+  file: TFile,
+  frontMatter: FrontMatterCache | null,
+  frontMatterKeys: FrontMatterKeys
+): EventDataObject => {
+  const endDate   = event.dataset.endDate   ?? findMatchingFrontMatterKey( frontMatter, frontMatterKeys.endDateKey ) ?? null
+  const era       = event.dataset.era       ?? frontMatter.era ?? null
+  const eventImg  = event.dataset.img       ?? frontMatter.img ?? null
+  const noteClass = event.dataset.class     ?? frontMatter.color ?? ''
+  const notePath  = event.dataset.path      ?? '/' + file.path
+  const noteTitle = event.dataset.title     ?? findMatchingFrontMatterKey( frontMatter, frontMatterKeys.titleKey ) ?? file.name.replace( '.md', '' )
+  const startDate = event.dataset.startDate ?? findMatchingFrontMatterKey( frontMatter, frontMatterKeys.startDateKey )
+  const type      = event.dataset.type      ?? frontMatter.type ?? 'box'
+
+  if ( !startDate ) {
+    new Notice( `No date found for ${file.name}` )
+    return {} as EventDataObject
+  }
+
+  const eventData: EventDataObject = {
+    endDate,
+    era,
+    eventImg,
+    noteClass,
+    notePath,
+    noteTitle,
+    startDate,
+    type,
+  }
+
+  return eventData
+}
+
+const findMatchingFrontMatterKey = ( frontMatter: FrontMatterCache | null, keys: string[] ) => {
+  for ( const key of keys ) {
+    if ( frontMatter && frontMatter[key] ) {
+      return frontMatter[key]
+    }
+  }
+
+  console.log( `No matching key found for ${keys}` )
+  return null
 }
