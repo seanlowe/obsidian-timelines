@@ -1,5 +1,5 @@
 import type { TimelinesSettings, TimelineArgs, AllNotesData, EventItem } from './types'
-import type { TFile, MetadataCache, Vault, Workspace } from 'obsidian'
+import type { TFile, MetadataCache, Vault } from 'obsidian'
 import { MarkdownView } from 'obsidian'
 
 import { RENDER_TIMELINE } from './constants'
@@ -9,7 +9,6 @@ import {
   createDateArgument,
   getEventsInFile,
   getImgUrl,
-  getNumEventsInFile,
   parseTag,
   createInternalLinkOnNoteCard,
   getEventData,
@@ -74,60 +73,6 @@ export class TimelineProcessor {
     div.appendChild( document.createComment( 'TIMELINE END' ))
 
     editor.setValue( source.replace( match[0], div.innerHTML ))
-  }
-
-  /**
-   * Create an empty timeline event in the current note
-   *
-   * @param sourceView
-   */
-  async createTimelineEventInCurrentNote(
-    sourceView: MarkdownView
-  ) {
-    const editor = sourceView.editor
-
-    if ( !editor ) return
-
-    // create a div element with the correct data attributes
-    const newEventElement = document.createElement( this.settings.eventElement )
-    newEventElement.setAttribute( 'class', 'ob-timelines' )
-    newEventElement.setAttribute( 'data-title', '' )
-    newEventElement.setAttribute( 'data-description', '' )
-    newEventElement.setAttribute( 'data-class', '' )
-    newEventElement.setAttribute( 'data-type', '' )
-    newEventElement.setAttribute( 'data-start-date', '' )
-    newEventElement.setAttribute( 'data-end-date', '' )
-    newEventElement.setAttribute( 'data-era', '' )
-    newEventElement.setAttribute( 'data-path', '' )
-    newEventElement.setText( 'New Event' )
-
-    // add a newline and a tab after each data attribute
-    let newElHtml = newEventElement.outerHTML.replace( /" /g, '"\n\t' )
-
-    const regex = new RegExp( `>(\\s*.*?)\\s*</(${this.settings.eventElement})>`, 'g' )
-
-    // put the new element's content text on it's own line and indent it, then add a newline
-    newElHtml = newElHtml.replace( regex, `>\n\t$1\n</${this.settings.eventElement}>\n` )
-
-    // insert the new element at the cursor position
-    editor.replaceRange( newElHtml, editor.getCursor())
-  }
-
-  /**
-   * Get the number of events to build the "Timeline: X event(s)" span in the status bar
-   *
-   * @param workspace
-   */
-  async getStatusBarText( workspace: Workspace ): Promise<string | null> {
-    const file = workspace.getActiveViewOfType( MarkdownView ).file
-
-    if ( !file ) {
-      return null
-    }
-
-    const numEvents = await getNumEventsInFile( file, this.appVault, this.metadataCache )
-
-    return `Timeline: ${numEvents} ${numEvents === 1 ? 'event' : 'events'}`
   }
 
   /**
