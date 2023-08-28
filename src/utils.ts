@@ -1,4 +1,4 @@
-import type { TFile, MetadataCache, DataAdapter, Vault, FrontMatterCache } from 'obsidian'
+import { TFile, MetadataCache, DataAdapter, Vault, FrontMatterCache, MarkdownView, Workspace } from 'obsidian'
 
 import { Notice, getAllTags } from 'obsidian'
 import { CardContainer, EventDataObject, FrontMatterKeys } from './types'
@@ -195,4 +195,18 @@ const findMatchingFrontMatterKey = ( frontMatter: FrontMatterCache | null, keys:
 
   console.log( `No matching key found for ${keys}` )
   return null
+}
+
+export const confirmUserInEditor = ( workspace: Workspace ) => {
+  const view = workspace.getActiveViewOfType( MarkdownView )
+  if ( !view ) {
+    throw new Error( 'No active MarkdownView' )
+  }
+
+  const editor = view.editor
+  if ( !editor ) {
+    throw new Error( 'Could not retrieve editor' )
+  }
+
+  return editor
 }

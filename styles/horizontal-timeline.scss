@@ -35,9 +35,9 @@ div.vis-item-overflow > div > a {
   box-sizing: border-box !important;
 
 
-  .vis-item-overflow {
-    overflow: visible !important;
-  }
+  // .vis-item-overflow {
+  //   overflow: visible !important;
+  // }
 
   @each $color in $available-colors {
     @include add-color($color, &);

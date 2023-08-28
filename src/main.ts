@@ -53,6 +53,10 @@ export default class TimelinesPlugin extends Plugin {
       }
     })
 
+    this.addRibbonIcon( 'list-plus', 'Insert Timeline Event (Frontmatter)', async () => {
+      await this.commandProc.createTimelineEventFrontMatterInCurrentNote()
+    })
+
     this.addSettingTab( new TimelinesSettingTab( this.app, this ))
 
     /* --- setting specific checks --- */

@@ -1,6 +1,6 @@
 import { Vault, MetadataCache, MarkdownView, Workspace } from 'obsidian'
 import { TimelinesSettings } from './types'
-import { getNumEventsInFile } from './utils'
+import { confirmUserInEditor, getNumEventsInFile } from './utils'
 import TimelinesPlugin from './main'
 
 export class TimelineCommandProcessor {
@@ -58,14 +58,7 @@ export class TimelineCommandProcessor {
    * @param sourceView
    */
   createTimelineEventInCurrentNote = async () => {
-    const view = this.plugin.app.workspace.getActiveViewOfType( MarkdownView )
-    if ( !view ) {
-      throw new Error( 'No active MarkdownView' )
-    }
-
-    const editor = view.editor
-
-    if ( !editor ) return
+    const editor = confirmUserInEditor( this.plugin.app.workspace )
 
     // create a div element with the correct data attributes
     const newEventElement = document.createElement( this.settings.eventElement )
@@ -95,7 +88,24 @@ export class TimelineCommandProcessor {
     await this.handleStatusBarUpdates( this.plugin )
   }
 
-  createTimelineEventFrontMatterInCurrentNote = async () => {}
+  createTimelineEventFrontMatterInCurrentNote = async () => {
+    const editor = confirmUserInEditor( this.plugin.app.workspace )
+
+    // start a string variable that will hold the frontmatter
+    let frontmatter = '---\n'
+    frontmatter += 'title: \n'
+    frontmatter += 'description: \n'
+    frontmatter += 'class: \n'
+    frontmatter += 'type: \n'
+    frontmatter += 'start-date: \n'
+    frontmatter += 'end-date: \n'
+    frontmatter += 'era: \n'
+    frontmatter += 'path: \n'
+    frontmatter += '---\n\n'
+
+    // insert the frontmatter at the beginning of the current note
+    editor.replaceRange( frontmatter, { line: 0, ch: 0 })
+  }
 
   /**
    * Get the number of events to build the "Timeline: X event(s)" span in the status bar
@@ -103,7 +113,7 @@ export class TimelineCommandProcessor {
    * @param workspace
    */
   getStatusBarText = async ( workspace: Workspace ): Promise<string | null> => {
-    const file = workspace.getActiveViewOfType( MarkdownView ).file
+    const file = workspace.getActiveViewOfType( MarkdownView )?.file
 
     if ( !file ) {
       return null
