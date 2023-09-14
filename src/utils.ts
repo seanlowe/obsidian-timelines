@@ -1,6 +1,7 @@
 import type { TFile, MetadataCache, DataAdapter, Vault } from 'obsidian'
 
 import { getAllTags } from 'obsidian'
+import { developerSettings } from './types'
 
 /**
  * Parse a tag and all its subtags into a list.
@@ -124,4 +125,17 @@ export const buildTimelineDate = ( rawDate: string ): Date|null => {
   }
 
   return new Date( cleanedDate )
+}
+
+
+/**
+ * A custom logging wrapper that only logs if we're in DEBUG mode.
+ *
+ * @param message The message to display
+ * @param object optional - an object to display alongside the message
+ */
+export const logger = ( message: string, object?: unknown ) => {
+  if ( !developerSettings.debug ) return
+
+  console.log( message, object ?? '' )
 }

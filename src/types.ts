@@ -6,8 +6,13 @@ export interface TimelinesSettings {
   timelineTag: string,
 }
 
+export const developerSettings = {
+  debug: false,
+  counter: 0,
+}
+
 export interface TimelineArgs {
-  [key: string]: string
+  [key: string]: string | string[],
 }
 
 export interface CardContainer {
