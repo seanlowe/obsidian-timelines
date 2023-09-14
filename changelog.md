@@ -1,5 +1,12 @@
 ## Changelog
 
+### v1.1.1
+Added an item to the editor status bar to indicate how many events are in the current file.
+
+- add status bar item and logic to populate content in it
+- utilize new logic in other places that do the same thing
+- add new setting to toggle status bar element on/off
+
 ### v1.1.0
 Merged PR from upstream repository - `Added 'Era' suffix; Remove '.md' from titles; Enable alternative path` [#20](https://github.com/Darakah/obsidian-timelines/pull/20)
 

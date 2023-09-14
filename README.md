@@ -224,14 +224,19 @@ Note: Acceptable values for `data-type` are:
   - An alternate path to link the title to (excluding `[[` and `]]`). Default to the note the event is defined in, but you can use this to specify other notes or link to headers or blocks internally within the note. For example, `data-path='My Note#Event Subhead'` would link directly to the `Event Subhead` header in `My Note`
   - If you use the "Page preview" plugin, this contents of this header will display when hovering over the title. Useful for quickly viewing expanded details without leaving the current timeline.
 
+#### Tags (`data-tags`):
+  - Optional
+  - An override to the tags that the event should be counted with. Allows you to have a note with events on separate timelines. For example, 1 event has tag "A" - a second has tag "B". A combined timeline will display both, but now you can also have 2 separate timelines where only the applicable ("A" or "B") events will be displayed.
+  - Values are a string of tags separated by semicolons, similar to the tags list on either of the codeblocks for displaying timelines. Ex: `data-tags="timeline-A;timeline-B"`
+
 ## Release Notes
 
-### v1.1.1
-Added an item to the editor status bar to indicate how many events are in the current file.
+### v1.2.0
+Added functionality to override tags for a particular event. This allows you to have a note with events on separate timelines. Resolves github feature request: `[New Feature] Override tags defined on the page with a new attribute tags` [#12](https://github.com/seanlowe/obsidian-timelines/issues/12)
 
-- add status bar item and logic to populate content in it
-- utilize new logic in other places that do the same thing
-- add new setting to toggle status bar element on/off
+Additional changes:
+- reworked how tags are parsed from code bock arguments
+- added some utility functionality for debugging
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
@@ -242,5 +247,3 @@ Licensed under the MIT License.
 ## Support
 
 Please feel free to open issues for any bugs or requests for additional functionality. Pull Requests are always welcome!
-
-<!-- [![Github Sponsorship](https://raw.githubusercontent.com/Darakah/Darakah/e0fe245eaef23cb4a5f19fe9a09a9df0c0cdc8e1/icons/github_sponsor_btn.svg)](https://github.com/sponsors/Darakah) [<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="BuyMeACoffee" width="100">](https://www.buymeacoffee.com/darakah) -->
