@@ -71,6 +71,7 @@ export class TimelineCommandProcessor {
     newEventElement.setAttribute( 'data-end-date', '' )
     newEventElement.setAttribute( 'data-era', '' )
     newEventElement.setAttribute( 'data-path', '' )
+    newEventElement.setAttribute( 'data-tags', '' )
     newEventElement.setText( 'New Event' )
 
     // add a newline and a tab after each data attribute

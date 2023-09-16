@@ -43,6 +43,16 @@ export class TimelineProcessor {
     }
   }
 
+  createTagList( tagString: string ): string[] {
+    const tagList: string[] = []
+    tagString.split( ';' ).forEach(( tag: string ) => {
+      return parseTag( tag, tagList )
+    })
+    tagList.push( this.settings.timelineTag )
+
+    return tagList
+  }
+
   /**
    * Insert the statically generated timeline into the current note
    *
@@ -405,7 +415,7 @@ export class TimelineProcessor {
 
     if ( !this.currentFileList || this.currentFileList.length === 0 ) {
       logger( 'No files found for the timeline' )
-      await this.showEmptyTimelineMessage( el, tagList )
+      await this.showEmptyTimelineMessage( el, Array.from( this.args.tags ))
       return
     }
 

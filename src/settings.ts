@@ -1,17 +1,7 @@
-import { AcceptableEventElements, TimelinesSettings, developerSettings } from './types'
-
+import { AcceptableEventElements, developerSettings } from './types'
 import { App, PluginSettingTab, Setting } from 'obsidian'
-import { AcceptableEventElements } from './types'
 import TimelinesPlugin from './main'
 import { logger } from './utils'
-
-export const DEFAULT_SETTINGS: TimelinesSettings = {
-  eventElement: AcceptableEventElements.div,
-  showEventCounter: true,
-  showRibbonCommand: true,
-  sortDirection: true,
-  timelineTag: 'timeline',
-}
 
 const enableDeveloperSettings = (): void => {
   logger( 'clicked on the h2' )
@@ -20,8 +10,6 @@ const enableDeveloperSettings = (): void => {
     developerSettings.debug = true
   }
 }
-
-export const RENDER_TIMELINE: RegExp = /<!--TIMELINE BEGIN tags=['"]([^"]*?)['"]-->([\s\S]*?)<!--TIMELINE END-->/i
 
 export class TimelinesSettingTab extends PluginSettingTab {
   plugin: TimelinesPlugin

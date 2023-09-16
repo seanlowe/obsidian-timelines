@@ -165,6 +165,7 @@ export const getEventData = (
   const notePath  = event.dataset.path      ?? '/' + file.path
   const noteTitle = event.dataset.title     ?? findMatchingFrontMatterKey( frontMatter, frontMatterKeys.titleKey ) ?? file.name.replace( '.md', '' )
   const startDate = event.dataset.startDate ?? findMatchingFrontMatterKey( frontMatter, frontMatterKeys.startDateKey )
+  const tags      = event.dataset.tags      ?? ''
   const type      = event.dataset.type      ?? frontMatter.type ?? 'box'
 
   if ( !startDate ) {
@@ -180,6 +181,7 @@ export const getEventData = (
     notePath,
     noteTitle,
     startDate,
+    tags,
     type,
   }
 

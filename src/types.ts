@@ -40,6 +40,7 @@ export interface EventDataObject {
   notePath: string,
   noteTitle: string,
   startDate: string,
+  tags: string,
   type: string,
 }
 
