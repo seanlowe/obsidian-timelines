@@ -1,6 +1,27 @@
+import { AcceptableEventElements, TimelinesSettings, developerSettings } from './types'
+
 import { App, PluginSettingTab, Setting } from 'obsidian'
 import { AcceptableEventElements } from './types'
 import TimelinesPlugin from './main'
+import { logger } from './utils'
+
+export const DEFAULT_SETTINGS: TimelinesSettings = {
+  eventElement: AcceptableEventElements.div,
+  showEventCounter: true,
+  showRibbonCommand: true,
+  sortDirection: true,
+  timelineTag: 'timeline',
+}
+
+const enableDeveloperSettings = (): void => {
+  logger( 'clicked on the h2' )
+  developerSettings.counter += 1
+  if ( developerSettings.counter >= 5 ) {
+    developerSettings.debug = true
+  }
+}
+
+export const RENDER_TIMELINE: RegExp = /<!--TIMELINE BEGIN tags=['"]([^"]*?)['"]-->([\s\S]*?)<!--TIMELINE END-->/i
 
 export class TimelinesSettingTab extends PluginSettingTab {
   plugin: TimelinesPlugin
@@ -14,7 +35,27 @@ export class TimelinesSettingTab extends PluginSettingTab {
     const { containerEl } = this
 
     containerEl.empty()
-    containerEl.createEl( 'h2', { text: 'Timelines (Revamped) Settings' })
+    containerEl.createEl( 'h2', { text: 'Timelines (Revamped) Settings' }, () => {
+      return enableDeveloperSettings()
+    })
+
+    if ( developerSettings.debug ) {
+      new Setting( containerEl )
+        .setName( 'Debug Mode' )
+        .setDesc( 'This button only shows when debug mode is ON. Click to disable.' )
+        .addButton(( button ) => {
+          return button
+            .setButtonText( 'Disable Debug Mode' )
+            .onClick(( e ) => {
+              logger( '', e )
+
+              developerSettings.debug = false
+              developerSettings.counter = 0
+
+              this.display()
+            })
+        })
+    }
 
     new Setting( containerEl )
       .setName( 'Default timeline tag' )

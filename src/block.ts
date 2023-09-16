@@ -10,6 +10,7 @@ import {
   getEventsInFile,
   getImgUrl,
   parseTag,
+  logger,
   createInternalLinkOnNoteCard,
   getEventData,
 } from './utils'
@@ -33,7 +34,7 @@ export class TimelineProcessor {
     this.metadataCache = metadataCache
     this.settings = settings
     this.args = {
-      tags: '',
+      tags: [],
       divHeight: '400',
       startDate: '-1000',
       endDate: '3000',
@@ -84,7 +85,7 @@ export class TimelineProcessor {
   async readArguments( visTimeline: boolean, source: string ) {
     if ( !visTimeline ) {
       // Parse the tags to search for the proper files
-      this.args.tags = source.trim()
+      this.args.tags = this.createTagList( source.trim())
 
       return
     }
@@ -93,8 +94,14 @@ export class TimelineProcessor {
       if ( !entry ) return
 
       entry = entry.trim()
-      const [ tag, value ] = entry.split( '=' )
-      this.args[tag] = value.trim()
+      const [ tag, rawValue ] = entry.split( '=' )
+      const value = rawValue.trim()
+      if ( tag === 'tags' ) {
+        this.args[tag] = this.createTagList( value )
+      } else {
+        this.args[tag] = value
+      }
+
     })
   }
 
@@ -124,7 +131,33 @@ export class TimelineProcessor {
           endDate,
           eventImg,
           era,
+          tags: overrideTags = '',
         } = eventData
+
+        if ( overrideTags ) {
+          logger( 'this note contains override tags' )
+          const noteTags = overrideTags?.split( ';' )
+
+          logger( 'noteTags:', noteTags )
+          logger( 'this.args.tags:', this.args.tags )
+
+          let overrideTagsAreContainedInTagList = false
+          for ( const tag of noteTags ) {
+            logger( 'examining tag:', tag )
+            // loop over all the override tags and if any of them are in the tag list, add it
+            if ( this.args.tags.includes( tag )) {
+              logger( 'Override tags overlap with tag list, adding note' )
+              overrideTagsAreContainedInTagList = true
+              continue
+            }
+          }
+
+          // if the override tags do not overlap with the tag list, do not display this note
+          if ( !overrideTagsAreContainedInTagList ) {
+            logger( 'Override tags do not overlap with tag list, skipping note' )
+            continue
+          }
+        }
 
         // check if a valid date is specified
         const noteId = ( startDate?.charAt( 0 ) === '-' )
@@ -154,6 +187,8 @@ export class TimelineProcessor {
         } else {
           // if note_id already present prepend or append to it
           timelineNotes[noteId][this.settings.sortDirection ? 'unshift' : 'push']( note )
+
+          logger( 'Repeat date: %o', timelineNotes[noteId] )
         }
       }
     }
@@ -250,7 +285,7 @@ export class TimelineProcessor {
     const items = new DataSet( [] )
 
     if ( !timelineDates ) {
-      console.log( 'No dates found for the timeline' )
+      logger( 'No dates found for the timeline' )
       return
     }
 
@@ -305,10 +340,10 @@ export class TimelineProcessor {
 
     // Configuration for the Timeline
     const options = {
-      start: createDateArgument( this.args.startDate ),
-      end: createDateArgument( this.args.endDate ),
-      min: createDateArgument( this.args.minDate ),
-      max: createDateArgument( this.args.maxDate ),
+      start: createDateArgument( String( this.args.startDate )),
+      end: createDateArgument( String( this.args.endDate )),
+      min: createDateArgument( String( this.args.minDate )),
+      max: createDateArgument( String( this.args.maxDate )),
       minHeight: Number( this.args.divHeight ),
       showCurrentTime: false,
       showTooltips: false,
@@ -361,19 +396,15 @@ export class TimelineProcessor {
     // read arguments
     await this.readArguments( visTimeline, source )
 
-    const tagList: string[] = []
-    this.args.tags.split( ';' ).forEach(( tag: string ) => {
-      return parseTag( tag, tagList )
-    })
-    tagList.push( this.settings.timelineTag )
+    logger( 'this.args', this.args )
 
     // Filter all markdown files to only those containing the tag list
     this.currentFileList = this.files.filter(( file ) => {
-      return filterMDFiles( file, tagList, this.metadataCache )
+      return filterMDFiles( file, Array.from( this.args.tags ), this.metadataCache )
     })
 
     if ( !this.currentFileList || this.currentFileList.length === 0 ) {
-      console.log( 'No files found for the timeline' )
+      logger( 'No files found for the timeline' )
       await this.showEmptyTimelineMessage( el, tagList )
       return
     }

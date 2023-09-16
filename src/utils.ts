@@ -1,7 +1,7 @@
 import { TFile, MetadataCache, DataAdapter, Vault, FrontMatterCache, MarkdownView, Workspace } from 'obsidian'
 
 import { Notice, getAllTags } from 'obsidian'
-import { CardContainer, EventDataObject, FrontMatterKeys } from './types'
+import { CardContainer, developerSettings, EventDataObject, FrontMatterKeys } from './types'
 
 /**
  * Parse a tag and all its subtags into a list.
@@ -209,4 +209,17 @@ export const confirmUserInEditor = ( workspace: Workspace ) => {
   }
 
   return editor
+}
+
+
+/**
+ * A custom logging wrapper that only logs if we're in DEBUG mode.
+ *
+ * @param message The message to display
+ * @param object optional - an object to display alongside the message
+ */
+export const logger = ( message: string, object?: unknown ) => {
+  if ( !developerSettings.debug ) return
+
+  console.log( message, object ?? '' )
 }

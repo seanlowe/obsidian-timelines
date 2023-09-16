@@ -7,9 +7,18 @@ export enum AcceptableEventElements {
   span = 'span',
 }
 
+export const developerSettings = {
+  debug: false,
+  counter: 0,
+}
+
 /* ------------------------------ */
 /*           Interfaces           */
 /* ------------------------------ */
+
+export interface TimelineArgs {
+  [key: string]: string | string[],
+}
 
 export interface CardContainer {
   class: string,
@@ -49,10 +58,6 @@ export interface FrontMatterKeys {
   endDateKey: string[],
   startDateKey: string[],
   titleKey: string[],
-}
-
-export interface TimelineArgs {
-  [key: string]: string,
 }
 
 export interface TimelinesSettings {
