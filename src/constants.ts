@@ -1,8 +1,8 @@
 import { AcceptableEventElements, FrontMatterKeys, TimelinesSettings } from './types'
 
 export const DEFAULT_FRONTMATTER_KEYS: FrontMatterKeys = {
-  endDateKey: ['end-date'],
-  startDateKey: ['start-date'],
+  endDateKey: ['endDate', 'end-date'],
+  startDateKey: ['startDate', 'start-date'],
   titleKey: ['title'],
 }
 

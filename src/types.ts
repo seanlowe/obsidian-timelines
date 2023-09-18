@@ -1,3 +1,5 @@
+import { FrontMatterCache } from 'obsidian'
+
 /* ------------------------------ */
 /*              Enums             */
 /* ------------------------------ */
@@ -32,13 +34,19 @@ export interface CardContainer {
   type: string,
 }
 
+export interface ElementType {
+  type: 'Element',
+  data: HTMLElement
+}
+
 export interface EventDataObject {
+  color: string,
   endDate: string,
   era: string,
   eventImg: string,
-  noteClass: string,
   notePath: string,
   noteTitle: string,
+  showOnTimeline: boolean | null,
   startDate: string,
   tags: string,
   type: string,
@@ -53,6 +61,11 @@ export interface EventItem {
   start: Date,
   title: string,
   type: string,
+}
+
+export interface FrontMatterCacheType {
+  type: 'FrontMatterCache',
+  data: FrontMatterCache
 }
 
 export interface FrontMatterKeys {
@@ -75,5 +88,6 @@ export interface TimelinesSettings {
 /*              Types             */
 /* ------------------------------ */
 
-export type AllNotesData = NoteData[]
 export type NoteData = CardContainer[]
+export type AllNotesData = NoteData[]
+export type EventCountData = ( ElementType | FrontMatterCacheType | null )[]

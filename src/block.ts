@@ -1,7 +1,6 @@
 import type { TimelinesSettings, TimelineArgs, AllNotesData, EventItem } from './types'
 import type { TFile, MetadataCache, Vault } from 'obsidian'
 import { MarkdownView } from 'obsidian'
-
 import { RENDER_TIMELINE } from './constants'
 import {
   filterMDFiles,
@@ -13,6 +12,9 @@ import {
   logger,
   createInternalLinkOnNoteCard,
   getEventData,
+  isFrontMatterCacheType,
+  isHTMLElementType,
+  confirmShapeOfCombinedEvents,
 } from './utils'
 
 // Horizontal (Vis-Timeline) specific imports
@@ -126,27 +128,46 @@ export class TimelineProcessor {
     timelineDates: number[]
   ) {
     for ( const file of this.currentFileList ) {
-      const [timelineData, frontMatter] = await getEventsInFile( file, this.appVault, this.metadataCache )
+      const combinedEventsAndFrontMatter = await getEventsInFile( file, this.appVault, this.metadataCache )
+      confirmShapeOfCombinedEvents( combinedEventsAndFrontMatter )
 
-      for ( const event of timelineData as unknown as HTMLElement[] ) {
-        if ( !( event instanceof HTMLElement )) continue
+      combinedEventsAndFrontMatter.forEach(( event ) => {
+        let eventData = null
+        if ( isFrontMatterCacheType( event )) {
+          logger( "we're handling a frontmatter event entry, w/ event: ", event )
+          eventData = getEventData( event, file, this.settings.frontMatterKeys, true )
 
-        const eventData = getEventData( event, file, frontMatter, this.settings.frontMatterKeys )
+          // way to force frontmatter / properties to use boolean? checkbox?
+          if ( eventData?.showOnTimeline !== true ) {
+            logger( 'showOnTimeline is not true, skipping frontmatter event' )
+            // don't render frontmatter entries that don't specifically mark showOnTimeline as true
+            return
+          }
+        }
+
+        if ( isHTMLElementType( event )) {
+          logger( "we're handling an HTML event entry, w/ event: ", event )
+          eventData = getEventData( event, file, this.settings.frontMatterKeys, false )
+        }
+
+        logger( 'eventData', eventData )
         const {
-          startDate,
-          noteTitle,
-          noteClass,
-          notePath,
-          type,
+          color,
           endDate,
-          eventImg,
           era,
-          tags: overrideTags = '',
+          eventImg,
+          notePath,
+          noteTitle,
+          startDate,
+          tags,
+          type,
         } = eventData
 
-        if ( overrideTags ) {
+        if ( tags ) {
           logger( 'this note contains override tags' )
-          const noteTags = overrideTags?.split( ';' )
+          // frontmatter tags come through as an array,
+          // HTML override tags are a semi-colon separated string
+          const noteTags = typeof tags === 'string' ? tags?.split( ';' ) : tags
 
           logger( 'noteTags:', noteTags )
           logger( 'this.args.tags:', this.args.tags )
@@ -165,7 +186,7 @@ export class TimelineProcessor {
           // if the override tags do not overlap with the tag list, do not display this note
           if ( !overrideTagsAreContainedInTagList ) {
             logger( 'Override tags do not overlap with tag list, skipping note' )
-            continue
+            return
           }
         }
 
@@ -174,21 +195,20 @@ export class TimelineProcessor {
           ? -parseInt( startDate.substring( 1 ).split( '-' ).join( '' ))
           : parseInt( startDate.split( '-' ).join( '' ))
 
-        if ( !Number.isInteger( noteId )) continue
+        if ( !Number.isInteger( noteId )) return
 
         const imgUrl = getImgUrl( this.appVault.adapter, eventImg )
-          ?? getImgUrl( this.appVault.adapter, frontMatter?.img )
 
         const note = {
-          startDate,
-          title: noteTitle,
-          img: imgUrl,
-          innerHTML: event.innerHTML ?? frontMatter?.html ?? '',
-          path: notePath,
-          class: noteClass,
-          type,
+          class: color,
           endDate,
           era,
+          img: imgUrl,
+          innerHTML: event.data?.innerHTML ?? '',
+          path: notePath,
+          startDate,
+          title: noteTitle,
+          type,
         }
 
         if ( !timelineNotes[noteId] ) {
@@ -200,7 +220,7 @@ export class TimelineProcessor {
 
           logger( 'Repeat date: %o', timelineNotes[noteId] )
         }
-      }
+      })
     }
   }
 
@@ -335,7 +355,7 @@ export class TimelineProcessor {
         const eventItem: EventItem = {
           id: items.length + 1,
           content: event.title ?? '',
-          title: noteCard.outerHTML as string,
+          title: String( noteCard.outerHTML ),
           start: start,
           className: event.class ?? '',
           type: event.type,
@@ -413,6 +433,8 @@ export class TimelineProcessor {
       return filterMDFiles( file, Array.from( this.args.tags ), this.metadataCache )
     })
 
+    logger( 'this.currentFileList', this.currentFileList )
+
     if ( !this.currentFileList || this.currentFileList.length === 0 ) {
       logger( 'No files found for the timeline' )
       await this.showEmptyTimelineMessage( el, Array.from( this.args.tags ))
@@ -420,8 +442,8 @@ export class TimelineProcessor {
     }
 
     // Keep only the files that have the time info
-    const timelineNotes = [] as AllNotesData
-    let timelineDates = [] as number[]
+    const timelineNotes: AllNotesData = []
+    let timelineDates: number[] = []
 
     await this.parseFiles( timelineNotes, timelineDates )
 

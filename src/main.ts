@@ -5,6 +5,7 @@ import { DEFAULT_SETTINGS } from './constants'
 import { Plugin, MarkdownView } from 'obsidian'
 import { TimelinesSettingTab } from './settings'
 import { TimelineCommandProcessor } from './commands'
+import { logger } from './utils'
 
 export default class TimelinesPlugin extends Plugin {
   pluginName: string = 'Timelines (Revamped)'
@@ -74,7 +75,7 @@ export default class TimelinesPlugin extends Plugin {
 
   onFileOpen = async () => {
     if ( !this.commandProc ) {
-      console.log( 'Command processor was not initialized' )
+      logger( 'Command processor was not initialized' )
 
       await this.initialize()
     }

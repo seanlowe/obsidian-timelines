@@ -1,7 +1,19 @@
-import { TFile, MetadataCache, DataAdapter, Vault, FrontMatterCache, MarkdownView, Workspace } from 'obsidian'
+import {
+  DataAdapter,
+  FrontMatterCache,
+  getAllTags,
+  MetadataCache,
+  MarkdownView,
+  TFile,
+  Workspace
+} from 'obsidian'
+import {
+  CardContainer,
+} from '../types'
 
-import { Notice, getAllTags } from 'obsidian'
-import { CardContainer, developerSettings, EventDataObject, FrontMatterKeys } from './types'
+export * from './debug'
+export * from './events'
+export * from './frontmatter'
 
 /**
  * Parse a tag and all its subtags into a list.
@@ -50,37 +62,11 @@ export function filterMDFiles( file: TFile, tagList: string[], metadataCache: Me
       return parseTag( tag, fileTags )
     })
     return tagList.every(( val ) => {
-      return fileTags.includes( val as string )
+      return fileTags.includes( String( val ))
     })
   }
 
   return false
-}
-
-export async function getNumEventsInFile( file: TFile, appVault: Vault, fileCache: MetadataCache ): Promise<number> {
-  const [ events, frontMatter ] = await getEventsInFile( file, appVault, fileCache )
-
-  return frontMatter ? events.length + 1 : events.length
-}
-
-export async function getEventsInFile( file: TFile, appVault: Vault, fileCache: MetadataCache ):
-  Promise<[HTMLCollectionOf<Element> | HTMLElement[], FrontMatterCache]> {
-  if ( !file ) {
-    return [new HTMLCollection(), null]
-  }
-
-  const frontMatter = fileCache.getFileCache( file ).frontmatter
-  const doc = new DOMParser().parseFromString( await appVault.cachedRead( file ), 'text/html' )
-  const events = doc.getElementsByClassName( 'ob-timelines' )
-
-  if ( events.length > 0 ) {
-    return [events, frontMatter]
-  }
-
-  // If there are no timelineData elements, add a default "dummy" element to capture data from the frontmatter
-  const timelineData = [ doc.createElement( 'div' ) ]
-
-  return [timelineData, frontMatter]
 }
 
 /**
@@ -152,51 +138,14 @@ export const createInternalLinkOnNoteCard = ( event: CardContainer, noteCard: HT
     })
 }
 
-export const getEventData = (
-  event: HTMLElement,
-  file: TFile,
-  frontMatter: FrontMatterCache | null,
-  frontMatterKeys: FrontMatterKeys
-): EventDataObject => {
-  const endDate   = event.dataset.endDate   ?? findMatchingFrontMatterKey( frontMatter, frontMatterKeys.endDateKey ) ?? null
-  const era       = event.dataset.era       ?? frontMatter.era ?? null
-  const eventImg  = event.dataset.img       ?? frontMatter.img ?? null
-  const noteClass = event.dataset.class     ?? frontMatter.color ?? ''
-  const notePath  = event.dataset.path      ?? '/' + file.path
-  const noteTitle = event.dataset.title     ?? findMatchingFrontMatterKey( frontMatter, frontMatterKeys.titleKey ) ?? file.name.replace( '.md', '' )
-  const startDate = event.dataset.startDate ?? findMatchingFrontMatterKey( frontMatter, frontMatterKeys.startDateKey )
-  const tags      = event.dataset.tags      ?? ''
-  const type      = event.dataset.type      ?? frontMatter.type ?? 'box'
-
-  if ( !startDate ) {
-    new Notice( `No date found for ${file.name}` )
-    return {} as EventDataObject
-  }
-
-  const eventData: EventDataObject = {
-    endDate,
-    era,
-    eventImg,
-    noteClass,
-    notePath,
-    noteTitle,
-    startDate,
-    tags,
-    type,
-  }
-
-  return eventData
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const isFrontMatterCacheType = ( value: any ): value is FrontMatterCache => {
+  return value?.type === 'FrontMatterCache'
 }
 
-const findMatchingFrontMatterKey = ( frontMatter: FrontMatterCache | null, keys: string[] ) => {
-  for ( const key of keys ) {
-    if ( frontMatter && frontMatter[key] ) {
-      return frontMatter[key]
-    }
-  }
-
-  console.log( `No matching key found for ${keys}` )
-  return null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const isHTMLElementType = ( value: any ): value is HTMLElement => {
+  return value?.type === 'Element'
 }
 
 export const confirmUserInEditor = ( workspace: Workspace ) => {
@@ -211,17 +160,4 @@ export const confirmUserInEditor = ( workspace: Workspace ) => {
   }
 
   return editor
-}
-
-
-/**
- * A custom logging wrapper that only logs if we're in DEBUG mode.
- *
- * @param message The message to display
- * @param object optional - an object to display alongside the message
- */
-export const logger = ( message: string, object?: unknown ) => {
-  if ( !developerSettings.debug ) return
-
-  console.log( message, object ?? '' )
 }

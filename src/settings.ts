@@ -35,8 +35,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
           return button
             .setButtonText( 'Disable Debug Mode' )
             .onClick(( e ) => {
-              logger( '', e )
-
+              e.preventDefault()
               developerSettings.debug = false
               developerSettings.counter = 0
 

@@ -34,11 +34,6 @@ div.vis-item-overflow > div > a {
   cursor: pointer;
   box-sizing: border-box !important;
 
-
-  // .vis-item-overflow {
-  //   overflow: visible !important;
-  // }
-
   @each $color in $available-colors {
     @include add-color($color, &);
     @include add-color($color, '&.vis-background');

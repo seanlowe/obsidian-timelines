@@ -1,6 +1,6 @@
 import { Vault, MetadataCache, MarkdownView, Workspace } from 'obsidian'
 import { TimelinesSettings } from './types'
-import { confirmUserInEditor, getNumEventsInFile } from './utils'
+import { confirmUserInEditor, getNumEventsInFile, logger } from './utils'
 import TimelinesPlugin from './main'
 
 export class TimelineCommandProcessor {
@@ -17,7 +17,7 @@ export class TimelineCommandProcessor {
   }
 
   handleStatusBarUpdates = async ( plugin: TimelinesPlugin ) => {
-    console.log( 'in handleStatusBarUpdates' )
+    logger( 'in handleStatusBarUpdates' )
     if ( !this.settings.showEventCounter ) {
       // ensure the status bar item is removed
       if ( plugin.statusBarItem ) {
@@ -65,7 +65,7 @@ export class TimelineCommandProcessor {
     newEventElement.setAttribute( 'class', 'ob-timelines' )
     newEventElement.setAttribute( 'data-title', '' )
     newEventElement.setAttribute( 'data-description', '' )
-    newEventElement.setAttribute( 'data-class', '' )
+    newEventElement.setAttribute( 'data-color', '' )
     newEventElement.setAttribute( 'data-type', '' )
     newEventElement.setAttribute( 'data-start-date', '' )
     newEventElement.setAttribute( 'data-end-date', '' )
@@ -92,20 +92,28 @@ export class TimelineCommandProcessor {
   createTimelineEventFrontMatterInCurrentNote = async () => {
     const editor = confirmUserInEditor( this.plugin.app.workspace )
 
+    const frontmatterJson = {
+      title: '',
+      description: '',
+      color: '',
+      type: '',
+      startDate: '',
+      endDate: '',
+      era: '',
+      path: '',
+      tags: Array.from( [] ), // just putting [] throws TS "warnings" that I can't disable
+      showOnTimeline: true
+    }
+
     // start a string variable that will hold the frontmatter
     let frontmatter = '---\n'
-    frontmatter += 'title: \n'
-    frontmatter += 'description: \n'
-    frontmatter += 'class: \n'
-    frontmatter += 'type: \n'
-    frontmatter += 'start-date: \n'
-    frontmatter += 'end-date: \n'
-    frontmatter += 'era: \n'
-    frontmatter += 'path: \n'
+    frontmatter += JSON.stringify( frontmatterJson ) + '\n'
     frontmatter += '---\n\n'
 
     // insert the frontmatter at the beginning of the current note
     editor.replaceRange( frontmatter, { line: 0, ch: 0 })
+
+    await this.handleStatusBarUpdates( this.plugin )
   }
 
   /**
@@ -122,6 +130,13 @@ export class TimelineCommandProcessor {
 
     const numEvents = await getNumEventsInFile( file, this.appVault, this.metadataCache )
 
-    return `Timeline: ${numEvents} ${numEvents === 1 ? 'event' : 'events'}`
+    switch ( numEvents ) {
+    case 0:
+      return 'Timeline: No events'
+    case 1:
+      return 'Timeline: 1 event'
+    default:
+      return `Timeline: ${numEvents} events`
+    }
   }
 }
