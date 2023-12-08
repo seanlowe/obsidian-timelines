@@ -21,8 +21,14 @@ export const confirmShapeOfCombinedEvents = ( combinedEventsAndFrontMatter: Even
   if ( !developerSettings.debug ) return
 
   console.log( 'combinedEventsAndFrontMatter', combinedEventsAndFrontMatter )
-  const events = combinedEventsAndFrontMatter.slice( 0, -1 )
-  const frontMatter = combinedEventsAndFrontMatter.pop()
+
+  const events = combinedEventsAndFrontMatter.filter(( e ) => {
+    return e.type === 'Element'
+  })
+  const frontMatter = combinedEventsAndFrontMatter.filter(( e ) => {
+    return e.type === 'FrontMatterCache'
+  })
+
   console.log( 'timelineData', events )
   console.log( 'frontMatter', frontMatter )
 }

@@ -137,7 +137,6 @@ export class TimelineProcessor {
           logger( "we're handling a frontmatter event entry, w/ event: ", event )
           eventData = getEventData( event, file, this.settings.frontMatterKeys, true )
 
-          // way to force frontmatter / properties to use boolean? checkbox?
           if ( eventData?.showOnTimeline !== true ) {
             logger( 'showOnTimeline is not true, skipping frontmatter event' )
             // don't render frontmatter entries that don't specifically mark showOnTimeline as true

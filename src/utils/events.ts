@@ -40,6 +40,8 @@ export const getEventsInFile = async (
     return null
   }
 
+  console.count( 'getEventsInFile' )
+
   const doc = new DOMParser().parseFromString( await appVault.cachedRead( file ), 'text/html' )
   const rawEvents = doc.getElementsByClassName( 'ob-timelines' )
   const events: ElementType[] = Array.from( rawEvents ).map(( event: Element ) => {
@@ -52,6 +54,8 @@ export const getEventsInFile = async (
   if ( frontMatterData ) {
     fileEvents.push({ type: 'FrontMatterCache', data: frontMatterData })
   }
+
+  logger( 'fileEvents', fileEvents )
 
   return fileEvents
 }
