@@ -10,8 +10,8 @@ export const DEFAULT_SETTINGS: TimelinesSettings = {
   eventElement: AcceptableEventElements.div,
   frontMatterKeys: DEFAULT_FRONTMATTER_KEYS,
   notePreviewOnHover: true,
-  showEventCounter: true,
-  showRibbonCommand: true,
+  showEventCounter: false,
+  showRibbonCommand: false,
   sortDirection: true,
   timelineTag: 'timeline',
 }

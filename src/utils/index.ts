@@ -7,13 +7,24 @@ import {
   TFile,
   Workspace
 } from 'obsidian'
-import {
-  CardContainer,
-} from '../types'
+import { CardContainer } from '../types'
+import { logger } from './debug'
 
 export * from './debug'
 export * from './events'
 export * from './frontmatter'
+
+export function setDefaultArgs() {
+  return {
+    tags: [],
+    divHeight: '400',
+    startDate: '-1000',
+    endDate: '3000',
+    minDate: '-3000',
+    maxDate: '3000',
+    type: null,
+  }
+}
 
 /**
  * Parse a tag and all its subtags into a list.
@@ -52,21 +63,27 @@ export function filterMDFiles( file: TFile, tagList: string[], metadataCache: Me
     return true
   }
 
-  const tags = getAllTags( metadataCache.getFileCache( file )).map(( e ) => {
+  const rawTags = getAllTags( metadataCache.getFileCache( file ))
+  logger( `rawTags from file: ${file.name}:`, rawTags )
+
+  const tags = rawTags.map(( e ) => {
     return e.slice( 1 )
   })
+  logger( `getAllTags from file: ${file.name}:`, tags )
 
-  if ( tags && tags.length > 0 ) {
-    const fileTags: string[] = []
-    tags.forEach(( tag ) => {
-      return parseTag( tag, fileTags )
-    })
-    return tagList.every(( val ) => {
-      return fileTags.includes( String( val ))
-    })
+  if ( !tags.length ) {
+    return false
   }
 
-  return false
+  const fileTags: string[] = []
+  tags.forEach(( tag ) => {
+    return parseTag( tag, fileTags )
+  })
+
+  return tagList.every(( val ) => {
+    logger( `testing val: ${val}`, fileTags.includes( String( val )))
+    return fileTags.includes( String( val ))
+  })
 }
 
 /**

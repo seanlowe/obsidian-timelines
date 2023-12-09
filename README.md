@@ -39,7 +39,7 @@ Add the following codeblock in the note where you'd like to render a timeline:
 
 ![codeblock example](./images/vertical_codeblock.png)
 
-The render block takes a single line which is the _list of tags_ (separated by semicolons) by which to filter timeline-tagged notes. For example, in the above example block, ONLY notes with all three tags (`timeline`, `test` and `now`) will be rendered.
+The render block takes a single line which is the _list of tags_ (separated by semicolons) by which to filter timeline-tagged notes. For example, in the above example block, **<u>only notes with all</u>** three tags (`timeline`, `test` and `now`) will be rendered.
 
 You can display a horizontal timeline by building your codeblock like so:
 
@@ -52,6 +52,7 @@ Breaking down the filters:
 - `divHeight`: how tall you would like the timeline to be
 - `minDate`: minimum end-cap to prevent scrolling or viewing before this date
 - `maxDate`: maximum end-cap to prevent scrolling or viewing after this date
+- `type`: horizontal-specific key. Pass `flat` in order to render a horizontal timeline.
 
 ### Using an HTML code block for static rendering
 
@@ -75,13 +76,17 @@ There are 2 ways to include a note in a timeline: **Frontmatter** or **HTML tags
 
 For a note to be included in a timeline, the following must be valid:
 
-1. The `timeline` tag must be included in that note. You can put the tags in your front matter, or in a #tag somewhere in the note body.
+1. The `timeline` tag must be included in that note. You can put the tags in your front matter, or in a `#tag` somewhere in the note body.
 
 ```
 ---
 tags: [timeline, test, me, now]
 ---
 ```
+
+This also works natively with Obsidian's Properties update:
+
+![tags in obsidian's properties](./images/properties_tags.png)
 
 2. The note must have all the specified tags to be included in the search. The front matter example above will be included in all of the following searches for any events within the note body: `test`, `test;me`, `test;me;now`, `me;now`, `test;now`
 
@@ -119,7 +124,7 @@ tags: [timeline, history]
 
 Key specific notes:
 - if a `title` key is not provided, it will use the name of the note by default.
-- `color` supports the same values as listed below under the **CSS Class (`data-class`)** argument block.
+- `color` supports the same values as listed below under the **Node Color (`data-color`)** argument block.
 - `type` supports the same values as listed below under the **Type (`data-type`)** argument block.
 - `start-date`, `end-date`, and `title` may all be customized to match other installed plugins that use tags such as FC-Calendar or Digital Garden within settings. It will default to the keys listed but will search in order of specification should the user wish to add values. Multiple values are also accepted when comma-separated. 
 
@@ -132,7 +137,7 @@ A timeline entry can be created using a `<span></span>` or `<div></div>` HTML el
   class='ob-timelines'
   data-start-date='2000-10-10-00'
   data-title='Time Period Event'
-  data-class='orange'
+  data-color='orange'
   data-img='absolute/path/to/image.png'
   data-type='background'
   data-end-date='2000-10-20-00'
@@ -179,7 +184,11 @@ Timeline span and div entries (.ob-timelines class) are hidden in preview by def
 Using the above snippet, a span like this: 
 
 ```html
-<span class='ob-timelines' data-start-date='1499-03-28-00' data-title="An example"></span>
+<span
+  class='ob-timelines'
+  data-start-date='1499-03-28-00'
+  data-title="An example">
+</span>
 ```
 
 would be rendered as: 
@@ -228,11 +237,11 @@ Note: Currently only assets specified via `http` or `absolute local path` will r
   - Adds this text to the date span in the timeline as an era designation. Useful for fictional calendars.
   - Applied after the date is formatted. So `2300-00-00-00` with the era set to `AB` would display `2300 AB`.
 
-#### CSS Class (`data-class`):
+#### Node Color (`data-color`):
   - Optional
   - Adds the applied css class to the note card associated with the timeline entry
 
-Note: Acceptable values for `data-class` are `orange`, `yellow`, `red`, `blue`, `green`, `purple`, `pink`, and `gray`. If the value is not supplied, events will be colored white (or grey for background events) on the timeline.
+Note: Acceptable values for `data-color` are `orange`, `yellow`, `red`, `blue`, `green`, `purple`, `pink`, and `gray`. If the value is not supplied, events will be colored white (or grey for background events) on the timeline.
 
 #### Type (`data-type`):
   - Optional
@@ -260,23 +269,23 @@ Note: Acceptable values for `data-type` are:
 
 Substantial change that vastly affects the functionality of **Timelines (Revamped)**: Merged PR from upstream repository - `Support frontmatter to add timeline entries` [#58](https://github.com/Darakah/obsidian-timelines/pull/58)
 
-His notes about the change:
+Their notes about the change:
 - added functionality to use frontmatter to add a note to the timeline
 - added functionality to customize the frontmatter keys for better compatibility with other plugins
 - added a hover preview setting for viewing notes within a timeline without having to click on the header to open them. 
+
+**BREAKING CHANGES:**
+- changed `data-class` to `data-color` for clarity. You'll have to update your HTML events to use the new tag to retain your old color choices.
+- Consolidated timeline codeblocks. Any horizontal timelines will need to be changed from type `ob-timelines-flat` to just `ob-timelines` and a new line `type=flat` added. Any vertical timelines will need to have their list of tags pre-pended by `tags=` in order to properly parse.
 
 Additional notes:
 - added some additional types and type checking
 - tweaked scss mixin `add-color` to make it easier to add additional color states depending on element state (selected, hover, etc.)
 - added a render option for when there are no files that match the timeline's parameters
 - added `pink` and `gray` to list of available colors
-
-### v1.2.0
-Added functionality to override tags for a particular event. This allows you to have a note with events on separate timelines. Resolves github feature request: `[New Feature] Override tags defined on the page with a new attribute tags` [#12](https://github.com/seanlowe/obsidian-timelines/issues/12)
-
-Additional changes:
-- reworked how tags are parsed from code bock arguments
-- added some utility functionality for debugging
+- added functionality to show frontmatter events alongside HTML events (`showOnTimeline` key)
+- added a notice in the top right corner for notes that matched the tags provided but had no events to display. Usually, this is if you have frontmatter without the new `showOnTimeline` key set to `true`.
+- added a new command for inserting event frontmatter keys.
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

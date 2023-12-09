@@ -16,7 +16,7 @@ export default class TimelinesPlugin extends Plugin {
 
   initialize = async () => {
     console.log( `Initializing Plugin: ${this.pluginName}` )
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, this.loadData())
+    this.settings = Object.assign({}, await this.loadData() ?? DEFAULT_SETTINGS )
     this.blockProc = new TimelineProcessor( this.settings, this.app.metadataCache, this.app.vault )
     this.commandProc = new TimelineCommandProcessor( this )
   }
@@ -27,12 +27,7 @@ export default class TimelinesPlugin extends Plugin {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     this.registerMarkdownCodeBlockProcessor( 'ob-timeline', async ( source, el, ctx ) => {
-      await this.blockProc.run( source, el, false )
-    })
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    this.registerMarkdownCodeBlockProcessor( 'ob-timeline-flat', async ( source, el, ctx ) => {
-      await this.blockProc.run( source, el, true )
+      await this.blockProc.run( source, el )
     })
 
     this.addCommand({
@@ -54,8 +49,12 @@ export default class TimelinesPlugin extends Plugin {
       }
     })
 
-    this.addRibbonIcon( 'list-plus', 'Insert Timeline Event (Frontmatter)', async () => {
-      await this.commandProc.createTimelineEventFrontMatterInCurrentNote()
+    this.addCommand({
+      id: 'insert-timeline-event-frontmatter',
+      name: 'Insert Timeline Event (Frontmatter)',
+      callback: async () => {
+        return this.commandProc.createTimelineEventFrontMatterInCurrentNote()
+      }
     })
 
     this.addSettingTab( new TimelinesSettingTab( this.app, this ))
@@ -65,6 +64,10 @@ export default class TimelinesPlugin extends Plugin {
     if ( this.settings.showRibbonCommand ) {
       this.addRibbonIcon( 'code-2', 'Insert Timeline Event', async () => {
         await this.commandProc.createTimelineEventInCurrentNote()
+      })
+
+      this.addRibbonIcon( 'list-plus', 'Insert Timeline Event (Frontmatter)', async () => {
+        await this.commandProc.createTimelineEventFrontMatterInCurrentNote()
       })
     }
 

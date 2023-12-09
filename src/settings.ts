@@ -87,7 +87,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
     fragment.appendChild( div )
 
     new Setting( containerEl )
-      .setName( 'Show Ribbon Button' )
+      .setName( 'Show Ribbon Buttons' )
       .setDesc( fragment )
       .addToggle(( toggle ) => {
         toggle.setValue( this.plugin.settings.showRibbonCommand )

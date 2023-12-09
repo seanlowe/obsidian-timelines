@@ -101,7 +101,7 @@ export class TimelineCommandProcessor {
       endDate: '',
       era: '',
       path: '',
-      tags: Array.from( [] ), // just putting [] throws TS "warnings" that I can't disable
+      tags: [],
       showOnTimeline: true
     }
 

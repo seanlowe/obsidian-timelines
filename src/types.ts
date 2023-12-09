@@ -19,7 +19,7 @@ export const developerSettings = {
 /* ------------------------------ */
 
 export interface TimelineArgs {
-  [key: string]: string | string[],
+  [key: string]: string | string[] | null,
 }
 
 export interface CardContainer {

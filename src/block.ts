@@ -15,6 +15,7 @@ import {
   isFrontMatterCacheType,
   isHTMLElementType,
   confirmShapeOfCombinedEvents,
+  setDefaultArgs,
 } from './utils'
 
 // Horizontal (Vis-Timeline) specific imports
@@ -35,14 +36,12 @@ export class TimelineProcessor {
     this.files = this.appVault.getMarkdownFiles()
     this.metadataCache = metadataCache
     this.settings = settings
-    this.args = {
-      tags: [],
-      divHeight: '400',
-      startDate: '-1000',
-      endDate: '3000',
-      minDate: '-3000',
-      maxDate: '3000'
-    }
+    this.args = setDefaultArgs()
+  }
+
+  setup() {
+    this.args = setDefaultArgs()
+    this.files = this.appVault.getMarkdownFiles()
   }
 
   createTagList( tagString: string ): string[] {
@@ -72,7 +71,8 @@ export class TimelineProcessor {
 
     if ( !match || match.length === 1 ) return
 
-    const tagList = match[1]
+    const tagList = `tags=${match[1]}`
+    logger( 'taglist', tagList )
 
     const div = document.createElement( 'div' )
     const rendered = document.createElement( 'div' )
@@ -80,7 +80,7 @@ export class TimelineProcessor {
     rendered.setText( new Date().toString())
 
     div.appendChild( document.createComment( `TIMELINE BEGIN tags='${match[1]}'` ))
-    await this.run( tagList, div, false )
+    await this.run( tagList, div )
 
     div.appendChild( rendered )
     div.appendChild( document.createComment( 'TIMELINE END' ))
@@ -94,26 +94,19 @@ export class TimelineProcessor {
    * @param visTimeline - whether or not we're rendering a vis-timeline
    * @param source - the codeblock source string
    */
-  async readArguments( visTimeline: boolean, source: string ) {
-    if ( !visTimeline ) {
-      // Parse the tags to search for the proper files
-      this.args.tags = this.createTagList( source.trim())
-
-      return
-    }
-
+  async readArguments( source: string ) {
     source.split( '\n' ).map(( entry ) => {
       if ( !entry ) return
 
       entry = entry.trim()
       const [ tag, rawValue ] = entry.split( '=' )
       const value = rawValue.trim()
+
       if ( tag === 'tags' ) {
         this.args[tag] = this.createTagList( value )
       } else {
         this.args[tag] = value
       }
-
     })
   }
 
@@ -420,13 +413,14 @@ export class TimelineProcessor {
   async run(
     source: string,
     el: HTMLElement,
-    visTimeline: boolean
   ) {
-    // read arguments
-    await this.readArguments( visTimeline, source )
+    this.setup()
 
+    // read arguments
+    await this.readArguments( source )
     logger( 'this.args', this.args )
 
+    logger( '# of files and tags', { fileCount: this.files.length, tags: this.args.tags })
     // Filter all markdown files to only those containing the tag list
     this.currentFileList = this.files.filter(( file ) => {
       return filterMDFiles( file, Array.from( this.args.tags ), this.metadataCache )
@@ -454,12 +448,13 @@ export class TimelineProcessor {
     const timelineDiv = document.createElement( 'div' )
     timelineDiv.setAttribute( 'class', 'timeline' )
 
-    if ( !visTimeline ) {
+    switch ( this.args.type ) {
+    case 'flat':
+      await this.buildHorizontalTimeline( timelineDiv, timelineNotes, timelineDates, el )
+      return
+    default:
       await this.buildVerticalTimeline( timelineDiv, timelineNotes, timelineDates, el )
       return
     }
-
-    await this.buildHorizontalTimeline( timelineDiv, timelineNotes, timelineDates, el )
-    return
   }
 }
