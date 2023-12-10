@@ -64,7 +64,6 @@ export const getEventData = (
   frontMatterKeys: FrontMatterKeys,
   isFrontMatterCacheType: boolean
 ): EventDataObject => {
-
   const startDate = retrieveEventValue(
     eventObject, 'startDate', null, isFrontMatterCacheType, frontMatterKeys?.startDateKey
   )
@@ -139,5 +138,9 @@ const retrieveFrontMatterValue = (
   const result = event[datasetKey]
     ?? findMatchingFrontMatterKey( event, frontMatterKeys )
 
-  return result ?? defaultValue
+  if ( !result || result === '' ) {
+    return defaultValue
+  }
+
+  return result
 }
