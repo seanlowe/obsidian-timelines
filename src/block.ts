@@ -1,4 +1,4 @@
-import type { TimelinesSettings, TimelineArgs, AllNotesData, EventItem } from './types'
+import type { TimelinesSettings, TimelineArgs, AllNotesData, EventItem, CardContainer } from './types'
 import type { TFile, MetadataCache, Vault } from 'obsidian'
 import { MarkdownView } from 'obsidian'
 import { RENDER_TIMELINE } from './constants'
@@ -132,6 +132,7 @@ export class TimelineProcessor {
 
           if ( eventData?.showOnTimeline !== true ) {
             logger( 'showOnTimeline is not true, skipping frontmatter event' )
+            // todo: don't require showOnTimeline for notes with only Frontmatter events
             // don't render frontmatter entries that don't specifically mark showOnTimeline as true
             return
           }
@@ -193,8 +194,8 @@ export class TimelineProcessor {
 
         const imgUrl = getImgUrl( this.appVault.adapter, eventImg )
 
-        const note = {
-          class: color,
+        const note: CardContainer = {
+          color,
           endDate,
           era,
           img: imgUrl,
@@ -254,6 +255,7 @@ export class TimelineProcessor {
           return
         }
 
+        // note from https://github.com/Darakah/obsidian-timelines/pull/58
         // TODO: Stop Propagation: don't close timeline-card when clicked.
         // `vis-timeline-graph2d.js` contains a method called `_updateContents` that makes the display
         // attribute disappear on click via line 7426: `element.innerHTML = '';`
@@ -276,8 +278,9 @@ export class TimelineProcessor {
           })
         }
 
-        if ( eventAtDate.class ) {
-          noteCard.addClass( eventAtDate.class )
+        if ( eventAtDate.color ) {
+          // todo : add more support for other custom classes
+          noteCard.addClass( eventAtDate.color )
         }
 
         createInternalLinkOnNoteCard( eventAtDate, noteCard )
@@ -315,7 +318,7 @@ export class TimelineProcessor {
 
     timelineDates.forEach(( date ) => {
       // add all events at this date
-      Object.values( timelineNotes[date] ).forEach(( event ) => {
+      Object.values( timelineNotes[date] ).forEach(( event: CardContainer ) => {
         const noteCard = document.createElement( 'div' )
         noteCard.className = 'timeline-card'
 
@@ -327,8 +330,8 @@ export class TimelineProcessor {
           })
         }
 
-        if ( event.class ) {
-          noteCard.addClass( event.class )
+        if ( event.color ) {
+          noteCard.addClass( event.color )
         }
 
         createInternalLinkOnNoteCard( event, noteCard )
@@ -351,7 +354,7 @@ export class TimelineProcessor {
           content: event.title ?? '',
           title: String( noteCard.outerHTML ),
           start: start,
-          className: event.class ?? '',
+          className: event.color ?? 'gray',
           type: event.type,
           end: end ?? null,
           path: event.path,
@@ -383,13 +386,15 @@ export class TimelineProcessor {
         const eventCard = eventContainer.createDiv()
         eventCard.outerHTML = item.title
 
-        eventContainer.addEventListener( 'click', ( event ) => {
-          event.preventDefault()
-
-          const el = eventContainer.getElementsByClassName( 'timeline-card' )[0] as HTMLElement
-          el.style.setProperty( 'display', 'block' )
-          el.style.setProperty( 'top', `-${el.clientHeight + 10}px` )
-        })
+        // click event to open the popover
+        // todo : allow overflow from vis-center and re-position timeline-card
+        // eventContainer.addEventListener( 'click', ( event ) => {
+        //   event.preventDefault()
+        //
+        //   const el = eventContainer.getElementsByClassName( 'timeline-card' )[0] as HTMLElement
+        //   el.style.setProperty( 'display', 'block' )
+        //   el.style.setProperty( 'top', `-${el.clientHeight + 10}px` )
+        // })
 
         return eventContainer
       }

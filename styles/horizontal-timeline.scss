@@ -1,6 +1,7 @@
 @use './colors.scss' as *;
 
 $available-colors: orange, blue, green, red, purple, yellow, pink, gray;
+$vis-item-types: 'vis-background', 'vis-box', 'vis-point', 'vis-range', 'vis-line', 'vis-dot';
 
 .vis-timeline {
   border: 1px solid transparent;
@@ -35,10 +36,12 @@ div.vis-item-overflow > div > a {
   box-sizing: border-box !important;
 
   @each $color in $available-colors {
-    @include add-color($color, &);
-    @include add-color($color, '&.vis-background');
-    @include add-color($color, '&.vis-selected', $alpha: .45);
-    @include add-color($color, &, $addon: ':hover', $alpha: .45);
+    @each $type in $vis-item-types {
+      @include add-color($color, &);
+      @include add-color($color, '&.#{$type}');
+      @include add-color($color, '&.#{$type}.vis-selected', $alpha: .45);
+      @include add-color($color, &, $addon: ':hover', $alpha: .45);
+    }
   }
 }
 

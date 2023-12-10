@@ -23,7 +23,7 @@ export interface TimelineArgs {
 }
 
 export interface CardContainer {
-  class: string,
+  color: string,
   endDate: string,
   era: string,
   img: string,
