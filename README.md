@@ -136,11 +136,11 @@ A timeline entry can be created using a `<span></span>` or `<div></div>` HTML el
 <span
   class='ob-timelines'
   data-start-date='2000-10-10-00'
+  data-end-date='2000-10-20-00'
   data-title='Time Period Event'
   data-color='orange'
   data-img='absolute/path/to/image.png'
   data-type='background'
-  data-end-date='2000-10-20-00'
 >
 	Some Time Period that only lasted 10 days
 </span>
@@ -148,9 +148,9 @@ A timeline entry can be created using a `<span></span>` or `<div></div>` HTML el
 <div
   class='ob-timelines'
   data-start-date='2000-10-11-00'
+  data-end-date='2000-10-12-00'
   data-title='Another Event'
   data-type='range'
-  data-end-date='2000-10-12-00'
 >
 	A minimal event
 </div>
@@ -195,6 +195,8 @@ would be rendered as:
 
 ![styled span example](./images/styled-event-span.png)
 
+in Live Preview mode. I've noticed that using a `span` in Reading Mode or when viewing a `span` event in an Popover tends to render incorrectly. If proper rendering is a must-have, I recommend using a `div` for your events.
+
 ### Arguments
 
 #### Dates (`data-start-date` and `data-end-date`):
@@ -211,6 +213,12 @@ Rightmost-segments containing only zeros will be omitted when the timeline is ge
 
 - `2300-02-00-00` will display as `2300-02`
 - `2300-00-00-00` will display as `2300`
+
+Any included Month/Day sections of a date must be non-zero (for the time being) in order for the date to properly parse and be included on the timeline. 
+
+For example: `2300-02-00-00` should actually be passed in as: `2300-02` if you don't care about the day, or `2300-02-01` if you mean that it began at the beginning of the month. The last section of a date (the time), however, can be zero if you want.
+
+As of right now, there is no kind of date normalization, as there are considerations that must be handled when dealing with fictional calendars. The side result of this is that, when comparing two events, an event with a start date of `2300-02-1-23` will be displayed before an event with a start date of `2300-02-01-04`, even though HOUR value on the first example is *after* the second (23 vs. 04).
 
 ##### Event Sorting
 
@@ -235,11 +243,11 @@ Note: Currently only assets specified via `http` or `absolute local path` will r
 #### Era (`data-era`):
   - Optional
   - Adds this text to the date span in the timeline as an era designation. Useful for fictional calendars.
-  - Applied after the date is formatted. So `2300-00-00-00` with the era set to `AB` would display `2300 AB`.
+  - Applied after the date is formatted. So `2300-01-01-00` with the era set to `AB` would display `2300 AB`.
 
 #### Node Color (`data-color`):
   - Optional
-  - Adds the applied css class to the note card associated with the timeline entry
+  - Adds the color specified as a CSS class on the appropriate HTML elements in order to be associated with that timeline entry.
 
 Note: Acceptable values for `data-color` are `orange`, `yellow`, `red`, `blue`, `green`, `purple`, `pink`, and `gray`. If the value is not supplied, events will be colored white (or gray for background events) on the timeline.
 
@@ -260,7 +268,7 @@ Note: Acceptable values for `data-type` are:
 
 #### Tags (`data-tags`):
   - Optional
-  - An override to the tags that the event should be counted with. Allows you to have a note with events on separate timelines. For example, 1 event has tag "A" - a second has tag "B". A combined timeline will display both, but now you can also have 2 separate timelines where only the applicable ("A" or "B") events will be displayed.
+  - An override to the tags that the event should be counted with. Allows you to have a note with events on separate timelines. For example, 1 event has tag "A" and a second has tag "B". A combined timeline will display both, but now you can also have 2 separate timelines where only the applicable ("A" or "B") events will be displayed.
   - Values are a string of tags separated by semicolons, similar to the tags list on either of the codeblocks for displaying timelines. Ex: `data-tags="timeline-A;timeline-B"`
 
 ## Release Notes
