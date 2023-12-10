@@ -128,15 +128,15 @@ export class TimelineCommandProcessor {
       return null
     }
 
-    const numEvents = await getNumEventsInFile( file, this.appVault, this.metadataCache )
+    const { totalEvents } = await getNumEventsInFile({ file, appVault: this.appVault, fileCache: this.metadataCache }, null )
 
-    switch ( numEvents ) {
+    switch ( totalEvents ) {
     case 0:
       return 'Timeline: No events'
     case 1:
       return 'Timeline: 1 event'
     default:
-      return `Timeline: ${numEvents} events`
+      return `Timeline: ${totalEvents} events`
     }
   }
 }

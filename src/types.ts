@@ -1,4 +1,4 @@
-import { FrontMatterCache } from 'obsidian'
+import { FrontMatterCache, MetadataCache, TFile, Vault } from 'obsidian'
 
 /* ------------------------------ */
 /*              Enums             */
@@ -63,6 +63,12 @@ export interface EventItem {
   type: string,
 }
 
+export interface EventTypeNumbers {
+  numEvents: number,
+  numFrontMatter: number,
+  totalEvents: number,
+}
+
 export interface FrontMatterCacheType {
   type: 'FrontMatterCache',
   data: FrontMatterCache
@@ -72,6 +78,12 @@ export interface FrontMatterKeys {
   endDateKey: string[],
   startDateKey: string[],
   titleKey: string[],
+}
+
+export interface GetFileDataInput {
+  file: TFile | null,
+  appVault: Vault | null,
+  fileCache: MetadataCache | null,
 }
 
 export interface TimelinesSettings {

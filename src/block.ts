@@ -14,8 +14,8 @@ import {
   getEventData,
   isFrontMatterCacheType,
   isHTMLElementType,
-  confirmShapeOfCombinedEvents,
   setDefaultArgs,
+  getNumEventsInFile,
 } from './utils'
 
 // Horizontal (Vis-Timeline) specific imports
@@ -122,7 +122,7 @@ export class TimelineProcessor {
   ) {
     for ( const file of this.currentFileList ) {
       const combinedEventsAndFrontMatter = await getEventsInFile( file, this.appVault, this.metadataCache )
-      confirmShapeOfCombinedEvents( combinedEventsAndFrontMatter )
+      const { numEvents } = await getNumEventsInFile( null, combinedEventsAndFrontMatter )
 
       combinedEventsAndFrontMatter.forEach(( event ) => {
         let eventData = null
@@ -130,10 +130,11 @@ export class TimelineProcessor {
           logger( "we're handling a frontmatter event entry, w/ event: ", event )
           eventData = getEventData( event, file, this.settings.frontMatterKeys, true )
 
-          if ( eventData?.showOnTimeline !== true ) {
-            logger( 'showOnTimeline is not true, skipping frontmatter event' )
-            // todo: don't require showOnTimeline for notes with only Frontmatter events
-            // don't render frontmatter entries that don't specifically mark showOnTimeline as true
+          if ( numEvents && eventData?.showOnTimeline !== true ) {
+            console.warn(
+              `Both HTML and Frontmatter exist in file: ${file.name}.
+              The key showOnTimeline is not true, skipping frontmatter event`
+            )
             return
           }
         }

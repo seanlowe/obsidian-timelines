@@ -1,34 +1,50 @@
 import { FrontMatterCache, MetadataCache, Notice, TFile, Vault } from 'obsidian'
-import { ElementType, EventCountData, EventDataObject, FrontMatterCacheType, FrontMatterKeys } from 'src/types'
+import {
+  ElementType,
+  EventCountData,
+  EventDataObject,
+  EventTypeNumbers,
+  FrontMatterCacheType,
+  FrontMatterKeys,
+  GetFileDataInput
+} from '../types'
 import { findMatchingFrontMatterKey } from './frontmatter'
 import { logger } from './debug'
 
-export async function getNumEventsInFile( file: TFile, appVault: Vault, fileCache: MetadataCache ): Promise<number> {
-  const combinedEventsAndFrontMatter = await getEventsInFile( file, appVault, fileCache )
+/**
+ * Gets the number of events (HTML or Frontmatter) in a file.
+ *
+ * @param {GetFileDataInput} getFileData - an object containing the file to get the events from,
+ *   the Obsidian vault object, and the Obsidian fileCache
+ * @param {EventCountData} eventData - (optional) if provided, will use this instead of getting the events from the file
+ *
+ * @returns
+ */
+export async function getNumEventsInFile(
+  getFileData: GetFileDataInput | null,
+  eventData: EventCountData | null = null
+): Promise<EventTypeNumbers> {
+  let combinedEventsAndFrontMatter = eventData
+  if ( !combinedEventsAndFrontMatter ) {
+    logger( 'no eventData, getting events from file' )
+    const { file, appVault, fileCache } = getFileData ?? {}
+    combinedEventsAndFrontMatter = await getEventsInFile( file, appVault, fileCache )
+  }
+
   const events = combinedEventsAndFrontMatter.filter(( event ) => {
-    event.type === 'Element'
+    return event.type === 'Element'
   })
 
-  // don't need to do a filter on the frontmatter. Should only ever be 1
-  const frontMatter = combinedEventsAndFrontMatter.find(( event ) => {
-    event.type === 'FrontMatterCache'
+  // even though there should only ever be 1, we still filter so that we get back an array
+  const frontMatter = combinedEventsAndFrontMatter.filter(( event ) => {
+    return event.type === 'FrontMatterCache'
   })
 
   logger( 'events & frontmatter', { events, frontMatter })
-  const eventLength = events?.length ?? 0
+  const numFrontMatter = frontMatter.length
+  const numEvents = events.length
 
-  // if frontmatter exists, and the "showOnTimeline" key is present,
-  // treat the note as an event separate from any HTML events within the note
-  if ( frontMatter && Object.keys( frontMatter.data ).includes( 'showOnTimeline' )) {
-    return eventLength + 1
-  }
-
-  // if there are no HTML events but there is frontmatter, return 1
-  if ( !eventLength && frontMatter ) {
-    return 1
-  }
-
-  return eventLength
+  return { numEvents, numFrontMatter, totalEvents: numEvents + numFrontMatter }
 }
 
 export const getEventsInFile = async (
