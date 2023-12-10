@@ -144,7 +144,7 @@ export class TimelineProcessor {
 
         logger( 'eventData', eventData )
         const {
-          color,
+          color: initialColor,
           endDate,
           era,
           eventImg,
@@ -154,6 +154,8 @@ export class TimelineProcessor {
           tags,
           type,
         } = eventData
+
+        const color = initialColor === 'grey' ? 'gray' : initialColor
 
         if ( tags ) {
           logger( 'this note contains override tags' )

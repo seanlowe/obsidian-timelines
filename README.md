@@ -241,7 +241,7 @@ Note: Currently only assets specified via `http` or `absolute local path` will r
   - Optional
   - Adds the applied css class to the note card associated with the timeline entry
 
-Note: Acceptable values for `data-color` are `orange`, `yellow`, `red`, `blue`, `green`, `purple`, `pink`, and `gray`. If the value is not supplied, events will be colored white (or grey for background events) on the timeline.
+Note: Acceptable values for `data-color` are `orange`, `yellow`, `red`, `blue`, `green`, `purple`, `pink`, and `gray`. If the value is not supplied, events will be colored white (or gray for background events) on the timeline.
 
 #### Type (`data-type`):
   - Optional
