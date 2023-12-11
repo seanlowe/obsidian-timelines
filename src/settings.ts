@@ -1,16 +1,7 @@
-import { AcceptableEventElements, TimelinesSettings, developerSettings } from './types'
-
+import { AcceptableEventElements, developerSettings } from './types'
 import { App, PluginSettingTab, Setting } from 'obsidian'
 import TimelinesPlugin from './main'
 import { logger } from './utils'
-
-export const DEFAULT_SETTINGS: TimelinesSettings = {
-  eventElement: AcceptableEventElements.div,
-  showEventCounter: true,
-  showRibbonCommand: true,
-  sortDirection: true,
-  timelineTag: 'timeline',
-}
 
 const enableDeveloperSettings = (): void => {
   logger( 'clicked on the h2' )
@@ -19,8 +10,6 @@ const enableDeveloperSettings = (): void => {
     developerSettings.debug = true
   }
 }
-
-export const RENDER_TIMELINE: RegExp = /<!--TIMELINE BEGIN tags=['"]([^"]*?)['"]-->([\s\S]*?)<!--TIMELINE END-->/i
 
 export class TimelinesSettingTab extends PluginSettingTab {
   plugin: TimelinesPlugin
@@ -46,8 +35,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
           return button
             .setButtonText( 'Disable Debug Mode' )
             .onClick(( e ) => {
-              logger( '', e )
-
+              e.preventDefault()
               developerSettings.debug = false
               developerSettings.counter = 0
 
@@ -70,7 +58,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
 
     new Setting( containerEl )
       .setName( 'Chronological Direction' )
-      .setDesc( 'Default sorting is OLD -> NEW. Turn this setting off for NEW -> OLD' )
+      .setDesc( 'When enabled, events will be sorted from old to new. Turn this setting off to sort from new to old.' )
       .addToggle(( toggle ) => {
         toggle.setValue( this.plugin.settings.sortDirection )
         toggle.onChange( async ( value: boolean ) => {
@@ -99,7 +87,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
     fragment.appendChild( div )
 
     new Setting( containerEl )
-      .setName( 'Show Ribbon Button' )
+      .setName( 'Show Ribbon Buttons' )
       .setDesc( fragment )
       .addToggle(( toggle ) => {
         toggle.setValue( this.plugin.settings.showRibbonCommand )
@@ -121,6 +109,61 @@ export class TimelinesSettingTab extends PluginSettingTab {
           this.plugin.settings.showEventCounter = value
           await this.plugin.saveSettings()
         })
+      })
+
+    new Setting( containerEl )
+      .setName( 'Display Note Preview On Hover' )
+      .setDesc( 'When enabled, linked notes will display as a pop up when hovering over an event in the timeline.' )
+      .addToggle(( toggle ) => {
+        toggle.setValue( this.plugin.settings.notePreviewOnHover )
+        toggle.onChange( async ( value ) => {
+          this.plugin.settings.notePreviewOnHover = value
+          await this.plugin.saveSettings()
+        })
+      })
+
+    containerEl.createEl( 'h5', { text: 'Customize Frontmatter Keys' }).appendChild(
+      createEl( 'p', {
+        text: `Specify the front matter keys used to extract start dates, end dates,
+         and titles for the timeline notes. Defaults to 'start-date', 'end-date', and 'title'.`,
+        cls: 'setting-item-description'
+      })
+    )
+
+    new Setting( containerEl )
+      .setName( 'Start Date Keys' )
+      .setDesc( 'Comma-separated list of frontmatter keys for start date. Example: start-date,fc-date' )
+      .addText( text => {
+        return text
+          .setPlaceholder( this.plugin.settings.frontMatterKeys.startDateKey.join( ',' ))
+          .onChange( async ( value ) => {
+            this.plugin.settings.frontMatterKeys.startDateKey = value.split( ',' )
+            await this.plugin.saveSettings()
+          })
+      })
+
+    new Setting( containerEl )
+      .setName( 'End Date Keys' )
+      .setDesc( 'Comma-separated list of frontmatter keys for end date.' )
+      .addText( text => {
+        return text
+          .setPlaceholder( this.plugin.settings.frontMatterKeys.endDateKey.join( ',' ))
+          .onChange( async ( value ) => {
+            this.plugin.settings.frontMatterKeys.endDateKey = value.split( ',' )
+            await this.plugin.saveSettings()
+          })
+      })
+
+    new Setting( containerEl )
+      .setName( 'Title Keys' )
+      .setDesc( 'Comma-separated list of frontmatter keys for title.' )
+      .addText( text => {
+        return text
+          .setPlaceholder( this.plugin.settings.frontMatterKeys.titleKey.join( ',' ))
+          .onChange( async ( value ) => {
+            this.plugin.settings.frontMatterKeys.titleKey = value.split( ',' )
+            await this.plugin.saveSettings()
+          })
       })
   }
 }

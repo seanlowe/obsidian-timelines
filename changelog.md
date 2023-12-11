@@ -1,5 +1,12 @@
 ## Changelog
 
+### v1.2.0
+Added functionality to override tags for a particular event. This allows you to have a note with events on separate timelines. Resolves github feature request: `[New Feature] Override tags defined on the page with a new attribute tags` [#12](https://github.com/seanlowe/obsidian-timelines/issues/12)
+
+Additional changes:
+- reworked how tags are parsed from code bock arguments
+- added some utility functionality for debugging
+
 ### v1.1.1
 Added an item to the editor status bar to indicate how many events are in the current file.
 

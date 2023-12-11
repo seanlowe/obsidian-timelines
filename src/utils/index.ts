@@ -1,7 +1,30 @@
-import type { TFile, MetadataCache, DataAdapter, Vault } from 'obsidian'
+import {
+  DataAdapter,
+  FrontMatterCache,
+  getAllTags,
+  MetadataCache,
+  MarkdownView,
+  TFile,
+  Workspace
+} from 'obsidian'
+import { CardContainer } from '../types'
+import { logger } from './debug'
 
-import { getAllTags } from 'obsidian'
-import { developerSettings } from './types'
+export * from './debug'
+export * from './events'
+export * from './frontmatter'
+
+export function setDefaultArgs() {
+  return {
+    tags: [],
+    divHeight: '400',
+    startDate: '-1000',
+    endDate: '3000',
+    minDate: '-3000',
+    maxDate: '3000',
+    type: null,
+  }
+}
 
 /**
  * Parse a tag and all its subtags into a list.
@@ -40,39 +63,27 @@ export function filterMDFiles( file: TFile, tagList: string[], metadataCache: Me
     return true
   }
 
-  const tags = getAllTags( metadataCache.getFileCache( file )).map(( e ) => {
+  const rawTags = getAllTags( metadataCache.getFileCache( file ))
+  logger( `rawTags from file: ${file.name}:`, rawTags )
+
+  const tags = rawTags.map(( e ) => {
     return e.slice( 1 )
   })
+  logger( `getAllTags from file: ${file.name}:`, tags )
 
-  if ( tags && tags.length > 0 ) {
-    const fileTags: string[] = []
-    tags.forEach(( tag ) => {
-      return parseTag( tag, fileTags )
-    })
-    return tagList.every(( val ) => {
-      return fileTags.includes( val as string )
-    })
+  if ( !tags.length ) {
+    return false
   }
 
-  return false
-}
+  const fileTags: string[] = []
+  tags.forEach(( tag ) => {
+    return parseTag( tag, fileTags )
+  })
 
-export async function getNumEventsInFile( file: TFile, appVault: Vault ): Promise<number> {
-  const events = await getEventsInFile( file, appVault )
-
-  return events.length
-}
-
-export async function getEventsInFile( file: TFile, appVault: Vault ): Promise<HTMLCollectionOf<Element>> {
-  if ( !file ) {
-    return new HTMLCollection()
-  }
-
-  const domParser = new DOMParser()
-  const doc = domParser.parseFromString( await appVault.cachedRead( file ), 'text/html' )
-  const events = doc.getElementsByClassName( 'ob-timelines' )
-
-  return events
+  return tagList.every(( val ) => {
+    logger( `testing val: ${val}`, fileTags.includes( String( val )))
+    return fileTags.includes( String( val ))
+  })
 }
 
 /**
@@ -127,15 +138,43 @@ export const buildTimelineDate = ( rawDate: string ): Date|null => {
   return new Date( cleanedDate )
 }
 
-
 /**
- * A custom logging wrapper that only logs if we're in DEBUG mode.
+ * Create an internal link on the a timeline's event "note" card
  *
- * @param message The message to display
- * @param object optional - an object to display alongside the message
+ * @param event
+ * @param noteCard
  */
-export const logger = ( message: string, object?: unknown ) => {
-  if ( !developerSettings.debug ) return
+export const createInternalLinkOnNoteCard = ( event: CardContainer, noteCard: HTMLElement ) => {
+  noteCard
+    .createEl( 'article' )
+    .createEl( 'h3' )
+    .createEl( 'a', {
+      cls: 'internal-link',
+      attr: { href: `${event.path}` },
+      text: event.title
+    })
+}
 
-  console.log( message, object ?? '' )
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const isFrontMatterCacheType = ( value: any ): value is FrontMatterCache => {
+  return value?.type === 'FrontMatterCache'
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const isHTMLElementType = ( value: any ): value is HTMLElement => {
+  return value?.type === 'Element'
+}
+
+export const confirmUserInEditor = ( workspace: Workspace ) => {
+  const view = workspace.getActiveViewOfType( MarkdownView )
+  if ( !view ) {
+    throw new Error( 'No active MarkdownView' )
+  }
+
+  const editor = view.editor
+  if ( !editor ) {
+    throw new Error( 'Could not retrieve editor' )
+  }
+
+  return editor
 }

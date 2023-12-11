@@ -1,9 +1,12 @@
-export interface TimelinesSettings {
-  eventElement: AcceptableEventElements,
-  showEventCounter: boolean,
-  showRibbonCommand: boolean,
-  sortDirection: boolean,
-  timelineTag: string,
+import { FrontMatterCache, MetadataCache, TFile, Vault } from 'obsidian'
+
+/* ------------------------------ */
+/*              Enums             */
+/* ------------------------------ */
+
+export enum AcceptableEventElements {
+  div = 'div',
+  span = 'span',
 }
 
 export const developerSettings = {
@@ -11,36 +14,92 @@ export const developerSettings = {
   counter: 0,
 }
 
+/* ------------------------------ */
+/*           Interfaces           */
+/* ------------------------------ */
+
 export interface TimelineArgs {
-  [key: string]: string | string[],
+  [key: string]: string | string[] | null,
 }
 
 export interface CardContainer {
-  startDate: string,
-  title: string,
+  color: string,
+  endDate: string,
+  era: string,
   img: string,
   innerHTML: string,
   path: string,
-  endDate: string,
+  startDate: string,
+  title: string,
   type: string,
-  class: string,
-  era: string
+}
+
+export interface ElementType {
+  type: 'Element',
+  data: HTMLElement
+}
+
+export interface EventDataObject {
+  color: string,
+  endDate: string,
+  era: string,
+  eventImg: string,
+  notePath: string,
+  noteTitle: string,
+  showOnTimeline: boolean | null,
+  startDate: string,
+  tags: string,
+  type: string,
 }
 
 export interface EventItem {
   id: number,
-  content: string,
-  title: string,
-  start: Date,
   className: string,
+  content: string,
+  end: Date,
+  path: string,
+  start: Date,
+  title: string,
   type: string,
-  end: Date
 }
+
+export interface EventTypeNumbers {
+  numEvents: number,
+  numFrontMatter: number,
+  totalEvents: number,
+}
+
+export interface FrontMatterCacheType {
+  type: 'FrontMatterCache',
+  data: FrontMatterCache
+}
+
+export interface FrontMatterKeys {
+  endDateKey: string[],
+  startDateKey: string[],
+  titleKey: string[],
+}
+
+export interface GetFileDataInput {
+  file: TFile | null,
+  appVault: Vault | null,
+  fileCache: MetadataCache | null,
+}
+
+export interface TimelinesSettings {
+  eventElement: AcceptableEventElements,
+  frontMatterKeys: FrontMatterKeys,
+  notePreviewOnHover: boolean,
+  showEventCounter: boolean,
+  showRibbonCommand: boolean,
+  sortDirection: boolean,
+  timelineTag: string,
+}
+
+/* ------------------------------ */
+/*              Types             */
+/* ------------------------------ */
 
 export type NoteData = CardContainer[]
 export type AllNotesData = NoteData[]
-
-export enum AcceptableEventElements {
-  div = 'div',
-  span = 'span',
-}
+export type EventCountData = ( ElementType | FrontMatterCacheType | null )[]
