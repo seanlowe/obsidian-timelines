@@ -5,6 +5,10 @@
   display: none;
 }
 
+.empty-timeline {
+  color: red;
+}
+
 .timeline-card {
   grid-auto-rows: min-content;
   color: #d1c077;

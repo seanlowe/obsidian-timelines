@@ -1,27 +1,33 @@
 import type { TimelinesSettings } from './types'
 
-import { TimelinesSettingTab, DEFAULT_SETTINGS } from './settings'
 import { TimelineProcessor } from './block'
+import { DEFAULT_SETTINGS } from './constants'
 import { Plugin, MarkdownView } from 'obsidian'
+import { TimelinesSettingTab } from './settings'
+import { TimelineCommandProcessor } from './commands'
+import { logger } from './utils'
 
 export default class TimelinesPlugin extends Plugin {
+  pluginName: string = 'Timelines (Revamped)'
   settings: TimelinesSettings
   statusBarItem: HTMLElement
-  proc: TimelineProcessor
+  blockProc: TimelineProcessor
+  commandProc: TimelineCommandProcessor
 
-  async onload() {
-    await this.loadSettings()
-    console.log( 'Loaded Plugin: Timelines (Revamped)' )
-    this.proc = new TimelineProcessor( this.settings, this.app.metadataCache, this.app.vault )
+  initialize = async () => {
+    console.log( `Initializing Plugin: ${this.pluginName}` )
+    this.settings = Object.assign({}, await this.loadData() ?? DEFAULT_SETTINGS )
+    this.blockProc = new TimelineProcessor( this.settings, this.app.metadataCache, this.app.vault )
+    this.commandProc = new TimelineCommandProcessor( this )
+  }
+
+  onload = async () => {
+    await this.initialize()
+    console.log( `Loaded Plugin: ${this.pluginName}` )
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     this.registerMarkdownCodeBlockProcessor( 'ob-timeline', async ( source, el, ctx ) => {
-      await this.proc.run( source, el, false )
-    })
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    this.registerMarkdownCodeBlockProcessor( 'ob-timeline-flat', async ( source, el, ctx ) => {
-      await this.proc.run( source, el, true )
+      await this.blockProc.run( source, el )
     })
 
     this.addCommand({
@@ -30,91 +36,63 @@ export default class TimelinesPlugin extends Plugin {
       callback: async () => {
         const view = this.app.workspace.getActiveViewOfType( MarkdownView )
         if ( view ) {
-          await this.proc.insertTimelineIntoCurrentNote( view )
+          await this.blockProc.insertTimelineIntoCurrentNote( view )
         }
       }
     })
-
-    if ( this.settings.showRibbonCommand ) {
-      this.addRibbonIcon( 'code-2', 'Insert Timeline Event', async () => {
-        await this.addTimelineEvent( this.proc )
-      })
-    }
 
     this.addCommand({
       id: 'insert-timeline-event',
       name: 'Insert Timeline Event',
       callback: async () => {
-        return await this.addTimelineEvent( this.proc )
+        return await this.commandProc.createTimelineEventInCurrentNote()
       }
     })
 
-    if ( this.settings.showEventCounter ) {
-      this.createStatusBar()
-    }
+    this.addCommand({
+      id: 'insert-timeline-event-frontmatter',
+      name: 'Insert Timeline Event (Frontmatter)',
+      callback: async () => {
+        return this.commandProc.createTimelineEventFrontMatterInCurrentNote()
+      }
+    })
 
     this.addSettingTab( new TimelinesSettingTab( this.app, this ))
+
+    /* --- setting specific checks --- */
+
+    if ( this.settings.showRibbonCommand ) {
+      this.addRibbonIcon( 'code-2', 'Insert Timeline Event', async () => {
+        await this.commandProc.createTimelineEventInCurrentNote()
+      })
+
+      this.addRibbonIcon( 'list-plus', 'Insert Timeline Event (Frontmatter)', async () => {
+        await this.commandProc.createTimelineEventFrontMatterInCurrentNote()
+      })
+    }
+
+    if ( this.settings.showEventCounter ) {
+      this.commandProc.createStatusBar( this )
+    }
   }
 
-  async onFileOpen() {
-    this.handleStatusBarUpdates()
+  onFileOpen = async () => {
+    if ( !this.commandProc ) {
+      logger( 'Command processor was not initialized' )
+
+      await this.initialize()
+    }
+
+    this.commandProc.handleStatusBarUpdates( this )
   }
 
-  onunload() {
-    console.log( 'Unloaded Plugin: Timelines (Revamped)' )
+  onunload = () => {
+    console.log( `Unloaded Plugin: ${this.pluginName}` )
   }
 
-  async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
-  }
-
-  async saveSettings() {
-    this.handleStatusBarUpdates()
+  saveSettings = async () => {
+    this.commandProc.handleStatusBarUpdates( this )
 
     await this.saveData( this.settings )
-  }
-
-  /* ----------------- */
-
-  async addTimelineEvent( proc: TimelineProcessor ) {
-    const view = this.app.workspace.getActiveViewOfType( MarkdownView )
-    if ( view ) {
-      await proc.createTimelineEventInCurrentNote( view )
-    }
-  }
-
-  async handleStatusBarUpdates() {
-    if ( !this.settings.showEventCounter ) {
-      // ensure the status bar item is removed
-      if ( this.statusBarItem ) {
-        this.statusBarItem.remove()
-        this.statusBarItem = null
-      }
-
-      return
-    }
-
-    // if the status bar item has not been created yet, create it
-    if ( !this.statusBarItem ) {
-      this.createStatusBar()
-
-      return
-    }
-
-    this.updateStatusBarText()
-  }
-
-  async createStatusBar() {
-    this.statusBarItem = this.addStatusBarItem()
-    this.statusBarItem.createEl( 'span', { text: '', })
-    this.updateStatusBarText()
-    this.registerEvent(
-      this.app.workspace.on( 'file-open', this.onFileOpen.bind( this ))
-    )
-  }
-
-  async updateStatusBarText() {
-    const text = await this.proc.getStatusBarText( this.app.workspace )
-    this.statusBarItem.setText( text )
   }
 }

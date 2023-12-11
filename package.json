@@ -1,10 +1,11 @@
 {
   "name": "timelines-revamped",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Generate a chronological timeline in which all 'events' are notes that include a specific tag or set of tags.",
   "main": "main.js",
   "scripts": {
-    "dev": "rollup --config rollup.config.js -w",
+    "dev": "./scripts/dev-build.sh",
+    "dev:rollup": "rollup --config rollup.config.js -w",
     "build": "./scripts/build.sh",
     "bump:patch": "npm version patch --no-git-tag-version && node ./scripts/bump-manifest.mjs",
     "bump:minor": "npm version minor --no-git-tag-version && node ./scripts/bump-manifest.mjs",
@@ -16,19 +17,19 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^15.1.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
-    "@rollup/plugin-typescript": "^6.0.0",
-    "@types/node": "^14.14.2",
-    "@typescript-eslint/eslint-plugin": "^6.1.0",
-    "@typescript-eslint/parser": "^6.1.0",
-    "eslint": "^8.45.0",
-    "obsidian": "^1.2.8",
-    "rollup": "^2.32.1",
-    "sass": "^1.63.6",
-    "tslib": "^2.0.3",
-    "typescript": "^4.0.3"
+    "@rollup/plugin-typescript": "^6.1.0",
+    "@types/node": "^14.18.54",
+    "@typescript-eslint/eslint-plugin": "^6.2.1",
+    "@typescript-eslint/parser": "^6.2.1",
+    "eslint": "^8.46.0",
+    "obsidian": "^1.3.5",
+    "rollup": "^2.79.1",
+    "sass": "^1.64.2",
+    "tslib": "^2.6.1",
+    "typescript": "^5.1.6"
   },
   "dependencies": {
     "rollup-plugin-styles": "^4.0.0",
-    "vis-timeline": "^7.4.6"
+    "vis-timeline": "^7.7.2"
   }
 }

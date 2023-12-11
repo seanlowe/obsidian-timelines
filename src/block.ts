@@ -1,17 +1,21 @@
-import type { TimelinesSettings, TimelineArgs, AllNotesData, CardContainer, EventItem } from './types'
-import type { TFile, MetadataCache, Vault, Workspace } from 'obsidian'
+import type { TimelinesSettings, TimelineArgs, AllNotesData, EventItem, CardContainer } from './types'
+import type { TFile, MetadataCache, Vault } from 'obsidian'
 import { MarkdownView } from 'obsidian'
-
-import { RENDER_TIMELINE } from './settings'
+import { RENDER_TIMELINE } from './constants'
 import {
   filterMDFiles,
   buildTimelineDate,
   createDateArgument,
   getEventsInFile,
   getImgUrl,
-  getNumEventsInFile,
   parseTag,
   logger,
+  createInternalLinkOnNoteCard,
+  getEventData,
+  isFrontMatterCacheType,
+  isHTMLElementType,
+  setDefaultArgs,
+  getNumEventsInFile,
 } from './utils'
 
 // Horizontal (Vis-Timeline) specific imports
@@ -32,14 +36,22 @@ export class TimelineProcessor {
     this.files = this.appVault.getMarkdownFiles()
     this.metadataCache = metadataCache
     this.settings = settings
-    this.args = {
-      tags: [],
-      divHeight: '400',
-      startDate: '-1000',
-      endDate: '3000',
-      minDate: '-3000',
-      maxDate: '3000'
-    }
+    this.args = setDefaultArgs()
+  }
+
+  setup() {
+    this.args = setDefaultArgs()
+    this.files = this.appVault.getMarkdownFiles()
+  }
+
+  createTagList( tagString: string ): string[] {
+    const tagList: string[] = []
+    tagString.split( ';' ).forEach(( tag: string ) => {
+      return parseTag( tag, tagList )
+    })
+    tagList.push( this.settings.timelineTag )
+
+    return tagList
   }
 
   /**
@@ -59,7 +71,8 @@ export class TimelineProcessor {
 
     if ( !match || match.length === 1 ) return
 
-    const tagList = match[1]
+    const tagList = `tags=${match[1]}`
+    logger( 'taglist', tagList )
 
     const div = document.createElement( 'div' )
     const rendered = document.createElement( 'div' )
@@ -67,7 +80,7 @@ export class TimelineProcessor {
     rendered.setText( new Date().toString())
 
     div.appendChild( document.createComment( `TIMELINE BEGIN tags='${match[1]}'` ))
-    await this.run( tagList, div, false )
+    await this.run( tagList, div )
 
     div.appendChild( rendered )
     div.appendChild( document.createComment( 'TIMELINE END' ))
@@ -76,96 +89,24 @@ export class TimelineProcessor {
   }
 
   /**
-   * Create an empty timeline event in the current note
-   *
-   * @param sourceView
-   */
-  async createTimelineEventInCurrentNote(
-    sourceView: MarkdownView
-  ) {
-    const editor = sourceView.editor
-
-    if ( !editor ) return
-
-    // create a div element with the correct data attributes
-    const newEventElement = document.createElement( this.settings.eventElement )
-    newEventElement.setAttribute( 'class', 'ob-timelines' )
-    newEventElement.setAttribute( 'data-title', '' )
-    newEventElement.setAttribute( 'data-description', '' )
-    newEventElement.setAttribute( 'data-class', '' )
-    newEventElement.setAttribute( 'data-type', '' )
-    newEventElement.setAttribute( 'data-start-date', '' )
-    newEventElement.setAttribute( 'data-end-date', '' )
-    newEventElement.setAttribute( 'data-era', '' )
-    newEventElement.setAttribute( 'data-path', '' )
-    newEventElement.setAttribute( 'data-tags', '' )
-    newEventElement.setText( 'New Event' )
-
-    // add a newline and a tab after each data attribute
-    let newElHtml = newEventElement.outerHTML.replace( /" /g, '"\n\t' )
-
-    const regex = new RegExp( `>(\\s*.*?)\\s*</(${this.settings.eventElement})>`, 'g' )
-
-    // put the new element's content text on it's own line and indent it, then add a newline
-    newElHtml = newElHtml.replace( regex, `>\n\t$1\n</${this.settings.eventElement}>\n` )
-
-    // insert the new element at the cursor position
-    editor.replaceRange( newElHtml, editor.getCursor())
-  }
-
-  /**
-   * Get the number of events to build the "Timeline: X event(s)" span in the status bar
-   *
-   * @param workspace
-   */
-  async getStatusBarText( workspace: Workspace ): Promise<string | null> {
-    const file = workspace.getActiveViewOfType( MarkdownView ).file
-
-    if ( !file ) {
-      return null
-    }
-
-    const numEvents = await getNumEventsInFile( file, this.appVault )
-
-    return `Timeline: ${numEvents} ${numEvents === 1 ? 'event' : 'events'}`
-  }
-
-  createTagList( tagString: string ): string[] {
-    const tagList: string[] = []
-    tagString.split( ';' ).forEach(( tag: string ) => {
-      return parseTag( tag, tagList )
-    })
-    tagList.push( this.settings.timelineTag )
-
-    return tagList
-  }
-
-  /**
    * Read the arguments from the codeblock
    *
    * @param visTimeline - whether or not we're rendering a vis-timeline
    * @param source - the codeblock source string
    */
-  async readArguments( visTimeline: boolean, source: string ) {
-    if ( !visTimeline ) {
-      // Parse the tags to search for the proper files
-      this.args.tags = this.createTagList( source.trim())
-
-      return
-    }
-
+  async readArguments( source: string ) {
     source.split( '\n' ).map(( entry ) => {
       if ( !entry ) return
 
       entry = entry.trim()
       const [ tag, rawValue ] = entry.split( '=' )
       const value = rawValue.trim()
+
       if ( tag === 'tags' ) {
         this.args[tag] = this.createTagList( value )
       } else {
         this.args[tag] = value
       }
-
     })
   }
 
@@ -180,30 +121,49 @@ export class TimelineProcessor {
     timelineDates: number[]
   ) {
     for ( const file of this.currentFileList ) {
-      const timelineData = await getEventsInFile( file, this.appVault )
+      const combinedEventsAndFrontMatter = await getEventsInFile( file, this.appVault, this.metadataCache )
+      const { numEvents } = await getNumEventsInFile( null, combinedEventsAndFrontMatter )
 
-      for ( const event of timelineData as unknown as HTMLElement[] ) {
-        if ( !( event instanceof HTMLElement )) continue
+      combinedEventsAndFrontMatter.forEach(( event ) => {
+        let eventData = null
+        if ( isFrontMatterCacheType( event )) {
+          logger( "we're handling a frontmatter event entry, w/ event: ", event )
+          eventData = getEventData( event, file, this.settings.frontMatterKeys, true )
 
-        const {
-          dataset: {
-            startDate,
-            // if no title is specified, use the note's name
-            title: noteTitle = file.name.replace( '.md', '' ),
-            class: noteClass = '',
-            type = 'box',
-            endDate = null,
-            img: eventImg = null,
-            path,
-            era,
-            tags: overrideTags = '',
+          if ( numEvents && eventData?.showOnTimeline !== true ) {
+            console.warn(
+              `Both HTML and Frontmatter exist in file: ${file.name}.
+              The key showOnTimeline is not true, skipping frontmatter event`
+            )
+            return
           }
-        } = event
-        const notePath = path ?? '/' + file.path
+        }
 
-        if ( overrideTags ) {
+        if ( isHTMLElementType( event )) {
+          logger( "we're handling an HTML event entry, w/ event: ", event )
+          eventData = getEventData( event, file, this.settings.frontMatterKeys, false )
+        }
+
+        logger( 'eventData', eventData )
+        const {
+          color: initialColor,
+          endDate,
+          era,
+          eventImg,
+          notePath,
+          noteTitle,
+          startDate,
+          tags,
+          type,
+        } = eventData
+
+        const color = initialColor === 'grey' ? 'gray' : initialColor
+
+        if ( tags ) {
           logger( 'this note contains override tags' )
-          const noteTags = overrideTags?.split( ';' )
+          // frontmatter tags come through as an array,
+          // HTML override tags are a semi-colon separated string
+          const noteTags = typeof tags === 'string' ? tags?.split( ';' ) : tags
 
           logger( 'noteTags:', noteTags )
           logger( 'this.args.tags:', this.args.tags )
@@ -222,7 +182,7 @@ export class TimelineProcessor {
           // if the override tags do not overlap with the tag list, do not display this note
           if ( !overrideTagsAreContainedInTagList ) {
             logger( 'Override tags do not overlap with tag list, skipping note' )
-            continue
+            return
           }
         }
 
@@ -231,52 +191,33 @@ export class TimelineProcessor {
           ? -parseInt( startDate.substring( 1 ).split( '-' ).join( '' ))
           : parseInt( startDate.split( '-' ).join( '' ))
 
-        if ( !Number.isInteger( noteId )) continue
+        if ( !Number.isInteger( noteId )) return
 
-        const defaultNoteData = {
-          startDate,
-          title: noteTitle,
-          img: getImgUrl( this.appVault.adapter, eventImg ),
-          innerHTML: event.innerHTML,
-          path: notePath,
-          class: noteClass,
-          type,
+        const imgUrl = getImgUrl( this.appVault.adapter, eventImg )
+
+        const note: CardContainer = {
+          color,
           endDate,
           era,
+          img: imgUrl,
+          innerHTML: event.data?.innerHTML ?? '',
+          path: notePath,
+          startDate,
+          title: noteTitle,
+          type,
         }
 
         if ( !timelineNotes[noteId] ) {
-          timelineNotes[noteId] = []
-          timelineNotes[noteId][0] = defaultNoteData
-
+          timelineNotes[noteId] = [note]
           timelineDates.push( noteId )
         } else {
-          const note = defaultNoteData
-
           // if note_id already present prepend or append to it
           timelineNotes[noteId][this.settings.sortDirection ? 'unshift' : 'push']( note )
 
           logger( 'Repeat date: %o', timelineNotes[noteId] )
         }
-      }
-    }
-  }
-
-  /**
-   * Create an internal link on the a timeline's event "note" card
-   *
-   * @param event
-   * @param noteCard
-   */
-  createInternalLinkOnNoteCard( event: CardContainer, noteCard: HTMLElement ) {
-    noteCard
-      .createEl( 'article' )
-      .createEl( 'h3' )
-      .createEl( 'a', {
-        cls: 'internal-link',
-        attr: { href: `${event.path}` },
-        text: event.title
       })
+    }
   }
 
   /**
@@ -315,6 +256,10 @@ export class TimelineProcessor {
           return
         }
 
+        // note from https://github.com/Darakah/obsidian-timelines/pull/58
+        // TODO: Stop Propagation: don't close timeline-card when clicked.
+        // `vis-timeline-graph2d.js` contains a method called `_updateContents` that makes the display
+        // attribute disappear on click via line 7426: `element.innerHTML = '';`
         currentStyle.setProperty( 'display', 'none' )
       })
 
@@ -334,11 +279,12 @@ export class TimelineProcessor {
           })
         }
 
-        if ( eventAtDate.class ) {
-          noteCard.addClass( eventAtDate.class )
+        if ( eventAtDate.color ) {
+          // todo : add more support for other custom classes
+          noteCard.addClass( eventAtDate.color )
         }
 
-        this.createInternalLinkOnNoteCard( eventAtDate, noteCard )
+        createInternalLinkOnNoteCard( eventAtDate, noteCard )
         noteCard.createEl( 'p', { text: eventAtDate.innerHTML.trim() })
       }
       eventCount++
@@ -373,7 +319,7 @@ export class TimelineProcessor {
 
     timelineDates.forEach(( date ) => {
       // add all events at this date
-      Object.values( timelineNotes[date] ).forEach(( event ) => {
+      Object.values( timelineNotes[date] ).forEach(( event: CardContainer ) => {
         const noteCard = document.createElement( 'div' )
         noteCard.className = 'timeline-card'
 
@@ -385,11 +331,11 @@ export class TimelineProcessor {
           })
         }
 
-        if ( event.class ) {
-          noteCard.addClass( event.class )
+        if ( event.color ) {
+          noteCard.addClass( event.color )
         }
 
-        this.createInternalLinkOnNoteCard( event, noteCard )
+        createInternalLinkOnNoteCard( event, noteCard )
         noteCard.createEl( 'p', { text: event.innerHTML })
 
         const start = buildTimelineDate( event.startDate )
@@ -404,16 +350,19 @@ export class TimelineProcessor {
           return
         }
 
-        // Add Event data
-        items.add({
+        const eventItem: EventItem = {
           id: items.length + 1,
           content: event.title ?? '',
-          title: noteCard.outerHTML as string,
+          title: String( noteCard.outerHTML ),
           start: start,
-          className: event.class ?? '',
+          className: event.color ?? 'gray',
           type: event.type,
-          end: end ?? null
-        })
+          end: end ?? null,
+          path: event.path,
+        }
+
+        // Add Event data
+        items.add( eventItem )
       })
     })
 
@@ -426,20 +375,27 @@ export class TimelineProcessor {
       minHeight: Number( this.args.divHeight ),
       showCurrentTime: false,
       showTooltips: false,
-      template: function ( item: EventItem ) {
-        const eventContainer = document.createElement( 'div' )
+      template: ( item: EventItem ) => {
+        const eventContainer = document.createElement( this.settings.notePreviewOnHover ? 'a' : 'div' )
+        if ( 'href' in eventContainer ) {
+          eventContainer.addClass( 'internal-link' )
+          eventContainer.href = item.path
+        }
+
         eventContainer.setText( item.content )
 
         const eventCard = eventContainer.createDiv()
         eventCard.outerHTML = item.title
 
-        eventContainer.addEventListener( 'click', ( event ) => {
-          event.preventDefault()
-
-          const el = eventContainer.getElementsByClassName( 'timeline-card' )[0] as HTMLElement
-          el.style.setProperty( 'display', 'block' )
-          el.style.setProperty( 'top', `-${el.clientHeight + 10}px` )
-        })
+        // click event to open the popover
+        // todo : allow overflow from vis-center and re-position timeline-card
+        // eventContainer.addEventListener( 'click', ( event ) => {
+        //   event.preventDefault()
+        //
+        //   const el = eventContainer.getElementsByClassName( 'timeline-card' )[0] as HTMLElement
+        //   el.style.setProperty( 'display', 'block' )
+        //   el.style.setProperty( 'top', `-${el.clientHeight + 10}px` )
+        // })
 
         return eventContainer
       }
@@ -453,29 +409,42 @@ export class TimelineProcessor {
     el.appendChild( timelineDiv )
   }
 
+  async showEmptyTimelineMessage( el: HTMLElement, tagList: string[] ) {
+    const timelineDiv = document.createElement( 'div' )
+    timelineDiv.setAttribute( 'class', 'empty-timeline' )
+    const message = `No events found for tags: [ '${tagList.join( "', '" )}' ]`
+
+    timelineDiv.createEl( 'p', { text: message })
+    el.appendChild( timelineDiv )
+  }
+
   async run(
     source: string,
     el: HTMLElement,
-    visTimeline: boolean
   ) {
-    // read arguments
-    await this.readArguments( visTimeline, source )
+    this.setup()
 
+    // read arguments
+    await this.readArguments( source )
     logger( 'this.args', this.args )
 
+    logger( '# of files and tags', { fileCount: this.files.length, tags: this.args.tags })
     // Filter all markdown files to only those containing the tag list
     this.currentFileList = this.files.filter(( file ) => {
       return filterMDFiles( file, Array.from( this.args.tags ), this.metadataCache )
     })
 
+    logger( 'this.currentFileList', this.currentFileList )
+
     if ( !this.currentFileList || this.currentFileList.length === 0 ) {
       logger( 'No files found for the timeline' )
+      await this.showEmptyTimelineMessage( el, Array.from( this.args.tags ))
       return
     }
 
     // Keep only the files that have the time info
-    const timelineNotes = [] as AllNotesData
-    let timelineDates = [] as number[]
+    const timelineNotes: AllNotesData = []
+    let timelineDates: number[] = []
 
     await this.parseFiles( timelineNotes, timelineDates )
 
@@ -487,12 +456,13 @@ export class TimelineProcessor {
     const timelineDiv = document.createElement( 'div' )
     timelineDiv.setAttribute( 'class', 'timeline' )
 
-    if ( !visTimeline ) {
+    switch ( this.args.type ) {
+    case 'flat':
+      await this.buildHorizontalTimeline( timelineDiv, timelineNotes, timelineDates, el )
+      return
+    default:
       await this.buildVerticalTimeline( timelineDiv, timelineNotes, timelineDates, el )
       return
     }
-
-    await this.buildHorizontalTimeline( timelineDiv, timelineNotes, timelineDates, el )
-    return
   }
 }
