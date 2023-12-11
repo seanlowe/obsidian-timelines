@@ -289,11 +289,13 @@ Their notes about the change:
 Additional notes:
 - added some additional types and type checking
 - tweaked scss mixin `add-color` to make it easier to add additional color states depending on element state (selected, hover, etc.)
-- added a render option for when there are no files that match the timeline's parameters
+- added an error message that displays in place of the timeline when there are no files that match the timeline's parameters
 - added `pink` and `gray` to list of available colors
 - added functionality to show frontmatter events alongside HTML events (`showOnTimeline` key)
-- added a notice in the top right corner for notes that matched the tags provided but had no events to display. Usually, this is if you have frontmatter without the new `showOnTimeline` key set to `true`.
-- added a new command for inserting event frontmatter keys.
+- added a notice in the top right corner for notes that matched the tags provided but had no events to display. Usually, this is if you have frontmatter without the new `showOnTimeline` key set to `true`
+- added a new command for inserting event frontmatter keys
+- corrected logic in the event counting functionality. Now it correctly counts frontmatter and HTML events
+- disabled the popover that appears on click if `Display Note Preview on Hover` is turned off
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
