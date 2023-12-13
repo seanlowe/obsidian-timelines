@@ -11,7 +11,6 @@ export enum AcceptableEventElements {
 
 export const developerSettings = {
   debug: false,
-  counter: 0,
 }
 
 /* ------------------------------ */

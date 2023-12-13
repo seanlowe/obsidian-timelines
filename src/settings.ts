@@ -1,15 +1,6 @@
 import { AcceptableEventElements, developerSettings } from './types'
 import { App, PluginSettingTab, Setting } from 'obsidian'
 import TimelinesPlugin from './main'
-import { logger } from './utils'
-
-const enableDeveloperSettings = (): void => {
-  logger( 'clicked on the h2' )
-  developerSettings.counter += 1
-  if ( developerSettings.counter >= 5 ) {
-    developerSettings.debug = true
-  }
-}
 
 export class TimelinesSettingTab extends PluginSettingTab {
   plugin: TimelinesPlugin
@@ -21,28 +12,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
 
   display(): void {
     const { containerEl } = this
-
     containerEl.empty()
-    containerEl.createEl( 'h2', { text: 'Timelines (Revamped)' }, () => {
-      return enableDeveloperSettings()
-    })
-
-    if ( developerSettings.debug ) {
-      new Setting( containerEl )
-        .setName( 'Debug mode' )
-        .setDesc( 'This button only shows when debug mode is ON. Click to disable.' )
-        .addButton(( button ) => {
-          return button
-            .setButtonText( 'Disable Debug Mode' )
-            .onClick(( e ) => {
-              e.preventDefault()
-              developerSettings.debug = false
-              developerSettings.counter = 0
-
-              this.display()
-            })
-        })
-    }
 
     new Setting( containerEl )
       .setName( 'Default timeline tag' )
@@ -103,7 +73,6 @@ export class TimelinesSettingTab extends PluginSettingTab {
     const fragment = document.createDocumentFragment()
     const div = document.createElement( 'div' )
     div.innerText = `Default: on. Turn this setting on to show a button on the ribbon to quickly insert new events.
-
       NOTE: Requires an app restart for changes to take effect.
     `
     fragment.appendChild( div )
@@ -186,6 +155,20 @@ export class TimelinesSettingTab extends PluginSettingTab {
             this.plugin.settings.frontMatterKeys.titleKey = value.split( ',' )
             await this.plugin.saveSettings()
           })
+      })
+
+    containerEl.createEl( 'h6', { text: 'Developer tools' })
+    new Setting( containerEl )
+      .setName( 'Debug mode' )
+      .setDesc(
+        `If you are having an issue or have been asked to look at the logs, turn this on to see logs in the console.
+        Debug mode will default to off on plugin load and the current value will not be saved.`
+      )
+      .addToggle(( toggle ) => {
+        toggle.setValue( developerSettings.debug )
+        toggle.onChange(( value ) => {
+          developerSettings.debug = value
+        })
       })
   }
 }
