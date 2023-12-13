@@ -1,6 +1,6 @@
 import type { TimelinesSettings } from './types'
 
-import { TimelineProcessor } from './block'
+import { TimelineBlockProcessor } from './block'
 import { DEFAULT_SETTINGS } from './constants'
 import { Plugin, MarkdownView } from 'obsidian'
 import { TimelinesSettingTab } from './settings'
@@ -11,14 +11,16 @@ export default class TimelinesPlugin extends Plugin {
   pluginName: string = 'Timelines (Revamped)'
   settings: TimelinesSettings
   statusBarItem: HTMLElement
-  blockProc: TimelineProcessor
-  commandProc: TimelineCommandProcessor
+  blocks: TimelineBlockProcessor
+  commands: TimelineCommandProcessor
 
   initialize = async () => {
     console.log( `Initializing Plugin: ${this.pluginName}` )
-    this.settings = Object.assign({}, await this.loadData() ?? DEFAULT_SETTINGS )
-    this.blockProc = new TimelineProcessor( this.settings, this.app.metadataCache, this.app.vault )
-    this.commandProc = new TimelineCommandProcessor( this )
+
+    const loaded = await this.loadData()
+    this.settings = { ...DEFAULT_SETTINGS, ...loaded }
+    this.blocks = new TimelineBlockProcessor( this.settings, this.app.metadataCache, this.app.vault )
+    this.commands = new TimelineCommandProcessor( this )
   }
 
   onload = async () => {
@@ -27,16 +29,22 @@ export default class TimelinesPlugin extends Plugin {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     this.registerMarkdownCodeBlockProcessor( 'ob-timeline', async ( source, el, ctx ) => {
-      await this.blockProc.run( source, el )
+      await this.blocks.run( source, el )
     })
 
     this.addCommand({
       id: 'render-static-timeline',
       name: 'Render Static Timeline',
-      callback: async () => {
-        const view = this.app.workspace.getActiveViewOfType( MarkdownView )
-        if ( view ) {
-          await this.blockProc.insertTimelineIntoCurrentNote( view )
+      checkCallback: ( checking: boolean ) => {
+        const markdownView = this.app.workspace.getActiveViewOfType( MarkdownView )
+        if ( markdownView ) {
+          // If checking is true, we're simply "checking" if the command can be run.
+          // If checking is false, then we want to actually perform the operation.
+          if ( !checking ) {
+            this.blocks.insertTimelineIntoCurrentNote( markdownView )
+          }
+
+          return true
         }
       }
     })
@@ -44,16 +52,30 @@ export default class TimelinesPlugin extends Plugin {
     this.addCommand({
       id: 'insert-timeline-event',
       name: 'Insert Timeline Event',
-      callback: async () => {
-        return await this.commandProc.createTimelineEventInCurrentNote()
+      checkCallback: ( checking: boolean ) => {
+        const markdownView = this.app.workspace.getActiveViewOfType( MarkdownView )
+        if ( markdownView ) {
+          if ( !checking ) {
+            this.commands.createTimelineEventInCurrentNote()
+          }
+
+          return true
+        }
       }
     })
 
     this.addCommand({
       id: 'insert-timeline-event-frontmatter',
       name: 'Insert Timeline Event (Frontmatter)',
-      callback: async () => {
-        return this.commandProc.createTimelineEventFrontMatterInCurrentNote()
+      checkCallback: ( checking: boolean ) => {
+        const markdownView = this.app.workspace.getActiveViewOfType( MarkdownView )
+        if ( markdownView ) {
+          if ( !checking ) {
+            this.commands.createTimelineEventFrontMatterInCurrentNote()
+          }
+
+          return true
+        }
       }
     })
 
@@ -61,29 +83,29 @@ export default class TimelinesPlugin extends Plugin {
 
     /* --- setting specific checks --- */
 
-    if ( this.settings.showRibbonCommand ) {
+    if ( this.settings.showRibbonCommands ) {
       this.addRibbonIcon( 'code-2', 'Insert Timeline Event', async () => {
-        await this.commandProc.createTimelineEventInCurrentNote()
+        await this.commands.createTimelineEventInCurrentNote()
       })
 
       this.addRibbonIcon( 'list-plus', 'Insert Timeline Event (Frontmatter)', async () => {
-        await this.commandProc.createTimelineEventFrontMatterInCurrentNote()
+        await this.commands.createTimelineEventFrontMatterInCurrentNote()
       })
     }
 
     if ( this.settings.showEventCounter ) {
-      this.commandProc.createStatusBar( this )
+      this.commands.createStatusBar( this )
     }
   }
 
   onFileOpen = async () => {
-    if ( !this.commandProc ) {
+    if ( !this.commands ) {
       logger( 'Command processor was not initialized' )
 
       await this.initialize()
     }
 
-    this.commandProc.handleStatusBarUpdates( this )
+    this.commands.handleStatusBarUpdates( this )
   }
 
   onunload = () => {
@@ -91,7 +113,7 @@ export default class TimelinesPlugin extends Plugin {
   }
 
   saveSettings = async () => {
-    this.commandProc.handleStatusBarUpdates( this )
+    this.commands.handleStatusBarUpdates( this )
 
     await this.saveData( this.settings )
   }

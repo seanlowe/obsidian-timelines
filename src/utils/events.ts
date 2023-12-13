@@ -1,15 +1,22 @@
-import { FrontMatterCache, MetadataCache, Notice, TFile, Vault } from 'obsidian'
+import { FrontMatterCache, MetadataCache, Notice, TFile, Vault, normalizePath } from 'obsidian'
 import {
-  ElementType,
   EventCountData,
   EventDataObject,
   EventTypeNumbers,
-  FrontMatterCacheType,
   FrontMatterKeys,
   GetFileDataInput
 } from '../types'
 import { findMatchingFrontMatterKey } from './frontmatter'
 import { logger } from './debug'
+
+// todo: figure out more deterministic way of checking whether an object is of type FrontMatterCache
+export const isFrontMatterCacheType = ( value: unknown ): value is FrontMatterCache => {
+  return !( value instanceof HTMLElement )
+}
+
+export const isHTMLElementType = ( value: unknown ): value is HTMLElement => {
+  return value instanceof HTMLElement
+}
 
 /**
  * Gets the number of events (HTML or Frontmatter) in a file.
@@ -31,14 +38,9 @@ export async function getNumEventsInFile(
     combinedEventsAndFrontMatter = await getEventsInFile( file, appVault, fileCache )
   }
 
-  const events = combinedEventsAndFrontMatter.filter(( event ) => {
-    return event.type === 'Element'
-  })
-
   // even though there should only ever be 1, we still filter so that we get back an array
-  const frontMatter = combinedEventsAndFrontMatter.filter(( event ) => {
-    return event.type === 'FrontMatterCache'
-  })
+  const frontMatter = combinedEventsAndFrontMatter.filter( isFrontMatterCacheType )
+  const events = combinedEventsAndFrontMatter.filter( isHTMLElementType )
 
   logger( 'events & frontmatter', { events, frontMatter })
   const numFrontMatter = frontMatter.length
@@ -56,17 +58,14 @@ export const getEventsInFile = async (
     return null
   }
 
-  const doc = new DOMParser().parseFromString( await appVault.cachedRead( file ), 'text/html' )
+  const fileEvents: EventCountData = []
+  const doc = ( new DOMParser()).parseFromString( await appVault.cachedRead( file ), 'text/html' )
   const rawEvents = doc.getElementsByClassName( 'ob-timelines' )
-  const events: ElementType[] = Array.from( rawEvents ).map(( event: Element ) => {
-    return { type: 'Element', data: event as HTMLElement }
-  })
-
-  const fileEvents: EventCountData = [...events]
+  fileEvents.push( ...Array.from( rawEvents ).filter( isHTMLElementType ))
 
   const frontMatterData = fileCache.getFileCache( file ).frontmatter
   if ( frontMatterData ) {
-    fileEvents.push({ type: 'FrontMatterCache', data: frontMatterData })
+    fileEvents.push( frontMatterData )
   }
 
   logger( 'fileEvents', fileEvents )
@@ -75,32 +74,31 @@ export const getEventsInFile = async (
 }
 
 export const getEventData = (
-  eventObject: ElementType | FrontMatterCacheType | null,
+  eventObject: HTMLElement | FrontMatterCache,
   file: TFile,
   frontMatterKeys: FrontMatterKeys,
-  isFrontMatterCacheType: boolean
-): EventDataObject => {
+): EventDataObject | null => {
   const startDate = retrieveEventValue(
-    eventObject, 'startDate', null, isFrontMatterCacheType, frontMatterKeys?.startDateKey
+    eventObject, 'startDate', null, frontMatterKeys?.startDateKey
   )
   if ( !startDate ) {
     new Notice( `No date found for ${file.name}` )
-    return {} as EventDataObject
+    return null
   }
 
-  const color          = retrieveEventValue( eventObject, 'color', '', isFrontMatterCacheType )
+  const color          = retrieveEventValue( eventObject, 'color', '' )
   const endDate        = retrieveEventValue(
-    eventObject, 'endDate', null, isFrontMatterCacheType, frontMatterKeys?.endDateKey
+    eventObject, 'endDate', null, frontMatterKeys?.endDateKey
   )
-  const era            = retrieveEventValue( eventObject, 'era', null, isFrontMatterCacheType )
-  const eventImg       = retrieveEventValue( eventObject, 'img', null, isFrontMatterCacheType )
-  const notePath       = retrieveEventValue( eventObject, 'path', '/' + file.path, isFrontMatterCacheType )
+  const era            = retrieveEventValue( eventObject, 'era', null )
+  const eventImg       = retrieveEventValue( eventObject, 'img', null )
+  const notePath       = retrieveEventValue( eventObject, 'path', '/' + normalizePath( file.path ))
   const noteTitle      = retrieveEventValue(
-    eventObject, 'title', file.name.replace( '.md', '' ), isFrontMatterCacheType, frontMatterKeys?.titleKey
+    eventObject, 'title', file.name.replace( '.md', '' ), frontMatterKeys?.titleKey
   )
-  const tags           = retrieveEventValue( eventObject, 'tags', '', isFrontMatterCacheType )
-  const type           = retrieveEventValue( eventObject, 'type', 'box', isFrontMatterCacheType )
-  const showOnTimeline = retrieveEventValue( eventObject, 'showOnTimeline', null, isFrontMatterCacheType )
+  const tags           = retrieveEventValue( eventObject, 'tags', '' )
+  const type           = retrieveEventValue( eventObject, 'type', 'box' )
+  const showOnTimeline = retrieveEventValue( eventObject, 'showOnTimeline', null )
 
   const eventData: EventDataObject = {
     color,
@@ -119,23 +117,20 @@ export const getEventData = (
 }
 
 const retrieveEventValue = (
-  eventObject: ElementType | FrontMatterCacheType | null,
+  eventData: HTMLElement | FrontMatterCache,
   datasetKey: string,
   defaultValue: string | null,
-  isFrontMatterCacheType: boolean,
   frontMatterKeys?: string[] | null,
 ): string | null => {
-  switch ( isFrontMatterCacheType ) {
-  case true:
-    return retrieveFrontMatterValue( eventObject.data as FrontMatterCache, datasetKey, defaultValue, frontMatterKeys )
-  case false:
-  default:
-    return retrieveHTMLValue( eventObject.data as HTMLElement, datasetKey, defaultValue )
+  if ( isHTMLElementType( eventData )) {
+    return retrieveHTMLValue( eventData, datasetKey, defaultValue )
+  } else {
+    return retrieveFrontMatterValue( eventData, datasetKey, defaultValue, frontMatterKeys )
   }
 }
 
 const retrieveHTMLValue = (
-  event: HTMLElement | null,
+  event: HTMLElement,
   datasetKey: string,
   defaultValue: string | null,
 ): string | null => {
@@ -145,7 +140,7 @@ const retrieveHTMLValue = (
 }
 
 const retrieveFrontMatterValue = (
-  event: FrontMatterCache | null,
+  event: FrontMatterCache,
   datasetKey: string,
   defaultValue: string | null,
   frontMatterKeys?: string[] | null,
