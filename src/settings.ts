@@ -1,15 +1,6 @@
 import { AcceptableEventElements, developerSettings } from './types'
 import { App, PluginSettingTab, Setting } from 'obsidian'
 import TimelinesPlugin from './main'
-import { logger } from './utils'
-
-const enableDeveloperSettings = (): void => {
-  logger( 'clicked on the h2' )
-  developerSettings.counter += 1
-  if ( developerSettings.counter >= 5 ) {
-    developerSettings.debug = true
-  }
-}
 
 export class TimelinesSettingTab extends PluginSettingTab {
   plugin: TimelinesPlugin
@@ -21,28 +12,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
 
   display(): void {
     const { containerEl } = this
-
     containerEl.empty()
-    containerEl.createEl( 'h2', { text: 'Timelines (Revamped) Settings' }, () => {
-      return enableDeveloperSettings()
-    })
-
-    if ( developerSettings.debug ) {
-      new Setting( containerEl )
-        .setName( 'Debug Mode' )
-        .setDesc( 'This button only shows when debug mode is ON. Click to disable.' )
-        .addButton(( button ) => {
-          return button
-            .setButtonText( 'Disable Debug Mode' )
-            .onClick(( e ) => {
-              e.preventDefault()
-              developerSettings.debug = false
-              developerSettings.counter = 0
-
-              this.display()
-            })
-        })
-    }
 
     new Setting( containerEl )
       .setName( 'Default timeline tag' )
@@ -57,7 +27,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
       })
 
     new Setting( containerEl )
-      .setName( 'Chronological Direction' )
+      .setName( 'Chronological direction' )
       .setDesc( 'When enabled, events will be sorted from old to new. Turn this setting off to sort from new to old.' )
       .addToggle(( toggle ) => {
         toggle.setValue( this.plugin.settings.sortDirection )
@@ -69,36 +39,57 @@ export class TimelinesSettingTab extends PluginSettingTab {
 
     const acceptableValuesString = Object.values( AcceptableEventElements ).join( ', ' )
     new Setting( containerEl )
-      .setName( 'Event Element Tag (HTML)' )
+      .setName( 'Event element tag (HTML)' )
       .setDesc( `Default: div. Acceptable values are: ${acceptableValuesString}` )
       .addText(( text ) => {
         return text
           .setPlaceholder( this.plugin.settings.eventElement )
           .onChange( async ( value: AcceptableEventElements ) => {
-            this.plugin.settings.eventElement = value
-            await this.plugin.saveSettings()
+            if ( Object.values( AcceptableEventElements ).includes( value )) {
+              this.plugin.settings.eventElement = value
+              await this.plugin.saveSettings()
+            }
+          })
+      })
+
+    let maxDigitDescription = 'Default: 5. Sorting of dates are handled by padding each section'
+    maxDigitDescription += ' with zeros until they are all the same length. This number will'
+    maxDigitDescription += ' be the max amount of digits a section of a date can have.'
+    new Setting( containerEl )
+      .setName( 'Maximum padding on dates' )
+      .setDesc( maxDigitDescription )
+      .addText(( text ) => {
+        return text
+          .setPlaceholder( this.plugin.settings.maxDigits )
+          .onChange( async ( value: string ) => {
+            const parsed = parseInt( value )
+            if ( parsed ) {
+              this.plugin.settings.maxDigits = parsed.toString()
+              await this.plugin.saveSettings()
+            }
           })
       })
 
     const fragment = document.createDocumentFragment()
     const div = document.createElement( 'div' )
-    div.innerHTML = `Default: on. Turn this setting on to show a button on the ribbon to quickly insert new events.
-        <br></br><strong>NOTE:</strong> Requires an app restart for changes to take effect.`
+    div.innerText = `Default: on. Turn this setting on to show a button on the ribbon to quickly insert new events.
+      NOTE: Requires an app restart for changes to take effect.
+    `
     fragment.appendChild( div )
 
     new Setting( containerEl )
-      .setName( 'Show Ribbon Buttons' )
+      .setName( 'Show ribbon buttons' )
       .setDesc( fragment )
       .addToggle(( toggle ) => {
-        toggle.setValue( this.plugin.settings.showRibbonCommand )
+        toggle.setValue( this.plugin.settings.showRibbonCommands )
         toggle.onChange( async ( value: boolean ) => {
-          this.plugin.settings.showRibbonCommand = value
+          this.plugin.settings.showRibbonCommands = value
           await this.plugin.saveSettings()
         })
       })
 
     new Setting( containerEl )
-      .setName( 'Show Event Counter' )
+      .setName( 'Show event counter' )
       .setDesc(
         `Default: on. Adds an element to the editor status bar showing the total number
         of events in the current file. Helpful for vaults with lots of events.`
@@ -112,7 +103,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
       })
 
     new Setting( containerEl )
-      .setName( 'Display Note Preview On Hover' )
+      .setName( 'Display note preview on hover' )
       .setDesc( 'When enabled, linked notes will display as a pop up when hovering over an event in the timeline.' )
       .addToggle(( toggle ) => {
         toggle.setValue( this.plugin.settings.notePreviewOnHover )
@@ -122,7 +113,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
         })
       })
 
-    containerEl.createEl( 'h5', { text: 'Customize Frontmatter Keys' }).appendChild(
+    containerEl.createEl( 'h6', { text: 'Customize frontmatter keys' }).appendChild(
       createEl( 'p', {
         text: `Specify the front matter keys used to extract start dates, end dates,
          and titles for the timeline notes. Defaults to 'start-date', 'end-date', and 'title'.`,
@@ -131,7 +122,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
     )
 
     new Setting( containerEl )
-      .setName( 'Start Date Keys' )
+      .setName( 'Start date keys' )
       .setDesc( 'Comma-separated list of frontmatter keys for start date. Example: start-date,fc-date' )
       .addText( text => {
         return text
@@ -143,7 +134,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
       })
 
     new Setting( containerEl )
-      .setName( 'End Date Keys' )
+      .setName( 'End date keys' )
       .setDesc( 'Comma-separated list of frontmatter keys for end date.' )
       .addText( text => {
         return text
@@ -155,7 +146,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
       })
 
     new Setting( containerEl )
-      .setName( 'Title Keys' )
+      .setName( 'Title keys' )
       .setDesc( 'Comma-separated list of frontmatter keys for title.' )
       .addText( text => {
         return text
@@ -164,6 +155,20 @@ export class TimelinesSettingTab extends PluginSettingTab {
             this.plugin.settings.frontMatterKeys.titleKey = value.split( ',' )
             await this.plugin.saveSettings()
           })
+      })
+
+    containerEl.createEl( 'h6', { text: 'Developer tools' })
+    new Setting( containerEl )
+      .setName( 'Debug mode' )
+      .setDesc(
+        `If you are having an issue or have been asked to look at the logs, turn this on to see logs in the console.
+        Debug mode will default to off on plugin load and the current value will not be saved.`
+      )
+      .addToggle(( toggle ) => {
+        toggle.setValue( developerSettings.debug )
+        toggle.onChange(( value ) => {
+          developerSettings.debug = value
+        })
       })
   }
 }

@@ -11,9 +11,10 @@ export const DEFAULT_SETTINGS: TimelinesSettings = {
   frontMatterKeys: DEFAULT_FRONTMATTER_KEYS,
   notePreviewOnHover: true,
   showEventCounter: false,
-  showRibbonCommand: false,
+  showRibbonCommands: false,
   sortDirection: true,
   timelineTag: 'timeline',
+  maxDigits: '5',
 }
 
 export const RENDER_TIMELINE: RegExp = /<!--TIMELINE BEGIN tags=['"]([^"]*?)['"]-->([\s\S]*?)<!--TIMELINE END-->/i

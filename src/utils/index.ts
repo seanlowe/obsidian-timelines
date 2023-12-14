@@ -1,11 +1,11 @@
 import {
-  DataAdapter,
-  FrontMatterCache,
   getAllTags,
   MetadataCache,
   MarkdownView,
   TFile,
-  Workspace
+  Workspace,
+  Vault,
+  normalizePath
 } from 'obsidian'
 import { CardContainer } from '../types'
 import { logger } from './debug'
@@ -102,10 +102,11 @@ export function createDateArgument( date: string ): Date {
  * Return URL for specified image path
  *
  * @param {String} path - image path
- * @param {DataAdapter} vaultAdaptor - See Obsidian's {@link DataAdapter}
+ * @param {Vault} vault - See Obsidian's {@link Vault}
+ *
  * @returns {string|null} URL for image
  */
-export function getImgUrl( vaultAdaptor: DataAdapter, path: string ): string {
+export function getImgUrl( vault: Vault, path: string ): string {
   if ( !path ) {
     return null
   }
@@ -114,7 +115,56 @@ export function getImgUrl( vaultAdaptor: DataAdapter, path: string ): string {
     return path
   }
 
-  return vaultAdaptor.getResourcePath( path )
+  const file = vault.getAbstractFileByPath( normalizePath( path ))
+  if ( file instanceof TFile ) {
+    return vault.getResourcePath( file )
+  }
+}
+
+/**
+ * Takes a date string and normalizes it so there are always 4 sections, each the length specified by maxDigits
+ * If there are missing sections, they will be inserted with a value of 01 (except for hours, which will be 00)
+ *
+ * @param date - a date string of some nebulous format
+ * @param maxDigits - the number of digits to pad each section to
+ *
+ * @returns {string}
+ */
+export const normalizeDate = ( date: string, maxDigits: number ): string => {
+  // todo: handle sections of arbitrary length
+  let isNegativeYear = false
+  if ( date[0] === '-' ) {
+    isNegativeYear = true
+    date = date.substring( 1 )
+  }
+
+  const sections = date.split( '-' )
+
+  // cases:
+  // 4 sections: YYYY-MM-DD-HH (perfect, send it off as is)
+  // 3 sections: YYYY-MM-DD (add 00 at the end)
+  // 2 sections: YYYY-MM (add 00-00 at the end)
+  // 1 section: YYYY (add 00-00-00 at the end)
+
+  switch ( sections.length ) {
+  case 1:
+    sections.push( '01' ) // MM
+  case 2:
+    sections.push( '01' ) // DD
+  case 3:
+    sections.push( '00' ) // HH
+    break
+  }
+
+  const paddedSections = sections.map(( section ) => {
+    return section.padStart( maxDigits, '0' )
+  })
+
+  if ( isNegativeYear ) {
+    paddedSections[0] = `-${paddedSections[0]}`
+  }
+
+  return paddedSections.join( '-' )
 }
 
 /**
@@ -150,19 +200,9 @@ export const createInternalLinkOnNoteCard = ( event: CardContainer, noteCard: HT
     .createEl( 'h3' )
     .createEl( 'a', {
       cls: 'internal-link',
-      attr: { href: `${event.path}` },
+      attr: { href: `${normalizePath( event.path )}` },
       text: event.title
     })
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isFrontMatterCacheType = ( value: any ): value is FrontMatterCache => {
-  return value?.type === 'FrontMatterCache'
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const isHTMLElementType = ( value: any ): value is HTMLElement => {
-  return value?.type === 'Element'
 }
 
 export const confirmUserInEditor = ( workspace: Workspace ) => {

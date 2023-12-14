@@ -11,7 +11,6 @@ export enum AcceptableEventElements {
 
 export const developerSettings = {
   debug: false,
-  counter: 0,
 }
 
 /* ------------------------------ */
@@ -27,16 +26,11 @@ export interface CardContainer {
   endDate: string,
   era: string,
   img: string,
-  innerHTML: string,
+  innerText: string,
   path: string,
   startDate: string,
   title: string,
   type: string,
-}
-
-export interface ElementType {
-  type: 'Element',
-  data: HTMLElement
 }
 
 export interface EventDataObject {
@@ -59,7 +53,6 @@ export interface EventItem {
   end: Date,
   path: string,
   start: Date,
-  title: string,
   type: string,
 }
 
@@ -67,11 +60,6 @@ export interface EventTypeNumbers {
   numEvents: number,
   numFrontMatter: number,
   totalEvents: number,
-}
-
-export interface FrontMatterCacheType {
-  type: 'FrontMatterCache',
-  data: FrontMatterCache
 }
 
 export interface FrontMatterKeys {
@@ -91,9 +79,10 @@ export interface TimelinesSettings {
   frontMatterKeys: FrontMatterKeys,
   notePreviewOnHover: boolean,
   showEventCounter: boolean,
-  showRibbonCommand: boolean,
+  showRibbonCommands: boolean,
   sortDirection: boolean,
   timelineTag: string,
+  maxDigits: string,
 }
 
 /* ------------------------------ */
@@ -102,4 +91,4 @@ export interface TimelinesSettings {
 
 export type NoteData = CardContainer[]
 export type AllNotesData = NoteData[]
-export type EventCountData = ( ElementType | FrontMatterCacheType | null )[]
+export type EventCountData = ( HTMLElement | FrontMatterCache | null )[]
