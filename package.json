@@ -1,6 +1,6 @@
 {
   "name": "timelines-revamped",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Generate a chronological timeline in which all 'events' are notes that include a specific tag or set of tags.",
   "main": "main.js",
   "scripts": {
@@ -15,21 +15,21 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^15.1.0",
-    "@rollup/plugin-node-resolve": "^9.0.0",
-    "@rollup/plugin-typescript": "^6.1.0",
-    "@types/node": "^14.18.54",
-    "@typescript-eslint/eslint-plugin": "^6.2.1",
-    "@typescript-eslint/parser": "^6.2.1",
-    "eslint": "^8.46.0",
-    "obsidian": "^1.3.5",
-    "rollup": "^2.79.1",
-    "sass": "^1.64.2",
-    "tslib": "^2.6.1",
-    "typescript": "^5.1.6"
+    "@rollup/plugin-commonjs": ">=15.1.0",
+    "@rollup/plugin-node-resolve": ">=9.0.0",
+    "@rollup/plugin-typescript": ">=6.1.0",
+    "@types/node": ">=14.18.54",
+    "@typescript-eslint/eslint-plugin": ">=6.2.1",
+    "@typescript-eslint/parser": ">=6.2.1",
+    "eslint": ">=8.46.0",
+    "obsidian": ">=1.3.5",
+    "rollup": ">=2.79.1",
+    "sass": ">=1.64.2",
+    "tslib": ">=2.6.1",
+    "typescript": ">=5.1.6"
   },
   "dependencies": {
-    "rollup-plugin-styles": "^4.0.0",
-    "vis-timeline": "^7.7.2"
+    "rollup-plugin-styles": ">=4.0.0",
+    "vis-timeline": ">=7.7.2"
   }
 }
