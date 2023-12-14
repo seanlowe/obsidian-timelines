@@ -1,5 +1,57 @@
 ## Changelog
 
+### v2.1.0
+
+Fairly sizeable changes in preparation for official publishing!
+
+**Biggest changes (TL;DR):**
+- reworked date parsing
+- made debug mode accessible at all times
+
+**Change directly related to publishing:**
+- changed strings in title case to sentence case
+- removed the word 'settings' from settings page
+- confirmed no default hotkeys
+- removed all references to innerHTML and almost all to outerHTML. Only reference to outerHTML has no user input and therefore should be safe from injection attacks
+  - rewrote insertTimelineIntoCurrentNote to use XMLSerializer and DomParser
+- changed main.ts's callback's to checkCallback's for added safety
+- added normalizePath() anywhere a path is actually being handled or finalized. Any places where *.path is used without a call to normalizePath() has already been normalized by that point.
+- removed references to vaultAdapter and changed implementation accordingly in getImgUrl()
+- removed generic header at beginning of settings page
+
+**Other changes:**
+- renamed some classes to be more concise
+- reworked date parsing. No longer are dates cast to an int. Dates will be padded according to the new setting "maxDigits" and compared equally that way. Wrote new function normalizeDate() to handle this
+- added type checking on settings page so saving bad entries is harder
+- small optimization to getEventData and getEventsInFile by removing unnecessary type and data encapsulation
+- edited the way we load / overwrite loaded settings by loading the defaults first, and then overwriting with anything saved. This should enable safe loading of settings whenever a new setting is introduced and a user may not have saved it yet
+- turned off annoying eslint rule
+- tweaked debug mode and add toggle for it
+
+### v2.0.0 
+
+Substantial change that vastly affects the functionality of **Timelines (Revamped)**: Merged PR from upstream repository - `Support frontmatter to add timeline entries` [#58](https://github.com/Darakah/obsidian-timelines/pull/58)
+
+Their notes about the change:
+- added functionality to use frontmatter to add a note to the timeline
+- added functionality to customize the frontmatter keys for better compatibility with other plugins
+- added a hover preview setting for viewing notes within a timeline without having to click on the header to open them. 
+
+**BREAKING CHANGES:**
+- changed `data-class` to `data-color` for clarity. You'll have to update your HTML events to use the new tag to retain your old color choices.
+- Consolidated timeline codeblocks. Any horizontal timelines will need to be changed from type `ob-timelines-flat` to just `ob-timelines` and a new line `type=flat` added. Any vertical timelines will need to have their list of tags pre-pended by `tags=` in order to properly parse.
+
+Additional notes:
+- added some additional types and type checking
+- tweaked scss mixin `add-color` to make it easier to add additional color states depending on element state (selected, hover, etc.)
+- added an error message that displays in place of the timeline when there are no files that match the timeline's parameters
+- added `pink` and `gray` to list of available colors
+- added functionality to show frontmatter events alongside HTML events (`showOnTimeline` key)
+- added a notice in the top right corner for notes that matched the tags provided but had no events to display. Usually, this is if you have frontmatter without the new `showOnTimeline` key set to `true`
+- added a new command for inserting event frontmatter keys
+- corrected logic in the event counting functionality. Now it correctly counts frontmatter and HTML events
+- disabled the popover that appears on click if `Display Note Preview on Hover` is turned off
+
 ### v1.2.0
 Added functionality to override tags for a particular event. This allows you to have a note with events on separate timelines. Resolves github feature request: `[New Feature] Override tags defined on the page with a new attribute tags` [#12](https://github.com/seanlowe/obsidian-timelines/issues/12)
 

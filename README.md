@@ -9,17 +9,29 @@
 ## First Things First
 This is an updated fork of Darakah's famous [obsidian-timelines](https://www.github.com/Darakah/obsidian-timelines) plugin for the [Obsidian](https://www.obsidian.md) notes app. Based on what I've seen, there were numerous reports of bugs in the code, documentation was either lacking or frankly just confusing and it's been overall worked on irregularly. This fork, **Timelines (Revamped)**, aims to fix some of those problems.
 
-But, credit should be placed where credit is due. Kudos to Darakah for his amazing work on the original version of this plugin. I've learned a lot just combing through the code as I was doing my refactors.
+But, credit should be placed where credit is due. Kudos to [Darakah](https://github.com/Darakah) for his amazing work on the original version of this plugin. I've learned a lot just combing through the code as I was doing my refactors.
+
+Also kudos to everyone who contributed to the original plugin, especially:
+- [Erin Schnabel](https://github.com/ebullient),
+- [ReconVirus](https://github.com/ReconVirus),
+- [Ethan Miller](https://github.com/ethanimproving), and
+- [tlm2021](https://github.com/tlm2021)
 
 <br>
 
 Below, I've edited the original README primarily to add clarity, but also to highlight some changes I've made to functionality, and add some additional example images.
+
+Please read all the way through, things have diverged from Darakah's original plugin and they won't work the same way.
+
+Thanks!
 
 <br>
 
 # Timelines (Revamped)
 
 Generate a chronological timeline in which all "events" are notes that include a specific tag or set of tags.
+
+See the changelog from the last major update to view any breaking changes [here](./changelog.md#v200).
 
 ## Examples
 <img src="./images/horizontal_example.png" align="left">
@@ -222,10 +234,18 @@ As of right now, there is no kind of date normalization, as there are considerat
 
 ##### Event Sorting
 
-Event sorting is performed by converting the date into a number. For fantasy calendars, you may need to pad months, days, or hours with zeros to ensure sorting works properly. 
+Event sorting is performed by padding all sections of the date with leading zeros so that all sections are the same length. The resulting string is compared directly against other strings. The length to which sections will be padded is controlled by the `Maximum padding on dates` value in the settings tab.
 
-- `2300-02-00-00` is sorted as `2300020000`
-- `-234-02-00-00` is sorted as `-234020000`
+For example, for these two dates with a max padding value of `4`:
+- `2300-02-00-00` would be padded and sorted as ` 2300-0002-0000-0000`, whereas
+- `-234-02-00-00` would be padded and sorted as `-0234-0002-0000-0000`.
+
+We can now see how simple it is to have any kind of calendar you want (fantasy or otherwise) and have it sort the way you'd like. Any missing sections will be automatically populated for you, with missing months and day values being set to `01` and the time value being set to `00`.
+
+Here's what that looks like with a max padding of `4`:
+- `9991-3-477-9817` would become `9991-0003-0477-9817`,
+- `1984` would become `1984-0001-0001-0000`
+- `-33-777` would become `-0033-0777-0001-0000`
 
 For statically generated timelines, events that occur at the same time are grouped, and are either prepended or appended to a list based on your timeline sorting preference.
 
@@ -243,7 +263,7 @@ Note: Currently only assets specified via `http` or `absolute local path` will r
 #### Era (`data-era`):
   - Optional
   - Adds this text to the date span in the timeline as an era designation. Useful for fictional calendars.
-  - Applied after the date is formatted. So `2300-01-01-00` with the era set to `AB` would display `2300 AB`.
+  - Applied after the date is formatted. So `2300` with the era set to `AB` would display `2300 AB`.
 
 #### Node Color (`data-color`):
   - Optional
@@ -273,29 +293,14 @@ Note: Acceptable values for `data-type` are:
 
 ## Release Notes
 
-### v2.0.0
+### v2.1.2
 
-Substantial change that vastly affects the functionality of **Timelines (Revamped)**: Merged PR from upstream repository - `Support frontmatter to add timeline entries` [#58](https://github.com/Darakah/obsidian-timelines/pull/58)
+Small tweaks to packages for better build quality (that was released in v2.1.1 but I forgot to make a changelog for that so here it is now).
 
-Their notes about the change:
-- added functionality to use frontmatter to add a note to the timeline
-- added functionality to customize the frontmatter keys for better compatibility with other plugins
-- added a hover preview setting for viewing notes within a timeline without having to click on the header to open them. 
-
-**BREAKING CHANGES:**
-- changed `data-class` to `data-color` for clarity. You'll have to update your HTML events to use the new tag to retain your old color choices.
-- Consolidated timeline codeblocks. Any horizontal timelines will need to be changed from type `ob-timelines-flat` to just `ob-timelines` and a new line `type=flat` added. Any vertical timelines will need to have their list of tags pre-pended by `tags=` in order to properly parse.
-
-Additional notes:
-- added some additional types and type checking
-- tweaked scss mixin `add-color` to make it easier to add additional color states depending on element state (selected, hover, etc.)
-- added an error message that displays in place of the timeline when there are no files that match the timeline's parameters
-- added `pink` and `gray` to list of available colors
-- added functionality to show frontmatter events alongside HTML events (`showOnTimeline` key)
-- added a notice in the top right corner for notes that matched the tags provided but had no events to display. Usually, this is if you have frontmatter without the new `showOnTimeline` key set to `true`
-- added a new command for inserting event frontmatter keys
-- corrected logic in the event counting functionality. Now it correctly counts frontmatter and HTML events
-- disabled the popover that appears on click if `Display Note Preview on Hover` is turned off
+**Changes:**
+- updated the Readme regarding date parsing change that happened in version [2.1.0](./changelog.md#v210)
+- added callouts to big contributors of the original plugin
+- added a notice to the top of the readme with a link to the changelog for version [2.0.0](./changelog.md#v200) since there were breaking changes in that update.
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
