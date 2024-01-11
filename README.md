@@ -15,7 +15,7 @@ Also kudos to everyone who contributed to the original plugin, especially:
 - [Erin Schnabel](https://github.com/ebullient),
 - [ReconVirus](https://github.com/ReconVirus),
 - [Ethan Miller](https://github.com/ethanimproving), and
-- [tlm2021](https://github.com/tlm2021)
+- [Travis Mosley](https://github.com/tlm2021)
 
 <br>
 
@@ -34,10 +34,11 @@ Generate a chronological timeline in which all "events" are notes that include a
 See the changelog from the last major update to view any breaking changes [here](./changelog.md#v200).
 
 ## Examples
-<img src="./images/horizontal_example.png" align="left">
-<img src="./images/vertical_example.png" align="right">
+<img src="./images/horizontal_example.png" align="center">
+<br>
+<img src="./images/vertical_example.png" align="center">
 
-<h2 style="padding-top: 525px"> Inserting a Timeline </h2>
+## Inserting a Timeline
 
 Rendering a timeline requires a couple *separate* pieces, the main two are:
 1. "events" within a note, which can be specified by:
@@ -66,6 +67,10 @@ Breaking down the filters:
 - `maxDate`: maximum end-cap to prevent scrolling or viewing after this date
 - `type`: horizontal-specific key. Pass `flat` in order to render a horizontal timeline.
 
+<br>
+
+> **Note:** the codeblock uses the key `ob-timeline` so that there is no conflict with other timeline plugins, specifically George-debug's Timeline [plugin](https://github.com/George-debug/obsidian-timeline).
+
 ### Using an HTML code block for static rendering
 
 Insert the following HTML comment where a statically rendered timeline should be inserted:
@@ -76,7 +81,7 @@ Insert the following HTML comment where a statically rendered timeline should be
 <!--TIMELINE END-->
 ```
 
-Use the `Timelines: Render Static Timeline` command to generate a static timeline. The command will generate static HTML and populate it between the HTML comments (BEGIN/END).
+Use the `Render static timeline` command to generate a static timeline. The command will generate static HTML and populate it between the HTML comments (BEGIN/END).
 
 Running the command again will replace everything in between the comments with a freshly rendered timeline.
 
@@ -112,7 +117,7 @@ When generating a timeline, a note will be ignored in the following cases:
 ## Timeline Event Properties
 
 Timeline events must specify the following: 
-- a valid date, YEAR-MONTH-DAY-MINUTES (check info section below for more details)
+- a valid date, YEAR-MONTH-DAY-HOUR (check info section below for more details)
 - a valid class, specifically `ob-timelines` must be specified.
 
 All other fields are optional.
@@ -171,9 +176,11 @@ A timeline entry can be created using a `<span></span>` or `<div></div>` HTML el
 There are multiple ways to insert an event. Of course, you can do it manually, but there also exist two additional ways to quickly insert an event into your note (at your current mouse position):
 
   1. Click the `</>` button on the ribbon
-  2. Open the command palette and run the `Insert Timeline Event`
+  2. Open the command palette and run the `Insert timeline event`.
 
 Both of these will insert a new event `div` or `span` (it uses whichever value you've set in Settings but defaults to `div`) with all `data-*` attributes present but empty. Delete what you don't need, fill in what you want. 
+
+> **Note:** There is also a ribbon icon and a command for inserting frontmatter into the current note.
 
 ### Customization
 
@@ -228,17 +235,17 @@ Rightmost-segments containing only zeros will be omitted when the timeline is ge
 
 Any included Month/Day sections of a date must be non-zero (for the time being) in order for the date to properly parse and be included on the timeline. 
 
-For example: `2300-02-00-00` should actually be passed in as: `2300-02` if you don't care about the day, or `2300-02-01` if you mean that it began at the beginning of the month. The last section of a date (the time), however, can be zero if you want.
+For example: `2300-02-00-00` should actually be passed in as: `2300-02` if you don't care about the day, or `2300-02-01` if you mean that it began at the beginning of the month. The last section of a date (the time), however, can be zero if you want. Any section that is not passed in will be added internally with the valid minimal value (`01` for months and days, and `00` for time.)
 
-As of right now, there is no kind of date normalization, as there are considerations that must be handled when dealing with fictional calendars. The side result of this is that, when comparing two events, an event with a start date of `2300-02-1-23` will be displayed before an event with a start date of `2300-02-01-04`, even though HOUR value on the first example is *after* the second (23 vs. 04).
+Date normalization is handled according to the next section **Event Sorting**, so that dates -- even fantasy ones -- are sorted in the order specified. Although, there are some ... *intricacies*, when dealing with odd fantasy dates with the horizontal timeline simply due to the library used to generate the timeline. I'm looking into better solutions for this.
 
 ##### Event Sorting
 
 Event sorting is performed by padding all sections of the date with leading zeros so that all sections are the same length. The resulting string is compared directly against other strings. The length to which sections will be padded is controlled by the `Maximum padding on dates` value in the settings tab.
 
 For example, for these two dates with a max padding value of `4`:
-- `2300-02-00-00` would be padded and sorted as ` 2300-0002-0000-0000`, whereas
-- `-234-02-00-00` would be padded and sorted as `-0234-0002-0000-0000`.
+- `2300-02-01-00` would be padded and sorted as ` 2300-0002-0001-0000`, whereas
+- `-234-02-01-00` would be padded and sorted as `-0234-0002-0001-0000`.
 
 We can now see how simple it is to have any kind of calendar you want (fantasy or otherwise) and have it sort the way you'd like. Any missing sections will be automatically populated for you, with missing months and day values being set to `01` and the time value being set to `00`.
 
@@ -293,14 +300,15 @@ Note: Acceptable values for `data-type` are:
 
 ## Release Notes
 
-### v2.1.2
+### v2.1.3
 
-Small tweaks to packages for better build quality (that was released in v2.1.1 but I forgot to make a changelog for that so here it is now).
+Some more small changes requested by the Obsidian staff in order to get the plugin published to the community list.
 
 **Changes:**
-- updated the Readme regarding date parsing change that happened in version [2.1.0](./changelog.md#v210)
-- added callouts to big contributors of the original plugin
-- added a notice to the top of the readme with a link to the changelog for version [2.0.0](./changelog.md#v200) since there were breaking changes in that update.
+- updated the titles of commands to be sentence-case
+- removed the toggle switch setting to show/hide ribbon icons. End users have the ability to individually toggle icons on their own, so there's no need for a setting for it.
+- updated the license name / year, still using the MIT License
+- updated callout at top of README to use tlm2021's name instead of his username along with some QOL updates to the README
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

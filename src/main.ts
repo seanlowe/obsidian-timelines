@@ -8,7 +8,7 @@ import { TimelineCommandProcessor } from './commands'
 import { logger } from './utils'
 
 export default class TimelinesPlugin extends Plugin {
-  pluginName: string = 'Timelines (Revamped)'
+  pluginName: string = this.manifest.name
   settings: TimelinesSettings
   statusBarItem: HTMLElement
   blocks: TimelineBlockProcessor
@@ -34,7 +34,7 @@ export default class TimelinesPlugin extends Plugin {
 
     this.addCommand({
       id: 'render-static-timeline',
-      name: 'Render Static Timeline',
+      name: 'Render static timeline',
       checkCallback: ( checking: boolean ) => {
         const markdownView = this.app.workspace.getActiveViewOfType( MarkdownView )
         if ( markdownView ) {
@@ -51,7 +51,7 @@ export default class TimelinesPlugin extends Plugin {
 
     this.addCommand({
       id: 'insert-timeline-event',
-      name: 'Insert Timeline Event',
+      name: 'Insert timeline event',
       checkCallback: ( checking: boolean ) => {
         const markdownView = this.app.workspace.getActiveViewOfType( MarkdownView )
         if ( markdownView ) {
@@ -66,7 +66,7 @@ export default class TimelinesPlugin extends Plugin {
 
     this.addCommand({
       id: 'insert-timeline-event-frontmatter',
-      name: 'Insert Timeline Event (Frontmatter)',
+      name: 'Insert timeline event (frontmatter)',
       checkCallback: ( checking: boolean ) => {
         const markdownView = this.app.workspace.getActiveViewOfType( MarkdownView )
         if ( markdownView ) {
@@ -81,17 +81,13 @@ export default class TimelinesPlugin extends Plugin {
 
     this.addSettingTab( new TimelinesSettingTab( this.app, this ))
 
-    /* --- setting specific checks --- */
+    this.addRibbonIcon( 'code-2', 'Insert Timeline Event', async () => {
+      await this.commands.createTimelineEventInCurrentNote()
+    })
 
-    if ( this.settings.showRibbonCommands ) {
-      this.addRibbonIcon( 'code-2', 'Insert Timeline Event', async () => {
-        await this.commands.createTimelineEventInCurrentNote()
-      })
-
-      this.addRibbonIcon( 'list-plus', 'Insert Timeline Event (Frontmatter)', async () => {
-        await this.commands.createTimelineEventFrontMatterInCurrentNote()
-      })
-    }
+    this.addRibbonIcon( 'list-plus', 'Insert Timeline Event (Frontmatter)', async () => {
+      await this.commands.createTimelineEventFrontMatterInCurrentNote()
+    })
 
     if ( this.settings.showEventCounter ) {
       this.commands.createStatusBar( this )

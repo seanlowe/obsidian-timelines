@@ -1,5 +1,14 @@
 ## Changelog
 
+### v2.1.2
+
+Small tweaks to packages for better build quality (that was released in v2.1.1 but I forgot to make a changelog for that so here it is now).
+
+**Changes:**
+- updated the Readme regarding date parsing change that happened in version [2.1.0](./changelog.md#v210)
+- added callouts to big contributors of the original plugin
+- added a notice to the top of the readme with a link to the changelog for version [2.0.0](./changelog.md#v200) since there were breaking changes in that update.
+
 ### v2.1.0
 
 Fairly sizeable changes in preparation for official publishing!

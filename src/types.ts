@@ -79,7 +79,6 @@ export interface TimelinesSettings {
   frontMatterKeys: FrontMatterKeys,
   notePreviewOnHover: boolean,
   showEventCounter: boolean,
-  showRibbonCommands: boolean,
   sortDirection: boolean,
   timelineTag: string,
   maxDigits: string,
