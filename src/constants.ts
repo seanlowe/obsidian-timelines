@@ -11,7 +11,6 @@ export const DEFAULT_SETTINGS: TimelinesSettings = {
   frontMatterKeys: DEFAULT_FRONTMATTER_KEYS,
   notePreviewOnHover: true,
   showEventCounter: false,
-  showRibbonCommands: false,
   sortDirection: true,
   timelineTag: 'timeline',
   maxDigits: '5',

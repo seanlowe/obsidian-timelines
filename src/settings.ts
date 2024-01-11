@@ -70,24 +70,6 @@ export class TimelinesSettingTab extends PluginSettingTab {
           })
       })
 
-    const fragment = document.createDocumentFragment()
-    const div = document.createElement( 'div' )
-    div.innerText = `Default: on. Turn this setting on to show a button on the ribbon to quickly insert new events.
-      NOTE: Requires an app restart for changes to take effect.
-    `
-    fragment.appendChild( div )
-
-    new Setting( containerEl )
-      .setName( 'Show ribbon buttons' )
-      .setDesc( fragment )
-      .addToggle(( toggle ) => {
-        toggle.setValue( this.plugin.settings.showRibbonCommands )
-        toggle.onChange( async ( value: boolean ) => {
-          this.plugin.settings.showRibbonCommands = value
-          await this.plugin.saveSettings()
-        })
-      })
-
     new Setting( containerEl )
       .setName( 'Show event counter' )
       .setDesc(

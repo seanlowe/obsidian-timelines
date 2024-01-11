@@ -143,8 +143,8 @@ export const normalizeDate = ( date: string, maxDigits: number ): string => {
   // cases:
   // 4 sections: YYYY-MM-DD-HH (perfect, send it off as is)
   // 3 sections: YYYY-MM-DD (add 00 at the end)
-  // 2 sections: YYYY-MM (add 00-00 at the end)
-  // 1 section: YYYY (add 00-00-00 at the end)
+  // 2 sections: YYYY-MM (add 01-00 at the end)
+  // 1 section: YYYY (add 01-01-00 at the end)
 
   switch ( sections.length ) {
   case 1:
