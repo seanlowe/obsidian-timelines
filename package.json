@@ -1,6 +1,6 @@
 {
   "name": "timelines-revamped",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "Generate a chronological timeline in which all 'events' are notes that include a specific tag or set of tags.",
   "main": "main.js",
   "scripts": {
@@ -18,6 +18,7 @@
     "@rollup/plugin-commonjs": ">=15.1.0",
     "@rollup/plugin-node-resolve": ">=9.0.0",
     "@rollup/plugin-typescript": ">=6.1.0",
+    "@types/lodash": "^4.17.0",
     "@types/node": ">=14.18.54",
     "@typescript-eslint/eslint-plugin": ">=6.2.1",
     "@typescript-eslint/parser": ">=6.2.1",
@@ -29,6 +30,7 @@
     "typescript": ">=5.1.6"
   },
   "dependencies": {
+    "lodash": "^4.17.21",
     "rollup-plugin-styles": ">=4.0.0",
     "vis-timeline": ">=7.7.2"
   }
