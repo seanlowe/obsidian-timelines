@@ -1,15 +1,5 @@
 ## Changelog
 
-### v2.1.3
-
-Some more small changes requested by the Obsidian staff in order to get the plugin published to the community list.
-
-**Changes:**
-- updated the titles of commands to be sentence-case
-- removed the toggle switch setting to show/hide ribbon icons. End users have the ability to individually toggle icons on their own, so there's no need for a setting for it.
-- updated the license name / year, still using the MIT License
-- updated callout at top of README to use tlm2021's name instead of his username along with some QOL updates to the README
-
 ### v2.1.2
 
 Small tweaks to packages for better build quality (that was released in v2.1.1 but I forgot to make a changelog for that so here it is now).

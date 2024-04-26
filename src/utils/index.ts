@@ -9,12 +9,46 @@ import {
 } from 'obsidian'
 import { CardContainer } from '../types'
 import { logger } from './debug'
-import { parseTag } from './arguments'
 
 export * from './debug'
 export * from './events'
 export * from './frontmatter'
-export * from './arguments'
+
+export function setDefaultArgs() {
+  return {
+    tags: [],
+    divHeight: '400',
+    startDate: '-1000',
+    endDate: '3000',
+    minDate: '-3000',
+    maxDate: '3000',
+    type: null,
+  }
+}
+
+/**
+ * Parse a tag and all its subtags into a list.
+ *
+ * @param {String} tag - tag to parse
+ * @param {String[]} tagList - list of tags to add to
+ * @returns
+ */
+export function parseTag( tag: string, tagList: string[] ): void {
+  tag = tag.trim()
+
+  // Skip empty tags
+  if ( tag.length === 0 ) {
+    return
+  }
+
+  // Parse all subtags out of the given tag.
+  // I.e., #hello/i/am would yield [#hello/i/am, #hello/i, #hello]. */
+  tagList.push( tag )
+  while ( tag.contains( '/' )) {
+    tag = tag.substring( 0, tag.lastIndexOf( '/' ))
+    tagList.push( tag )
+  }
+}
 
 /**
  * Filter markdown files by tag
@@ -50,6 +84,18 @@ export function filterMDFiles( file: TFile, tagList: string[], metadataCache: Me
     logger( `testing val: ${val}`, fileTags.includes( String( val )))
     return fileTags.includes( String( val ))
   })
+}
+
+/**
+ * Create date from passed string
+ *
+ * @param {String} date - string date in the format *YYYY*
+ * @returns {Date} newly created date object
+ */
+export function createDateArgument( date: string ): Date {
+  const dateComp = date.split( ',' )
+  // cannot simply replace '-' as need to support negative years
+  return new Date( +( dateComp[0] ?? 0 ), +( dateComp[1] ?? 0 ), +( dateComp[2] ?? 0 ), +( dateComp[3] ?? 0 ))
 }
 
 /**

@@ -17,16 +17,8 @@ export const developerSettings = {
 /*           Interfaces           */
 /* ------------------------------ */
 
-export interface InternalTimelineArgs {
-  divHeight: number,
-  endDate: Date,
-  maxDate: Date,
-  minDate: Date,
-  startDate: Date,
-  tags: string[],
-  type: string | null,
-  zoomInLimit: number,
-  zoomOutLimit: number,
+export interface TimelineArgs {
+  [key: string]: string | string[] | null,
 }
 
 export interface CardContainer {
