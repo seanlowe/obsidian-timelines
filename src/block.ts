@@ -1,21 +1,22 @@
-import type { TimelinesSettings, TimelineArgs, AllNotesData, EventItem, CardContainer } from './types'
+import type { AllNotesData, CardContainer, EventItem, InternalTimelineArgs, TimelinesSettings } from './types'
 import type { TFile, MetadataCache, Vault } from 'obsidian'
 import { MarkdownView } from 'obsidian'
 import { RENDER_TIMELINE } from './constants'
 import {
-  filterMDFiles,
   buildTimelineDate,
   createDateArgument,
+  createInternalLinkOnNoteCard,
+  createTagList,
+  convertEntryToMilliseconds,
+  filterMDFiles,
+  getEventData,
   getEventsInFile,
   getImgUrl,
-  parseTag,
-  logger,
-  createInternalLinkOnNoteCard,
-  getEventData,
-  setDefaultArgs,
   getNumEventsInFile,
   isHTMLElementType,
+  logger,
   normalizeDate,
+  setDefaultArgs,
 } from './utils'
 
 // Horizontal (Vis-Timeline) specific imports
@@ -25,7 +26,7 @@ import 'vis-timeline/styles/vis-timeline-graph2d.css'
 
 export class TimelineBlockProcessor {
   appVault: Vault
-  args: TimelineArgs
+  args: InternalTimelineArgs
   currentFileList: TFile[]
   files: TFile[]
   metadataCache: MetadataCache
@@ -41,16 +42,6 @@ export class TimelineBlockProcessor {
   setup() {
     this.args = setDefaultArgs()
     this.files = this.appVault.getMarkdownFiles()
-  }
-
-  createTagList( tagString: string ): string[] {
-    const tagList: string[] = []
-    tagString.split( ';' ).forEach(( tag: string ) => {
-      return parseTag( tag, tagList )
-    })
-    tagList.push( this.settings.timelineTag )
-
-    return tagList
   }
 
   /**
@@ -103,10 +94,27 @@ export class TimelineBlockProcessor {
       const [ tag, rawValue ] = entry.split( '=' )
       const value = rawValue.trim()
 
-      if ( tag === 'tags' ) {
-        this.args[tag] = this.createTagList( value )
-      } else {
+      if ( tag.includes( 'Date' )) {
+        // startDate, endDate, minDate, maxDate
+        const result = createDateArgument( value )
+        this.args[tag] = result
+        return
+      }
+
+      switch ( tag ) {
+      case 'tags':
+        this.args[tag] = createTagList( value, this.settings.timelineTag )
+        break
+      case 'zoomInLimit':
+        this.args[tag] = convertEntryToMilliseconds( value )
+        break
+      case 'zoomOutLimit':
+      case 'divHeight':
+        this.args[tag] = parseInt( value )
+        break
+      default:
         this.args[tag] = value
+        break
       }
     })
   }
@@ -363,13 +371,15 @@ export class TimelineBlockProcessor {
 
     // Configuration for the Timeline
     const options = {
-      start: createDateArgument( String( this.args.startDate )),
-      end: createDateArgument( String( this.args.endDate )),
-      min: createDateArgument( String( this.args.minDate )),
-      max: createDateArgument( String( this.args.maxDate )),
-      minHeight: Number( this.args.divHeight ),
+      start: this.args.startDate,
+      end: this.args.endDate,
+      min: this.args.minDate,
+      max: this.args.maxDate,
+      minHeight: this.args.divHeight,
       showCurrentTime: false,
       showTooltips: false,
+      zoomMin: this.args.zoomInLimit,
+      zoomMax: this.args.zoomOutLimit,
       template: ( item: EventItem ) => {
         const eventContainer = document.createElement( this.settings.notePreviewOnHover ? 'a' : 'div' )
         if ( 'href' in eventContainer ) {

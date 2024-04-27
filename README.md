@@ -59,13 +59,26 @@ You can display a horizontal timeline by building your codeblock like so:
 ![codeblock example](./images/horizontal_codeblock.png)
 
 Breaking down the filters:
-- `tags` are the tags you want displayed on your timeline, 
+- `tags`: the tags you want displayed on your timeline
 - `startDate`: where you want your timeline to initially start displaying
 - `endDate`: where you initially want your timeline to end
 - `divHeight`: how tall you would like the timeline to be
 - `minDate`: minimum end-cap to prevent scrolling or viewing before this date
 - `maxDate`: maximum end-cap to prevent scrolling or viewing after this date
-- `type`: horizontal-specific key. Pass `flat` in order to render a horizontal timeline.
+- `zoomInLimit`: the furthest in you will be able to zoom. See below for acceptable values
+- `zoomOutLimit`: the furthest out you will be able to zoom
+- `type`: horizontal-specific key. Pass `flat` in order to render a horizontal timeline
+
+Acceptable values for filters:
+- `zoomInLimit`:
+  - You can either use the built-in timescales, or you can provide a value (in milliseconds) manually. Acceptable values are `day`, `week`, `month-detail`, `month-vague`, and `year`. Do not include to have no restrictions on zooming in (default behaviour).
+    - `day` zooms down to one day, but still shows hours
+    - `week` zooms down to about a week and shows the days of that week
+    - `month-detail` zooms down to about a month and shows each of the days
+    - `month-vague` zooms down to about a month but does not show the days
+    - `year` zooms down to about a year and shows each of the months
+- `zoomOutLimit`:
+  - requires a time, in milliseconds. One year is around `32140800000`, the default value is `315360000000000`, which is about 10,000 years
 
 <br>
 
@@ -300,15 +313,16 @@ Note: Acceptable values for `data-type` are:
 
 ## Release Notes
 
-### v2.1.3
+### v2.1.4
 
-Some more small changes requested by the Obsidian staff in order to get the plugin published to the community list.
+Added support for changing the maximum and minimum zoom levels on the horizontal timeline.
 
 **Changes:**
-- updated the titles of commands to be sentence-case
-- removed the toggle switch setting to show/hide ribbon icons. End users have the ability to individually toggle icons on their own, so there's no need for a setting for it.
-- updated the license name / year, still using the MIT License
-- updated callout at top of README to use tlm2021's name instead of his username along with some QOL updates to the README
+- renamed `TimelineArgs` to `InternalTimelineArgs` and updated to be more specific for each possible argument.
+- added support for `zoomInLimit` and `zoomOutLimit`
+- updated the README with information on how to use the new arguments
+- updated the horizontal codeblock example image with the new arguments
+- extracted some logic dealing with arguments from `utils/index.ts` to its own file
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
