@@ -1,5 +1,16 @@
 ## Changelog
 
+### v2.1.4
+
+Added support for changing the maximum and minimum zoom levels on the horizontal timeline.
+
+**Changes:**
+- renamed `TimelineArgs` to `InternalTimelineArgs` and updated to be more specific for each possible argument.
+- added support for `zoomInLimit` and `zoomOutLimit`
+- updated the README with information on how to use the new arguments
+- updated the horizontal codeblock example image with the new arguments
+- extracted some logic dealing with arguments from `utils/index.ts` to its own file
+
 ### v2.1.3
 
 Some more small changes requested by the Obsidian staff in order to get the plugin published to the community list.

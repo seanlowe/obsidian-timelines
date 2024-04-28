@@ -3,6 +3,7 @@ import type { TFile, MetadataCache, Vault } from 'obsidian'
 import { MarkdownView } from 'obsidian'
 import { RENDER_TIMELINE } from './constants'
 import {
+  availableColors,
   buildTimelineDate,
   createDateArgument,
   createInternalLinkOnNoteCard,
@@ -13,6 +14,7 @@ import {
   getEventsInFile,
   getImgUrl,
   getNumEventsInFile,
+  handleDynamicColor,
   isHTMLElementType,
   logger,
   normalizeDate,
@@ -200,6 +202,7 @@ export class TimelineBlockProcessor {
         const imgUrl = getImgUrl( this.appVault, eventImg )
 
         const note: CardContainer = {
+          id: noteId,
           color,
           endDate,
           era,
@@ -222,6 +225,16 @@ export class TimelineBlockProcessor {
         }
       })
     }
+  }
+
+  handleColor( color: string, noteCard: HTMLDivElement, id: string ): boolean {
+    if ( !availableColors.includes( color )) {
+      handleDynamicColor( color, id )
+      return false
+    }
+
+    noteCard.addClass( color )
+    return true
   }
 
   /**
@@ -285,7 +298,7 @@ export class TimelineBlockProcessor {
 
         if ( eventAtDate.color ) {
           // todo : add more support for other custom classes
-          noteCard.addClass( eventAtDate.color )
+          this.handleColor( eventAtDate.color, noteCard, eventAtDate.id )
         }
 
         createInternalLinkOnNoteCard( eventAtDate, noteCard )
@@ -335,8 +348,9 @@ export class TimelineBlockProcessor {
           })
         }
 
+        let colorIsClass = false
         if ( event.color ) {
-          noteCard.addClass( event.color )
+          colorIsClass = this.handleColor( event.color, noteCard, event.id )
         }
 
         createInternalLinkOnNoteCard( event, noteCard )
@@ -358,7 +372,7 @@ export class TimelineBlockProcessor {
           id: items.length + 1,
           content: event.title ?? '',
           start: start,
-          className: event.color ?? 'gray',
+          className: colorIsClass ? event.color ?? 'gray' : `nid-${event.id}`,
           type: event.type,
           end: end ?? null,
           path: event.path,
