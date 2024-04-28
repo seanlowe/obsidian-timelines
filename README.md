@@ -287,9 +287,10 @@ Note: Currently only assets specified via `http` or `absolute local path` will r
 
 #### Node Color (`data-color`):
   - Optional
-  - Adds the color specified as a CSS class on the appropriate HTML elements in order to be associated with that timeline entry.
+  - Tells the timeline to color that entry in the color provided.
+  - Supports hex color codes and color names, such as `blue`, `red`, `rebeccapurple`, `#96F613`, or `FF7F50`
 
-Note: Acceptable values for `data-color` are `orange`, `yellow`, `red`, `blue`, `green`, `purple`, `pink`, and `gray`. If the value is not supplied, events will be colored white (or gray for background events) on the timeline.
+Note: If a value is not supplied, events will be colored `white` (or `gray` for background events) on the timeline.
 
 #### Type (`data-type`):
   - Optional
@@ -313,16 +314,15 @@ Note: Acceptable values for `data-type` are:
 
 ## Release Notes
 
-### v2.1.4
+### v2.1.5
 
-Added support for changing the maximum and minimum zoom levels on the horizontal timeline.
+Revamped event color functionality.
 
 **Changes:**
-- renamed `TimelineArgs` to `InternalTimelineArgs` and updated to be more specific for each possible argument.
-- added support for `zoomInLimit` and `zoomOutLimit`
-- updated the README with information on how to use the new arguments
-- updated the horizontal codeblock example image with the new arguments
-- extracted some logic dealing with arguments from `utils/index.ts` to its own file
+- added support to pass essentially any color as a value in the color field on events (HTML or Frontmatter)
+- updated the `Node Color` section in the README to cover the new functionality
+- wrote functions to handle dynamically adding the stylesheets for custom colors in `utils/colors.ts`
+- added function to `block.ts` to handle whether or not the color provided was one of the built-ins or if it requires the dynamic logic
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

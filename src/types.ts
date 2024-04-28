@@ -30,6 +30,7 @@ export interface InternalTimelineArgs {
 }
 
 export interface CardContainer {
+  id: string,
   color: string,
   endDate: string,
   era: string,

@@ -2,6 +2,7 @@
 
 $available-colors: orange, blue, green, red, purple, yellow, pink, gray;
 $vis-item-types: 'vis-background', 'vis-box', 'vis-point', 'vis-range', 'vis-line', 'vis-dot';
+// STOP - did you remember to change the matching variables in colors.ts?
 
 .vis-timeline {
   border: 1px solid transparent;
@@ -44,6 +45,7 @@ div.vis-item-overflow > div > a {
     }
   }
 }
+// STOP - did you remember to change the matching rules in colors.ts?
 
 .vis-panel {
   &.vis-center,
