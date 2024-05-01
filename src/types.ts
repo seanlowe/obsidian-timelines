@@ -1,3 +1,4 @@
+import { Color } from 'chroma-js'
 import { FrontMatterCache, MetadataCache, TFile, Vault } from 'obsidian'
 
 /* ------------------------------ */
@@ -17,33 +18,27 @@ export const developerSettings = {
 /*           Interfaces           */
 /* ------------------------------ */
 
-export interface InternalTimelineArgs {
-  divHeight: number,
-  endDate: Date,
-  maxDate: Date,
-  minDate: Date,
-  startDate: Date,
-  tags: string[],
-  type: string | null,
-  zoomInLimit: number,
-  zoomOutLimit: number,
+export interface AddColorInput {
+  color: Color,
+  selector: string,
+  addon?: string,
+  alpha?: number
 }
 
 export interface CardContainer {
   id: string,
-  color: string,
   endDate: string,
   era: string,
   img: string,
   innerText: string,
   path: string,
   startDate: string,
+  styles: EventStylesObject,
   title: string,
   type: string,
 }
 
 export interface EventDataObject {
-  color: string,
   endDate: string,
   era: string,
   eventImg: string,
@@ -51,18 +46,28 @@ export interface EventDataObject {
   noteTitle: string,
   showOnTimeline: boolean | null,
   startDate: string,
+  styles: EventStylesObject,
   tags: string,
   type: string,
 }
 
+// type that gets pushed into the vis-timeline items DataSet
 export interface EventItem {
   id: number,
-  className: string,
+  className?: string,
   content: string,
   end: Date,
   path: string,
   start: Date,
+  style?: string,
   type: string,
+}
+
+export interface EventStylesObject {
+  fontColor: string | null,
+  backgroundColor: string,
+  borderColor: string | null,
+  customClass?: string
 }
 
 export interface EventTypeNumbers {
@@ -83,6 +88,18 @@ export interface GetFileDataInput {
   fileCache: MetadataCache | null,
 }
 
+export interface InternalTimelineArgs {
+  divHeight: number,
+  endDate: Date,
+  maxDate: Date,
+  minDate: Date,
+  startDate: Date,
+  tags: string[],
+  type: string | null,
+  zoomInLimit: number,
+  zoomOutLimit: number,
+}
+
 export interface TimelinesSettings {
   eventElement: AcceptableEventElements,
   frontMatterKeys: FrontMatterKeys,
@@ -93,10 +110,18 @@ export interface TimelinesSettings {
   maxDigits: string,
 }
 
+export interface VerifiedColorsObject {
+  backgroundColor?: chroma.Color,
+  borderColor?: chroma.Color,
+  fontColor?: chroma.Color,
+}
+
 /* ------------------------------ */
 /*              Types             */
 /* ------------------------------ */
 
-export type NoteData = CardContainer[]
 export type AllNotesData = NoteData[]
+
 export type EventCountData = ( HTMLElement | FrontMatterCache | null )[]
+
+export type NoteData = CardContainer[]

@@ -1,14 +1,36 @@
 import chroma, { type Color, valid } from 'chroma-js'
 
-export const availableColors = ['orange', 'blue', 'green', 'red', 'purple', 'yellow', 'pink', 'gray']
-const types = [ 'vis-background', 'vis-box', 'vis-point', 'vis-range', 'vis-line', 'vis-dot' ]
-// STOP - did you remember to change the matching variables in horizontal-timeline.scss?
+import { logger } from './debug'
+import { AVAILABLE_COLORS, TIMELINE_ELEMENT_TYPES } from '../constants'
+import { EventStylesObject, VerifiedColorsObject, AddColorInput } from '../types'
 
-type AddColorInput = {
-  color: Color,
-  selector: string,
-  addon?: string,
-  alpha?: number
+// in use by horizontal timeline
+export const handleStyles = ( styles: EventStylesObject ): VerifiedColorsObject => {
+  const verifiedColors: VerifiedColorsObject = {}
+  Object.keys( styles ).forEach(( key ) => {
+    if ( !styles[key] ) return
+
+    if ( key === 'fontColor' ) {
+      styles.customClass = 'custom-font-style'
+    }
+
+    verifiedColors[key] = chroma( styles[key] )
+  })
+
+  logger( 'verifiedColors', verifiedColors )
+  return verifiedColors
+}
+
+// currently not really used
+// need to test if this works on vertical timeline, as it is being used there
+export const handleColor = ( color: string, noteCard: HTMLDivElement, id: string ): boolean => {
+  if ( !AVAILABLE_COLORS.includes( color )) {
+    handleDynamicColor( color, id )
+    return false
+  }
+
+  noteCard.addClass( color )
+  return true
 }
 
 const lightenBackground = ( color: Color, alpha: number = .3 ): string => {
@@ -39,7 +61,7 @@ export const handleDynamicColor = ( color: string, noteId: string ) => {
 
   // add all the various parts that need coloring
   const newRules: string[] = []
-  for ( const type of types ) {
+  for ( const type of TIMELINE_ELEMENT_TYPES ) {
     newRules.push( addColor({ color: colorObject, selector: '.vis-item' }, id ))
     newRules.push( addColor({ color: colorObject, selector: `.vis-item.${type}` }, id ))
     newRules.push( addColor({ color: colorObject, selector: `.vis-item.${type}.vis-selected`, alpha: .45 }, id ))

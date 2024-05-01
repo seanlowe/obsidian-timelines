@@ -1,8 +1,5 @@
 @use './colors.scss' as *;
-
-$available-colors: orange, blue, green, red, purple, yellow, pink, gray;
-$vis-item-types: 'vis-background', 'vis-box', 'vis-point', 'vis-range', 'vis-line', 'vis-dot';
-// STOP - did you remember to change the matching variables in colors.ts?
+@use './variables.scss' as *;
 
 .vis-timeline {
   border: 1px solid transparent;
@@ -57,12 +54,18 @@ div.vis-item-overflow > div > a {
 
 .vis-grid {
   &.vis-minor {
-    display: none;
+    display: $minorGridDisplay;
   }
 
   &.vis-major {
-    display: none;
+    display: $majorGridDisplay;
   }
+}
+
+// this is for enabling custom per-event font colors for items on the timeline
+.custom-font-style > div.vis-item-overflow > div.vis-item-content > a {
+  text-decoration: none !important;
+  color: unset;
 }
 
 /* Vis Timeline Navigation */

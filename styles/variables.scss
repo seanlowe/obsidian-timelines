@@ -1,0 +1,11 @@
+// put variables for styling in this file
+
+$minorGridDisplay: none;
+$majorGridDisplay: none;
+
+// THESE two constants go together
+
+$available-colors: orange, blue, green, red, purple, yellow, pink, gray;
+$vis-item-types: 'vis-background', 'vis-box', 'vis-point', 'vis-range', 'vis-line', 'vis-dot';
+
+// STOP - did you remember to change the matching variables in constants.ts?

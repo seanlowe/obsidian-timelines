@@ -1,9 +1,17 @@
-import type { AllNotesData, CardContainer, EventItem, InternalTimelineArgs, TimelinesSettings } from './types'
 import type { TFile, MetadataCache, Vault } from 'obsidian'
 import { MarkdownView } from 'obsidian'
+
 import { RENDER_TIMELINE } from './constants'
+import type {
+  AllNotesData,
+  CardContainer,
+  EventDataObject,
+  EventItem,
+  InternalTimelineArgs,
+  TimelinesSettings,
+  VerifiedColorsObject
+} from './types'
 import {
-  availableColors,
   buildTimelineDate,
   createDateArgument,
   createInternalLinkOnNoteCard,
@@ -14,7 +22,8 @@ import {
   getEventsInFile,
   getImgUrl,
   getNumEventsInFile,
-  handleDynamicColor,
+  handleColor,
+  handleStyles,
   isHTMLElementType,
   logger,
   normalizeDate,
@@ -136,9 +145,7 @@ export class TimelineBlockProcessor {
       const { numEvents } = await getNumEventsInFile( null, combinedEventsAndFrontMatter )
 
       combinedEventsAndFrontMatter.forEach(( event ) => {
-        let eventData = null
-
-        eventData = getEventData( event, file, this.settings.frontMatterKeys )
+        const eventData: EventDataObject = getEventData( event, file, this.settings.frontMatterKeys )
         if ( !eventData ) {
           console.warn( 'malformed eventData, skipping event' )
           return
@@ -155,18 +162,22 @@ export class TimelineBlockProcessor {
         }
 
         const {
-          color: initialColor,
           endDate,
           era,
           eventImg,
           notePath,
           noteTitle,
           startDate,
+          styles,
           tags,
           type,
         } = eventData
 
-        const color = initialColor === 'grey' ? 'gray' : initialColor
+        const {
+          backgroundColor: initialBackgroundColor,
+        } = styles
+
+        const backgroundColor = initialBackgroundColor === 'grey' ? 'gray' : initialBackgroundColor
 
         if ( tags ) {
           logger( 'this note contains override tags' )
@@ -203,13 +214,16 @@ export class TimelineBlockProcessor {
 
         const note: CardContainer = {
           id: noteId,
-          color,
           endDate,
           era,
           img: imgUrl,
           innerText: event?.innerText ?? '',
           path: notePath,
           startDate,
+          styles: {
+            ...styles,
+            backgroundColor,
+          },
           title: noteTitle,
           type,
         }
@@ -225,16 +239,6 @@ export class TimelineBlockProcessor {
         }
       })
     }
-  }
-
-  handleColor( color: string, noteCard: HTMLDivElement, id: string ): boolean {
-    if ( !availableColors.includes( color )) {
-      handleDynamicColor( color, id )
-      return false
-    }
-
-    noteCard.addClass( color )
-    return true
   }
 
   /**
@@ -296,9 +300,10 @@ export class TimelineBlockProcessor {
           })
         }
 
+        // fix this?
         if ( eventAtDate.color ) {
           // todo : add more support for other custom classes
-          this.handleColor( eventAtDate.color, noteCard, eventAtDate.id )
+          handleColor( eventAtDate.color, noteCard, eventAtDate.id )
         }
 
         createInternalLinkOnNoteCard( eventAtDate, noteCard )
@@ -348,16 +353,16 @@ export class TimelineBlockProcessor {
           })
         }
 
-        let colorIsClass = false
-        if ( event.color ) {
-          colorIsClass = this.handleColor( event.color, noteCard, event.id )
+        let verifiedStyles: VerifiedColorsObject = {}
+        if ( event.styles ) {
+          verifiedStyles = handleStyles( event.styles )
         }
 
         createInternalLinkOnNoteCard( event, noteCard )
         noteCard.createEl( 'p', { text: event.innerText })
 
         const start = buildTimelineDate( event.startDate )
-        const end = buildTimelineDate( event.endDate )
+        const end   = buildTimelineDate( event.endDate )
 
         if (
           start.toString() === 'Invalid Date' ||
@@ -368,14 +373,21 @@ export class TimelineBlockProcessor {
           return
         }
 
+        const stylesString = this.stringifyStyles( verifiedStyles )
         const eventItem: EventItem = {
           id: items.length + 1,
           content: event.title ?? '',
-          start: start,
-          className: colorIsClass ? event.color ?? 'gray' : `nid-${event.id}`,
+          start,
+          style: stylesString,
           type: event.type,
           end: end ?? null,
           path: event.path,
+        }
+
+        // if they passed a font color, we need to append a custom class to the item to disable
+        // obsidian's default styling for internal links on our specific vis timeline items
+        if ( event.styles.customClass ) {
+          eventItem.className = event.styles.customClass
         }
 
         // Add Event data
@@ -396,12 +408,11 @@ export class TimelineBlockProcessor {
       zoomMax: this.args.zoomOutLimit,
       template: ( item: EventItem ) => {
         const eventContainer = document.createElement( this.settings.notePreviewOnHover ? 'a' : 'div' )
+        eventContainer.setText( item.content )
         if ( 'href' in eventContainer ) {
           eventContainer.addClass( 'internal-link' )
           eventContainer.href = item.path
         }
-
-        eventContainer.setText( item.content )
 
         return eventContainer
       }
@@ -413,6 +424,32 @@ export class TimelineBlockProcessor {
 
     // Replace the selected tags with the timeline html
     el.appendChild( timelineDiv )
+  }
+
+  stringifyStyles( styles: VerifiedColorsObject ): string {
+    let stylesString: string = ''
+    for ( const initialKey of Object.keys( styles )) {
+      let key = ''
+      let modifier = ''
+
+      switch ( initialKey ) {
+      case 'backgroundColor':
+        key = 'background-color'
+        break
+      case 'borderColor':
+        key = 'border-color'
+        break
+      case 'fontColor':
+        key = 'color'
+        modifier = ' !important'
+        break
+      }
+
+      logger( 'initialKey, key, and styles[initialKey]', { initialKey, key, value: styles[initialKey] })
+      stylesString += styles[initialKey] ? `${key}: ${styles[initialKey].hex()}${modifier}; ` : ''
+    }
+
+    return stylesString
   }
 
   async showEmptyTimelineMessage( el: HTMLElement, tagList: string[] ) {

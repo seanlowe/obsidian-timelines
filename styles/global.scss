@@ -1,6 +1,7 @@
 @use './vertical-timeline.scss';
 @use './horizontal-timeline.scss';
 
+// hide timeline events by default
 .ob-timelines {
   display: none;
 }

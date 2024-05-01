@@ -2,6 +2,7 @@ import { FrontMatterCache, MetadataCache, Notice, TFile, Vault, normalizePath } 
 import {
   EventCountData,
   EventDataObject,
+  EventStylesObject,
   EventTypeNumbers,
   FrontMatterKeys,
   GetFileDataInput
@@ -49,6 +50,15 @@ export async function getNumEventsInFile(
   return { numEvents, numFrontMatter, totalEvents: numEvents + numFrontMatter }
 }
 
+/**
+ * Get all events in a specified file.
+ *
+ * @param {TFile} file - the file to get the events from
+ * @param {Vault} appVault - a handle to information in and about the current vault
+ * @param {MetadataCache} fileCache - internal metadata cache
+ *
+ * @returns {EventCountData | null}
+ */
 export const getEventsInFile = async (
   file: TFile,
   appVault: Vault,
@@ -73,6 +83,15 @@ export const getEventsInFile = async (
   return fileEvents
 }
 
+/**
+ * Gets the event data from an event object (HTML or Frontmatter).
+ *
+ * @param {HTMLElement | FrontMatterCache} eventObject - the event object to get the data from. Could be HTML or frontmatter
+ * @param {TFile} file - the file the event is in
+ * @param {FrontMatterKeys} frontMatterKeys - the alternative frontmatter keys (user-specified) to search for
+ *
+ * @returns {EventDataObject | null}
+ */
 export const getEventData = (
   eventObject: HTMLElement | FrontMatterCache,
   file: TFile,
@@ -81,12 +100,19 @@ export const getEventData = (
   const startDate = retrieveEventValue(
     eventObject, 'startDate', null, frontMatterKeys?.startDateKey
   )
+
   if ( !startDate ) {
     new Notice( `No date found for ${file.name}` )
+
     return null
   }
 
-  const color          = retrieveEventValue( eventObject, 'color', '' )
+  const styles: EventStylesObject = {
+    backgroundColor: retrieveEventValue( eventObject, 'color',       null ),
+    borderColor:     retrieveEventValue( eventObject, 'borderColor', null ),
+    fontColor:       retrieveEventValue( eventObject, 'fontColor',   null ),
+  }
+
   const endDate        = retrieveEventValue(
     eventObject, 'endDate', null, frontMatterKeys?.endDateKey
   )
@@ -101,7 +127,6 @@ export const getEventData = (
   const showOnTimeline = retrieveEventValue( eventObject, 'showOnTimeline', null )
 
   const eventData: EventDataObject = {
-    color,
     endDate,
     era,
     eventImg,
@@ -109,6 +134,7 @@ export const getEventData = (
     noteTitle,
     showOnTimeline: !!showOnTimeline,
     startDate,
+    styles,
     tags,
     type
   }
@@ -116,6 +142,14 @@ export const getEventData = (
   return eventData
 }
 
+/**
+ * @param {HTMLElement | FrontMatterCache} eventData - the event data to retrieve the value from
+ * @param {string} datasetKey - the key to retrieve the value with
+ * @param {string | null} defaultValue - the default value to return if the value is not found
+ * @param {string[] | null} frontMatterKeys - (optional) the equivalent keys to search for in the frontmatter
+ *
+ * @returns {string | null}
+ */
 const retrieveEventValue = (
   eventData: HTMLElement | FrontMatterCache,
   datasetKey: string,
@@ -129,6 +163,13 @@ const retrieveEventValue = (
   }
 }
 
+/**
+ * @param {HTMLElement} event - the HTML div/span event to retrieve the value from
+ * @param {string} datasetKey - the key to retrieve the value with
+ * @param {string | null} defaultValue - the default value to return if the value is not found
+ *
+ * @returns {string | null}
+ */
 const retrieveHTMLValue = (
   event: HTMLElement,
   datasetKey: string,
@@ -139,6 +180,14 @@ const retrieveHTMLValue = (
   return result ?? defaultValue
 }
 
+/**
+ * @param {FrontMatterCache} event - the frontmatter event to retrieve the value from
+ * @param {string} datasetKey - the key to retrieve the value with
+ * @param {string | null} defaultValue - the default value to return if the value is not found
+ * @param {string[] | null } frontMatterKeys - (optional) the equivalent keys to search for in the frontmatter
+ *
+ * @returns {string | null}
+ */
 const retrieveFrontMatterValue = (
   event: FrontMatterCache,
   datasetKey: string,
