@@ -125,22 +125,29 @@ export const normalizeDate = ( date: string, maxDigits: number ): string => {
 /**
  * Format an event date for display
  *
- * @param {string} rawDate - string from of date in format "YYYY-MM-DD"
+ * @param {string} rawDate - string from of date in format "YYYY-MM-DD-HH"
  * @returns {Date | null}
  */
-export const buildTimelineDate = ( rawDate: string ): Date|null => {
-  const cleanedDate = rawDate?.replace( /(.*)-\d*$/g, '$1' )
+export const buildTimelineDate = ( rawDate: string ): Date | null => {
+  let cleanedDate = rawDate?.replace( /(.*)-\d{4}$/g, '$1' )
   if ( !cleanedDate ) {
     return null
   }
 
+  let isNegative: boolean = false
   if ( cleanedDate[0] === '-' ) {
-    // handle negative year
-    const comps = cleanedDate.substring( 1, cleanedDate.length ).split( '-' )
-    return new Date( +`-${comps[0]}`, +comps[1], +comps[2] )
+    isNegative = true
+    cleanedDate = cleanedDate.slice( 1 )
   }
 
-  return new Date( cleanedDate )
+  const parts = cleanedDate.split( '-' )
+  const year = parseInt( parts[0] ) * ( isNegative ? -1 : 1 )
+  const month = parseInt( parts[1] ?? '1' ) - 1 // Month is 0-indexed, so subtract 1
+  const day = parseInt( parts[2] ?? '1' )
+  const hour = parseInt( parts[3] ?? '1' )
+
+  const date = new Date( year, month, day, hour )
+  return date
 }
 
 /**

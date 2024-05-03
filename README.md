@@ -314,15 +314,13 @@ Note: Acceptable values for `data-type` are:
 
 ## Release Notes
 
-### v2.1.5
+### v2.1.6
 
-Revamped event color functionality.
+Bug fix for Issue [seanlowe/obsidian-timelines#39](https://github.com/seanlowe/obsidian-timelines/issues/39)
 
 **Changes:**
-- added support to pass essentially any color as a value in the color field on events (HTML or Frontmatter)
-- updated the `Node Color` section in the README to cover the new functionality
-- wrote functions to handle dynamically adding the stylesheets for custom colors in `utils/colors.ts`
-- added function to `block.ts` to handle whether or not the color provided was one of the built-ins or if it requires the dynamic logic
+- fixed incorrect rendering of events with hours specified. Hours will now shift the event as expected
+- fixed an issue where notes would not be added to the timeline due to tags not having `#` removed
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
