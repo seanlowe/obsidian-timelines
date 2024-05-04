@@ -13,7 +13,7 @@ import type {
 } from './types'
 import {
   buildTimelineDate,
-  createDateArgument,
+  createYearArgument,
   createInternalLinkOnNoteCard,
   createTagList,
   convertEntryToMilliseconds,
@@ -107,7 +107,7 @@ export class TimelineBlockProcessor {
 
       if ( tag.includes( 'Date' )) {
         // startDate, endDate, minDate, maxDate
-        const result = createDateArgument( value )
+        const result = createYearArgument( value )
         this.args[tag] = result
         return
       }
@@ -147,7 +147,7 @@ export class TimelineBlockProcessor {
       combinedEventsAndFrontMatter.forEach(( event ) => {
         const eventData: EventDataObject = getEventData( event, file, this.settings.frontMatterKeys )
         if ( !eventData ) {
-          console.warn( 'malformed eventData, skipping event' )
+          console.warn( `malformed eventData, skipping event in file: ${file.name}`, { event, eventData })
           return
         }
 
@@ -189,7 +189,8 @@ export class TimelineBlockProcessor {
           logger( 'this.args.tags:', this.args.tags )
 
           let overrideTagsAreContainedInTagList = false
-          for ( const tag of noteTags ) {
+          for ( const rawTag of noteTags ) {
+            const tag = rawTag.trim().replace( '#', '' )
             logger( 'examining tag:', tag )
             // loop over all the override tags and if any of them are in the tag list, add it
             if ( this.args.tags.includes( tag )) {

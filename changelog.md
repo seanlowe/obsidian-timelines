@@ -1,5 +1,15 @@
 ## Changelog
 
+### v2.1.5
+
+Revamped event color functionality.
+
+**Changes:**
+- added support to pass essentially any color as a value in the color field on events (HTML or Frontmatter)
+- updated the `Node Color` section in the README to cover the new functionality
+- wrote functions to handle dynamically adding the stylesheets for custom colors in `utils/colors.ts`
+- added function to `block.ts` to handle whether or not the color provided was one of the built-ins or if it requires the dynamic logic
+
 ### v2.1.4
 
 Added support for changing the maximum and minimum zoom levels on the horizontal timeline.
