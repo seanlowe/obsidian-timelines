@@ -13,12 +13,6 @@ $vis-item-types: 'vis-background', 'vis-box', 'vis-point', 'vis-range', 'vis-lin
   border: 1px solid transparent;
 }
 
-.runtime-hover {
-  background: color-mix(in oklab, var(--hoverHighlightColor), transparent 40%);
-  border-color: color-mix(in oklab, var(--hoverHighlightColor), white 30%) !important;
-  filter: none;
-}
-
 .vis-item-content,
 .vis-item-overflow {
   .timeline-card {
@@ -47,14 +41,14 @@ div.vis-item-overflow > div > a {
   cursor: pointer;
   box-sizing: border-box !important;
 
-  @each $color in $available-colors {
-    @each $type in $vis-item-types {
-      @include add-color($color, &);
-      @include add-color($color, '&.#{$type}');
-      @include add-color($color, '&.#{$type}.vis-selected', $alpha: .45);
-      @include add-color($color, &, $addon: ':hover', $alpha: .45);
-    }
-  }
+  // @each $color in $available-colors {
+  //   @each $type in $vis-item-types {
+  //     @include add-color($color, &);
+  //     @include add-color($color, '&.#{$type}');
+  //     @include add-color($color, '&.#{$type}.vis-selected', $alpha: .45);
+  //     @include add-color($color, &, $addon: ':hover', $alpha: .45);
+  //   }
+  // }
 }
 // STOP - did you remember to change the matching rules in colors.ts?
 
@@ -80,6 +74,13 @@ div.vis-item-overflow > div > a {
 .custom-font-style > div.vis-item-overflow > div.vis-item-content > a {
   text-decoration: none !important;
   color: unset;
+}
+
+// this is for making sure all items associated with an event are highlighted the same (lines, points, etc)
+.runtime-hover {
+  background: color-mix(in oklab, var(--hoverHighlightColor), transparent 40%);
+  border-color: color-mix(in oklab, var(--hoverHighlightColor), white 30%) !important;
+  filter: none;
 }
 
 /* Vis Timeline Navigation */

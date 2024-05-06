@@ -78,3 +78,33 @@ export const handleDynamicColor = ( color: string, noteId: string ) => {
     stylesheet.insertRule( rule, stylesheet.cssRules.length )
   }
 }
+
+export const stringifyStyles = ( styles: VerifiedColorsObject ): string => {
+  let stylesString: string = ''
+  for ( const initialKey of Object.keys( styles )) {
+    let key = ''
+    let modifier = ''
+    let color: Color = styles[initialKey]
+
+    switch ( initialKey ) {
+    case 'backgroundColor':
+      key = 'background-color'
+      color = color.alpha( 0.3 )
+      break
+    case 'borderColor':
+      key = 'border-color'
+      break
+    case 'fontColor':
+      key = 'color'
+      modifier = ' !important'
+      break
+    }
+
+    // const color = styles[initialKey].rgb().alpha()
+
+    logger( 'initialKey, key, and styles[initialKey]', { initialKey, key, value: styles[initialKey] })
+    stylesString += styles[initialKey] ? `${key}: ${color.hex()}${modifier}; ` : ''
+  }
+
+  return stylesString
+}

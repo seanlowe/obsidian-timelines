@@ -28,6 +28,7 @@ import {
   logger,
   normalizeDate,
   setDefaultArgs,
+  stringifyStyles,
 } from './utils'
 
 // Horizontal (Vis-Timeline) specific imports
@@ -374,7 +375,7 @@ export class TimelineBlockProcessor {
           return
         }
 
-        const stylesString = this.stringifyStyles( verifiedStyles )
+        const stylesString = stringifyStyles( verifiedStyles )
         const eventItem: EventItem = {
           id: items.length + 1,
           content: event.title ?? '',
@@ -431,7 +432,7 @@ export class TimelineBlockProcessor {
     timeline.on( 'itemover', ( props ) => {
       const event = items.get( props.item ) as unknown as EventItem
       const newClass = event.className + ' runtime-hover'
-      document.documentElement.style.setProperty( '--hoverHighlightColor', event._event?.color ?? 'white' )
+      document.documentElement.style.setProperty( '--hoverHighlightColor', event._event?.styles?.backgroundColor ?? 'white' )
       items.updateOnly( [{ ...event, className: newClass }] )
 
       return () => {
@@ -451,32 +452,6 @@ export class TimelineBlockProcessor {
 
     // Replace the selected tags with the timeline html
     el.appendChild( timelineDiv )
-  }
-
-  stringifyStyles( styles: VerifiedColorsObject ): string {
-    let stylesString: string = ''
-    for ( const initialKey of Object.keys( styles )) {
-      let key = ''
-      let modifier = ''
-
-      switch ( initialKey ) {
-      case 'backgroundColor':
-        key = 'background-color'
-        break
-      case 'borderColor':
-        key = 'border-color'
-        break
-      case 'fontColor':
-        key = 'color'
-        modifier = ' !important'
-        break
-      }
-
-      logger( 'initialKey, key, and styles[initialKey]', { initialKey, key, value: styles[initialKey] })
-      stylesString += styles[initialKey] ? `${key}: ${styles[initialKey].hex()}${modifier}; ` : ''
-    }
-
-    return stylesString
   }
 
   async showEmptyTimelineMessage( el: HTMLElement, tagList: string[] ) {
