@@ -1,5 +1,13 @@
 ## Changelog
 
+### v2.1.6
+
+Bug fix for Issue [seanlowe/obsidian-timelines#39](https://github.com/seanlowe/obsidian-timelines/issues/39)
+
+**Changes:**
+- fixed incorrect rendering of events with hours specified. Hours will now shift the event as expected
+- fixed an issue where notes would not be added to the timeline due to tags not having `#` removed
+
 ### v2.1.5
 
 Revamped event color functionality.
