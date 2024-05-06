@@ -314,13 +314,16 @@ Note: Acceptable values for `data-type` are:
 
 ## Release Notes
 
-### v2.1.6
+### v2.1.7
 
-Bug fix for Issue [seanlowe/obsidian-timelines#39](https://github.com/seanlowe/obsidian-timelines/issues/39)
+Implements issue [seanlowe/obsidian-timelines#34](https://github.com/seanlowe/obsidian-timelines/issues/34)
 
 **Changes:**
-- fixed incorrect rendering of events with hours specified. Hours will now shift the event as expected
-- fixed an issue where notes would not be added to the timeline due to tags not having `#` removed
+- added event listeners onto timeline events to run some logic when items are being hovered on
+  - adds a custom CSS class `.runtime-hover` on mouse enter, and removes it when the mouse leaves the event
+  - adds some logic to set a CSS variable with the particular event's background color
+- added styling rules for CSS class `.runtime-hover` that takes into account the current background color (that was pushed into a CSS variable by the event listeners)
+- allowed for timeline event objects to have a copy of the data from the user-created events (HTML/FM)
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

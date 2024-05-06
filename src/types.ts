@@ -63,6 +63,7 @@ export interface EventItem {
   path: string,
   start: Date,
   type: string,
+  _event?: Partial<EventDataObject>,
 }
 
 export interface EventTypeNumbers {

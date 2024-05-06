@@ -377,6 +377,7 @@ export class TimelineBlockProcessor {
           type: event.type,
           end: end ?? null,
           path: event.path,
+          _event: event,
         }
 
         // Add Event data
@@ -408,9 +409,34 @@ export class TimelineBlockProcessor {
       }
     }
 
-    // Create a Timeline
     timelineDiv.setAttribute( 'class', 'timeline-vis' )
-    new Timeline( timelineDiv, items, options )
+    const timeline = new Timeline( timelineDiv, items, options )
+
+    // these are probably non-performant but it works so ¯\_(ツ)_/¯
+    // dynamically add and remove a "special" class on hover
+    // cannot use standard :hover styling due to the structure
+    // of the timeline being so broken up across elements. This
+    // ensures that all elements related to an event are highlighted.
+    timeline.on( 'itemover', ( props ) => {
+      const event = items.get( props.item ) as unknown as EventItem
+      const newClass = event.className + ' runtime-hover'
+      document.documentElement.style.setProperty( '--hoverHighlightColor', event._event?.color ?? 'white' )
+      items.updateOnly( [{ ...event, className: newClass }] )
+
+      return () => {
+        timeline.off( 'itemover' )
+      }
+    })
+
+    timeline.on( 'itemout', ( props ) => {
+      const event = items.get( props.item ) as unknown as EventItem
+      const newClass = event.className.split( ' runtime-hover' )[0]
+      items.updateOnly( [{ ...event, className: newClass }] )
+
+      return () => {
+        timeline.off( 'itemout' )
+      }
+    })
 
     // Replace the selected tags with the timeline html
     el.appendChild( timelineDiv )
