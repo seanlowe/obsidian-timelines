@@ -61,6 +61,7 @@ export interface EventItem {
   start: Date,
   style?: string,
   type: string,
+  _event?: Partial<EventDataObject>,
 }
 
 export interface EventStylesObject {
