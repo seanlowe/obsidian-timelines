@@ -2,24 +2,7 @@ import chroma, { type Color, valid } from 'chroma-js'
 
 import { logger } from './debug'
 import { AVAILABLE_COLORS, TIMELINE_ELEMENT_TYPES } from '../constants'
-import { EventStylesObject, VerifiedColorsObject, AddColorInput } from '../types'
-
-// in use by horizontal timeline
-export const handleStyles = ( styles: EventStylesObject ): VerifiedColorsObject => {
-  const verifiedColors: VerifiedColorsObject = {}
-  Object.keys( styles ).forEach(( key ) => {
-    if ( !styles[key] ) return
-
-    if ( key === 'fontColor' ) {
-      styles.customClass = 'custom-font-style'
-    }
-
-    verifiedColors[key] = chroma( styles[key] )
-  })
-
-  logger( 'verifiedColors', verifiedColors )
-  return verifiedColors
-}
+import { VerifiedColorsObject, AddColorInput } from '../types'
 
 // currently not really used
 // need to test if this works on vertical timeline, as it is being used there
@@ -79,6 +62,12 @@ export const handleDynamicColor = ( color: string, noteId: string ) => {
   }
 }
 
+/**
+ * @deprecated
+ *
+ * @param styles
+ * @returns
+ */
 export const stringifyStyles = ( styles: VerifiedColorsObject ): string => {
   let stylesString: string = ''
   for ( const initialKey of Object.keys( styles )) {

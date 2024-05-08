@@ -16,6 +16,7 @@ export * from './events'
 export * from './frontmatter'
 export * from './arguments'
 export * from './colors'
+export * from './colors-new'
 
 /**
  * Filter markdown files by tag

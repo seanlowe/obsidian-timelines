@@ -27,6 +27,7 @@ export interface AddColorInput {
 
 export interface CardContainer {
   id: string,
+  className?: string,
   endDate: string,
   era: string,
   img: string,
@@ -36,6 +37,12 @@ export interface CardContainer {
   styles: EventStylesObject,
   title: string,
   type: string,
+}
+
+export interface ColorHexes {
+  backgroundColor: string,
+  borderColor: string,
+  fontColor?: string,
 }
 
 export interface EventDataObject {
@@ -61,7 +68,8 @@ export interface EventItem {
   start: Date,
   style?: string,
   type: string,
-  _event?: Partial<EventDataObject>,
+  // _event?: Partial<EventDataObject>,
+  _colors?: ColorHexes
 }
 
 export interface EventStylesObject {
@@ -99,6 +107,11 @@ export interface InternalTimelineArgs {
   type: string | null,
   zoomInLimit: number,
   zoomOutLimit: number,
+}
+
+export interface PreparedStyles {
+  styleString: string,
+  newStyles: VerifiedColorsObject
 }
 
 export interface TimelinesSettings {

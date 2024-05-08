@@ -3,9 +3,11 @@
 
 :root {
   hoverHighlightColor: transparent;
+  hoverHighlightBorderColor: transparent;
+  hoverHighlightFontColor: transparent;
 }
 
-$available-colors: orange, blue, green, red, purple, yellow, pink, gray;
+$available-colors: orange, blue, green, red, purple, yellow, #ffc0cb, gray;
 $vis-item-types: 'vis-background', 'vis-box', 'vis-point', 'vis-range', 'vis-line', 'vis-dot';
 // STOP - did you remember to change the matching variables in colors.ts?
 
@@ -40,17 +42,7 @@ div.vis-item-overflow > div > a {
 .vis-item {
   cursor: pointer;
   box-sizing: border-box !important;
-
-  // @each $color in $available-colors {
-  //   @each $type in $vis-item-types {
-  //     @include add-color($color, &);
-  //     @include add-color($color, '&.#{$type}');
-  //     @include add-color($color, '&.#{$type}.vis-selected', $alpha: .45);
-  //     @include add-color($color, &, $addon: ':hover', $alpha: .45);
-  //   }
-  // }
 }
-// STOP - did you remember to change the matching rules in colors.ts?
 
 .vis-panel {
   &.vis-center,
@@ -71,6 +63,7 @@ div.vis-item-overflow > div > a {
 }
 
 // this is for enabling custom per-event font colors for items on the timeline
+.custom-font-style > div.vis-item-content > a,
 .custom-font-style > div.vis-item-overflow > div.vis-item-content > a {
   text-decoration: none !important;
   color: unset;
@@ -78,8 +71,10 @@ div.vis-item-overflow > div > a {
 
 // this is for making sure all items associated with an event are highlighted the same (lines, points, etc)
 .runtime-hover {
-  background: color-mix(in oklab, var(--hoverHighlightColor), transparent 40%);
-  border-color: color-mix(in oklab, var(--hoverHighlightColor), white 30%) !important;
+  color: color-mix(in oklab, var(--hoverHighlightFontColor), white 5%) !important;
+  background-color: color-mix(in oklab, var(--hoverHighlightColor), white 10%);
+  border-color: color-mix(in oklab, var(--hoverHighlightBorderColor), white 5%) !important;
+  transform: scale(1.01);
   filter: none;
 }
 

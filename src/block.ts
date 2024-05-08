@@ -5,6 +5,7 @@ import { RENDER_TIMELINE } from './constants'
 import type {
   AllNotesData,
   CardContainer,
+  ColorHexes,
   EventDataObject,
   EventItem,
   InternalTimelineArgs,
@@ -27,8 +28,9 @@ import {
   isHTMLElementType,
   logger,
   normalizeDate,
+  prepareStyles,
   setDefaultArgs,
-  stringifyStyles,
+  setCustomStyleProperty,
 } from './utils'
 
 // Horizontal (Vis-Timeline) specific imports
@@ -357,7 +359,7 @@ export class TimelineBlockProcessor {
 
         let verifiedStyles: VerifiedColorsObject = {}
         if ( event.styles ) {
-          verifiedStyles = handleStyles( event.styles )
+          verifiedStyles = handleStyles( event )
         }
 
         createInternalLinkOnNoteCard( event, noteCard )
@@ -375,23 +377,39 @@ export class TimelineBlockProcessor {
           return
         }
 
-        const stylesString = stringifyStyles( verifiedStyles )
+        const { styleString, newStyles: allColors } = prepareStyles( verifiedStyles, event.type )
+
+        const colorHexes: ColorHexes = Object.keys( allColors ).reduce(( prev, current ) => {
+          if ( allColors[current] ) {
+            prev = {
+              ...prev,
+              [current]: allColors[current].hex()
+            }
+
+            return prev
+          }
+        }, {} as ColorHexes )
+
+        console.log({ eventType: event.type, colors: colorHexes, title: event.title, classes: event.className })
+
         const eventItem: EventItem = {
           id: items.length + 1,
           content: event.title ?? '',
+          className: event?.className ?? '',
           start,
-          style: stylesString,
+          style: styleString,
           type: event.type,
           end: end ?? null,
           path: event.path,
-          _event: event,
+          _colors: colorHexes,
         }
 
         // if they passed a font color, we need to append a custom class to the item to disable
         // obsidian's default styling for internal links on our specific vis timeline items
-        if ( event.styles.customClass ) {
-          eventItem.className = event.styles.customClass
-        }
+        // if ( noteCard.classList.contains( 'custom-font-class' )) {
+        //   // eventItem.className = event.styles.customClass
+        //   setCustomStyleProperty( '--customFontColorSetting', )
+        // }
 
         // Add Event data
         items.add( eventItem )
@@ -432,7 +450,13 @@ export class TimelineBlockProcessor {
     timeline.on( 'itemover', ( props ) => {
       const event = items.get( props.item ) as unknown as EventItem
       const newClass = event.className + ' runtime-hover'
-      document.documentElement.style.setProperty( '--hoverHighlightColor', event._event?.styles?.backgroundColor ?? 'white' )
+      console.log({ newClass, oldClass: event.className })
+      console.log( 'event._event?.styles?.backgroundColor', event._colors.backgroundColor )
+      console.log( 'event._event?.styles?.borderColor', event._colors?.borderColor )
+      console.log( 'event._event?.styles?.fontColor', event._colors?.fontColor )
+      setCustomStyleProperty( '--hoverHighlightColor', event._colors?.backgroundColor )
+      setCustomStyleProperty( '--hoverHighlightBorderColor', event._colors?.borderColor, event._colors?.backgroundColor )
+      setCustomStyleProperty( '--hoverHighlightFontColor', event._colors?.fontColor )
       items.updateOnly( [{ ...event, className: newClass }] )
 
       return () => {
