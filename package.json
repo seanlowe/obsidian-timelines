@@ -1,9 +1,11 @@
 {
   "name": "timelines-revamped",
-  "version": "2.1.8",
+  "version": "2.1.9",
   "description": "Generate a chronological timeline in which all 'events' are notes that include a specific tag or set of tags.",
   "main": "main.js",
   "scripts": {
+    "docs": "hugo -s docs/ server",
+    "docs:drafts": "hugo -s docs/ server -D",
     "dev": "./scripts/dev-build.sh",
     "dev:rollup": "rollup --config rollup.config.js -w",
     "build": "./scripts/build.sh",
