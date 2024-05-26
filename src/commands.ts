@@ -64,7 +64,6 @@ export class TimelineCommandProcessor {
     const newEventElement = document.createElement( this.settings.eventElement )
     newEventElement.setAttribute( 'class', 'ob-timelines' )
     newEventElement.setAttribute( 'data-title', '' )
-    newEventElement.setAttribute( 'data-description', '' )
     newEventElement.setAttribute( 'data-color', '' )
     newEventElement.setAttribute( 'data-type', '' )
     newEventElement.setAttribute( 'data-start-date', '' )
