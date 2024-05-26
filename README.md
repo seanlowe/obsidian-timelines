@@ -17,13 +17,18 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
-### v2.1.8
+### v2.1.9 / v2.1.8
 
 Documentation overhaul!
 
 **Changes:**
-- created a brand new Hugo documentation site, deployable via GitHub Actions to GitHub Pages
-- removed the old documentation from the top-level README, as it's (obviously) no longer needed.
+- 2.1.9:
+  - fix hugo docs deployment workflow
+  - add npm commands for running the documentation site locally
+  - bump version to next patch (so it creates a new release correctly)
+- 2.1.8:
+  - created a brand new Hugo documentation site, deployable via GitHub Actions to GitHub Pages
+  - removed the old documentation from the top-level README, as it's (obviously) no longer needed.
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
