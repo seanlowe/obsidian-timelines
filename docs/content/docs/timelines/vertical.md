@@ -2,6 +2,7 @@
 weight: 999
 title: Vertical Timelines
 description: Additional information on Vertical Timelines
+icon: height
 draft: true
 toc: true
 ---

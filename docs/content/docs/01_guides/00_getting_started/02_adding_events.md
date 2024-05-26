@@ -1,7 +1,7 @@
 ---
-weight: 202
+weight: 212
 title: Adding Events
-description: Let's create some events to show on our Timeline
+description: Let's create some events to show on our timeline
 icon: calendar_add_on
 draft: false
 toc: false
@@ -32,7 +32,6 @@ In our note, we should see something like this:
 ```html
 <div class="ob-timelines"
 	data-title=""
-	data-description=""
 	data-color=""
 	data-type=""
 	data-start-date=""
@@ -49,7 +48,6 @@ We'll keep it simple. Update your event to hold the following data:
 ```html
 <div class="ob-timelines"
   data-title="Our First Event"
-  data-description="It's a simple one"
   data-start-date="2024-5-24"
 >
   Event Number One

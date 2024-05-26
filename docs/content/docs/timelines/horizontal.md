@@ -2,6 +2,7 @@
 weight: 999
 title: Horizontal Timelines
 description: Additional information on Horizontal Timelines
+icon: width
 draft: true
 toc: true
 ---

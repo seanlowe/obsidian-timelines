@@ -1,7 +1,7 @@
 ---
-weight: 203
+weight: 213
 title: Tagging Notes with Events
-description: Help our Timeline find our events
+description: Help our timeline find our events
 icon: sell
 draft: false
 toc: false
