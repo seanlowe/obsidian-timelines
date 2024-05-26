@@ -1,15 +1,15 @@
 ---
-weight: 999
+weight: 502
 title: Vertical Timelines
 description: Additional information on Vertical Timelines
 icon: height
-draft: true
-toc: true
+draft: false
+toc: false
 ---
 
-Using an HTML code block for static rendering
+You can use some HTML code in order to render a statically generated vertical timeline.
 
-Insert the following HTML comment where a statically rendered timeline should be inserted:
+Insert the following HTML comment where you would like a statically rendered timeline to be inserted:
 
 ```html
 <!--TIMELINE BEGIN tags='test;now'-->
@@ -17,7 +17,7 @@ Insert the following HTML comment where a statically rendered timeline should be
 <!--TIMELINE END-->
 ```
 
-Use the `Render static timeline` command to generate a static timeline. The command will generate static HTML and populate it between the HTML comments (BEGIN/END).
+Thne, use the `Timelines (Revamped): Render static timeline` command to generate a static timeline. The command will generate HTML and populate it between the HTML comments (BEGIN/END).
 
 Running the command again will replace everything in between the comments with a freshly rendered timeline.
 

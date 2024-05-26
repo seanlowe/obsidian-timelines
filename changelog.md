@@ -1,5 +1,16 @@
 ## Changelog
 
+### v2.1.7
+
+Implements issue [seanlowe/obsidian-timelines#34](https://github.com/seanlowe/obsidian-timelines/issues/34)
+
+**Changes:**
+- added event listeners onto timeline events to run some logic when items are being hovered on
+  - adds a custom CSS class `.runtime-hover` on mouse enter, and removes it when the mouse leaves the event
+  - adds some logic to set a CSS variable with the particular event's background color
+- added styling rules for CSS class `.runtime-hover` that takes into account the current background color (that was pushed into a CSS variable by the event listeners)
+- allowed for timeline event objects to have a copy of the data from the user-created events (HTML/FM)
+
 ### v2.1.6
 
 Bug fix for Issue [seanlowe/obsidian-timelines#39](https://github.com/seanlowe/obsidian-timelines/issues/39)

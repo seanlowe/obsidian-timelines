@@ -1,4 +1,4 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://seanlowe.github.io'
 languageCode = 'en-us'
 title = 'Timelines (Revamped) Documentation'
 
@@ -19,7 +19,7 @@ title = 'Timelines (Revamped) Documentation'
 
   [params.docs]
     title = "Timelines (Revamped)"
-    themeColor = "red"
+    themeColor = "blue"
     darkMode = true
     sideBarIcons = true
     titleIcon = true

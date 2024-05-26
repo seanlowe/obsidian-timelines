@@ -1,5 +1,5 @@
 ---
-weight: 999
+weight: 501
 title: Horizontal Timelines
 description: Additional information on Horizontal Timelines
 icon: width
