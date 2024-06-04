@@ -49,6 +49,7 @@ export interface EventDataObject {
   eventImg: string,
   notePath: string,
   noteTitle: string,
+  noteBody: string,
   showOnTimeline: boolean | null,
   startDate: string,
   tags: string,
