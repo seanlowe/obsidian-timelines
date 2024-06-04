@@ -96,6 +96,9 @@ export const getEventData = (
   const noteTitle      = retrieveEventValue(
     eventObject, 'title', file.name.replace( '.md', '' ), frontMatterKeys?.titleKey
   )
+  const noteBody       = retrieveEventValue( 
+    eventObject, 'description', isHTMLElementType(eventObject) ? event.innerText : ''
+  )
   const tags           = retrieveEventValue( eventObject, 'tags', '' )
   const type           = retrieveEventValue( eventObject, 'type', 'box' )
   const showOnTimeline = retrieveEventValue( eventObject, 'showOnTimeline', null )
@@ -107,6 +110,7 @@ export const getEventData = (
     eventImg,
     notePath,
     noteTitle,
+    noteBody,
     showOnTimeline: !!showOnTimeline,
     startDate,
     tags,
