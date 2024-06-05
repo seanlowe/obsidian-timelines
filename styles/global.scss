@@ -1,5 +1,6 @@
 @use './vertical-timeline.scss';
 @use './horizontal-timeline.scss';
+@use '../node_modules/vis-timeline/styles/vis-timeline-graph2d.css';
 
 .ob-timelines {
   display: none;

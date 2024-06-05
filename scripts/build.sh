@@ -5,7 +5,7 @@ rm -rf ./dist
 mkdir ./dist
 
 # build main.js
-rollup --config rollup.config.js
+npx rollup --config rollup.config.js --bundleConfigAsCjs
 
 # compile scss into css
 npx sass ./styles/global.scss ./dist/styles.css --no-source-map
