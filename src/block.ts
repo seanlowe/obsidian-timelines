@@ -24,7 +24,6 @@ import {
 // Horizontal (Vis-Timeline) specific imports
 import { Timeline } from 'vis-timeline/esnext'
 import { DataSet } from 'vis-data'
-import 'vis-timeline/styles/vis-timeline-graph2d.css'
 
 export class TimelineBlockProcessor {
   appVault: Vault

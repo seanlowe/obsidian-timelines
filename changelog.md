@@ -1,5 +1,18 @@
 ## Changelog
 
+### v2.1.9 / v2.1.8
+
+Documentation overhaul!
+
+**Changes:**
+- 2.1.9:
+  - fix hugo docs deployment workflow
+  - add npm commands for running the documentation site locally
+  - bump version to next patch (so it creates a new release correctly)
+- 2.1.8:
+  - created a brand new Hugo documentation site, deployable via GitHub Actions to GitHub Pages
+  - removed the old documentation from the top-level README, as it's (obviously) no longer needed.
+
 ### v2.1.7
 
 Implements issue [seanlowe/obsidian-timelines#34](https://github.com/seanlowe/obsidian-timelines/issues/34)
