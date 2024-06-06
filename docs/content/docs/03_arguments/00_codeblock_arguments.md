@@ -22,6 +22,7 @@ Breaking down the filters:
 - `type`: horizontal-specific key. Pass `flat` in order to render a horizontal timeline
 
 Acceptable values for filters:
+- `startDate`, `endDate`, `minDate`, `maxDate`: use the same format (`YYYY-MM-DD-HH`) as event date parameters
 - `zoomInLimit`:
   - You can either use the built-in timescales, or you can provide a value (in milliseconds) manually. Acceptable values are `day`, `week`, `month-detail`, `month-vague`, and `year`. Do not include to have no restrictions on zooming in (default behaviour).
     - `day` zooms down to one day, but still shows hours

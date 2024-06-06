@@ -32,6 +32,7 @@ In our note, we should see something like this:
 ```html
 <div class="ob-timelines"
 	data-title=""
+	data-description=""
 	data-color=""
 	data-type=""
 	data-start-date=""
