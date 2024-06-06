@@ -19,7 +19,7 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ### v2.1.11
 
-Maintenance update
+Fix issue: `No body in timeline event created via frontmatter` [#48](https://github.com/seanlowe/obsidian-timelines/issues/48)
 
 **Changes**:
 - made it possible to specify the textual body of an event defined via frontmatter by way of the 'description' property
