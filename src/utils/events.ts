@@ -86,18 +86,17 @@ export const getEventData = (
     return null
   }
 
+  const defaultBody    = isHTMLElementType( eventObject ) ? eventObject.innerText : ''
   const color          = retrieveEventValue( eventObject, 'color', '' )
   const endDate        = retrieveEventValue(
     eventObject, 'endDate', null, frontMatterKeys?.endDateKey
   )
   const era            = retrieveEventValue( eventObject, 'era', null )
   const eventImg       = retrieveEventValue( eventObject, 'img', null )
+  const noteBody       = retrieveEventValue( eventObject, 'description', defaultBody )
   const notePath       = retrieveEventValue( eventObject, 'path', '/' + normalizePath( file.path ))
   const noteTitle      = retrieveEventValue(
     eventObject, 'title', file.name.replace( '.md', '' ), frontMatterKeys?.titleKey
-  )
-  const noteBody       = retrieveEventValue( 
-    eventObject, 'description', isHTMLElementType(eventObject) ? event.innerText : ''
   )
   const tags           = retrieveEventValue( eventObject, 'tags', '' )
   const type           = retrieveEventValue( eventObject, 'type', 'box' )
@@ -108,9 +107,9 @@ export const getEventData = (
     endDate,
     era,
     eventImg,
+    noteBody,
     notePath,
     noteTitle,
-    noteBody,
     showOnTimeline: !!showOnTimeline,
     startDate,
     tags,

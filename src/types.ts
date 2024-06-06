@@ -35,7 +35,7 @@ export interface CardContainer {
   endDate: string,
   era: string,
   img: string,
-  innerText: string,
+  body: string,
   path: string,
   startDate: string,
   title: string,

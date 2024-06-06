@@ -38,6 +38,10 @@
     }
 }
 
+.timeline-card p {
+  white-space: pre-wrap;
+}
+
 /* Place the container to the left */
 .timeline-left {
     left: 0;
@@ -74,7 +78,7 @@
         border-width: 10px 10px 10px 0;
         border-color: transparent var(--background-secondary) transparent transparent;
     }
-    
+
     /* Fix the circle for containers on the right side */
     &::after {
         left: -16px;
