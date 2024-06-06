@@ -1,5 +1,14 @@
 ## Changelog
 
+### v2.1.10
+
+Maintenance update
+
+**Changes**:
+- updated all dependencies to latest versions
+- removed dependence on package `rollup-plugin-styles` as it has not been updated in 2 years and was preventing me from updating other packages
+- imported vis-timeline specific styling in the SCSS rather than in the TS
+
 ### v2.1.9 / v2.1.8
 
 Documentation overhaul!

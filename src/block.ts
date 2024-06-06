@@ -158,6 +158,7 @@ export class TimelineBlockProcessor {
           endDate,
           era,
           eventImg,
+          noteBody,
           notePath,
           noteTitle,
           startDate,
@@ -207,7 +208,7 @@ export class TimelineBlockProcessor {
           endDate,
           era,
           img: imgUrl,
-          innerText: event?.innerText ?? '',
+          body: noteBody,
           path: notePath,
           startDate,
           title: noteTitle,
@@ -302,7 +303,7 @@ export class TimelineBlockProcessor {
         }
 
         createInternalLinkOnNoteCard( eventAtDate, noteCard )
-        noteCard.createEl( 'p', { text: eventAtDate.innerText.trim() })
+        noteCard.createEl( 'p', { text: eventAtDate.body.trim() })
       }
       eventCount++
     }
@@ -354,7 +355,7 @@ export class TimelineBlockProcessor {
         }
 
         createInternalLinkOnNoteCard( event, noteCard )
-        noteCard.createEl( 'p', { text: event.innerText })
+        noteCard.createEl( 'p', { text: event.body })
 
         const start = buildTimelineDate( event.startDate )
         const end = buildTimelineDate( event.endDate )

@@ -50,8 +50,12 @@ For statically generated timelines, events that occur at the same time are group
 <br></br>
 
 ## Title (`data-title`)
-  - Optional
-  - If a title is not specified, the name of the note will be used
+- Optional
+- If a title is not specified, the name of the note will be used
+
+## Description (`data-description`)
+- Optional
+- Redundant; If a description is not specified, the `innerText` of the `div`/`span` will be used. If neither are populated, the body of the event will be empty.
 
 ## Background Image (`data-img`)
   - Optional

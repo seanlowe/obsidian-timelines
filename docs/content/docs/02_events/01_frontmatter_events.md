@@ -11,6 +11,7 @@ Example of a Frontmatter event:
 start-date: 2010-06-34
 end-date: 2020-01-12
 title: A Time Range
+description: A note
 type: range
 color: blue
 tags: [timeline, history]

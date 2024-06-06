@@ -17,14 +17,15 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
-### v2.1.10
+### v2.1.11
 
-Maintenance update
+Fix issue: `No body in timeline event created via frontmatter` [#48](https://github.com/seanlowe/obsidian-timelines/issues/48)
 
 **Changes**:
-- updated all dependencies to latest versions
-- removed dependence on package `rollup-plugin-styles` as it has not been updated in 2 years and was preventing me from updating other packages
-- imported vis-timeline specific styling in the SCSS rather than in the TS
+- made it possible to specify the textual body of an event defined via frontmatter by way of the 'description' property
+- edited style rules so that whitespace within the description property (line breaks, esp.) is respected and not discarded
+- reinstated the 'description' property for HTML defined events (albeit redundant) 
+- updated documentation to reflect changes
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
