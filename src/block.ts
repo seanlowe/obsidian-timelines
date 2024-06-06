@@ -5,7 +5,6 @@ import { RENDER_TIMELINE } from './constants'
 import {
   availableColors,
   buildTimelineDate,
-  createYearArgument,
   createInternalLinkOnNoteCard,
   createTagList,
   convertEntryToMilliseconds,
@@ -97,7 +96,7 @@ export class TimelineBlockProcessor {
 
       if ( tag.includes( 'Date' )) {
         // startDate, endDate, minDate, maxDate
-        const result = createYearArgument( value )
+        const result = buildTimelineDate( value )
         this.args[tag] = result
         return
       }

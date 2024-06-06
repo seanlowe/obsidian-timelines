@@ -1,14 +1,15 @@
 import { isNaN } from 'lodash'
 import { InternalTimelineArgs } from '../types'
+import { buildTimelineDate } from './dates'
 
 export function setDefaultArgs(): InternalTimelineArgs {
   return {
     tags: [] as string[],
     divHeight: 400,
-    startDate: createYearArgument( '-1000' ),
-    endDate: createYearArgument( '3000' ),
-    minDate: createYearArgument( '-3000' ),
-    maxDate: createYearArgument( '3000' ),
+    startDate: buildTimelineDate( '-1000' ),
+    endDate: buildTimelineDate( '3000' ),
+    minDate: buildTimelineDate( '-3000' ),
+    maxDate: buildTimelineDate( '3000' ),
     type: null,
 
     // have to put it to one more than the default max so that min actually works
@@ -49,18 +50,6 @@ export function parseTag( tag: string, tagList: string[] ): void {
     tag = tag.substring( 0, tag.lastIndexOf( '/' ))
     tagList.push( tag )
   }
-}
-
-/**
- * Create date from passed string
- *
- * @param {String} date - string date in the format *YYYY*
- * @returns {Date} newly created date object
- */
-export function createYearArgument( date: string ): Date {
-  const dateComp = date.split( ',' )
-  // cannot simply replace '-' as need to support negative years
-  return new Date( +( dateComp[0] ?? 0 ), +( dateComp[1] ?? 0 ), +( dateComp[2] ?? 0 ), +( dateComp[3] ?? 0 ))
 }
 
 /**

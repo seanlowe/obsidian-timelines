@@ -31,11 +31,11 @@ export interface InternalTimelineArgs {
 
 export interface CardContainer {
   id: string,
+  body: string,
   color: string,
   endDate: string,
   era: string,
   img: string,
-  body: string,
   path: string,
   startDate: string,
   title: string,
@@ -47,9 +47,9 @@ export interface EventDataObject {
   endDate: string,
   era: string,
   eventImg: string,
+  noteBody: string,
   notePath: string,
   noteTitle: string,
-  noteBody: string,
   showOnTimeline: boolean | null,
   startDate: string,
   tags: string,

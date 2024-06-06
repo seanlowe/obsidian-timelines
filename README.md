@@ -17,15 +17,14 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
-### v2.1.11
+### v2.1.12
 
-Fix issue: `No body in timeline event created via frontmatter` [#48](https://github.com/seanlowe/obsidian-timelines/issues/48)
+Fix issue: `Refined Horizontal Timeline View` [#49](https://github.com/seanlowe/obsidian-timelines/issues/49)
 
 **Changes**:
-- made it possible to specify the textual body of an event defined via frontmatter by way of the 'description' property
-- edited style rules so that whitespace within the description property (line breaks, esp.) is respected and not discarded
-- reinstated the 'description' property for HTML defined events (albeit redundant) 
-- updated documentation to reflect changes
+- removed incorrect function `createYearArgument` in favour of using `buildTimelineDate` everywhere a Date is needed
+- move `normalizeDate` and `buildTimelineDate` from `utils/index.ts` to own file `dates.ts` to avoid a circular dependency
+- updated docs with some extra info regarding this change
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

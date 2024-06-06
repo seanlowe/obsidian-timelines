@@ -1,5 +1,15 @@
 ## Changelog
 
+### v2.1.11
+
+Fix issue: `No body in timeline event created via frontmatter` [#48](https://github.com/seanlowe/obsidian-timelines/issues/48)
+
+**Changes**:
+- made it possible to specify the textual body of an event defined via frontmatter by way of the 'description' property
+- edited style rules so that whitespace within the description property (line breaks, esp.) is respected and not discarded
+- reinstated the 'description' property for HTML defined events (albeit redundant) 
+- updated documentation to reflect changes
+
 ### v2.1.10
 
 Maintenance update
