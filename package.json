@@ -1,6 +1,6 @@
 {
   "name": "timelines-revamped",
-  "version": "2.1.12",
+  "version": "2.1.13",
   "description": "Generate a chronological timeline in which all 'events' are notes that include a specific tag or set of tags.",
   "main": "main.js",
   "scripts": {
@@ -34,8 +34,10 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@types/luxon": "^3.4.2",
     "chroma-js": "^2.4.2",
     "lodash": "^4.17.21",
+    "luxon": "^3.4.4",
     "node": "22.2.0",
     "vis-timeline": "^7.7.3"
   }

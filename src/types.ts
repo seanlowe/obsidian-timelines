@@ -17,6 +17,14 @@ export const developerSettings = {
 /*           Interfaces           */
 /* ------------------------------ */
 
+export interface CleanedDateResultObject {
+  cleanedDateString: string,
+  day: number,
+  hour: number,
+  month: number,
+  year: number
+}
+
 export interface InternalTimelineArgs {
   divHeight: number,
   endDate: Date,

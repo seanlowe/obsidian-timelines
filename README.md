@@ -17,16 +17,29 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
-### v2.1.12
+### v2.1.13
 
-Fix issue: `Refined Horizontal Timeline View` [#49](https://github.com/seanlowe/obsidian-timelines/issues/49)
+Fix issue: `Timelines with negative dates render in the wrong order` [#22](https://github.com/seanlowe/obsidian-timelines/issues/22), and some other miscellaneous changes.
 
 **Changes**:
-- removed incorrect function `createYearArgument` in favour of using `buildTimelineDate` everywhere a Date is needed
-- move `normalizeDate` and `buildTimelineDate` from `utils/index.ts` to own file `dates.ts` to avoid a circular dependency
-- updated docs with some extra info regarding this change
+- write new function for sorting the unique timeline date ID's
+- overhaul function `buildTimelineDates` to accurately handle use cases where the built-in JS `Date` object fell short
+- write new function `cleanDate` to take a normalized date and return one where all leading zeros have been removed
+- changed `normalizeDate` to append a `01` instead of `00` for missing hour sections
+- small docs change
+- added a contributors section on the README
+- updated LICENSE to 2024
+- deleted unnecessary copy of README from before docs overhaul
 
 See the [changelog](./changelog.md) for more details on previous releases.
+
+## Contributors
+
+Thanks to all the contributors so far, on this iteration and the original:
+
+<a href="https://github.com/seanlowe/obsidian-timelines/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=seanlowe/obsidian-timelines" />
+</a>
 
 ## License
 
