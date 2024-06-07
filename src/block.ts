@@ -18,6 +18,7 @@ import {
   logger,
   normalizeDate,
   setDefaultArgs,
+  sortTimelineDates,
 } from './utils'
 
 // Horizontal (Vis-Timeline) specific imports
@@ -96,7 +97,7 @@ export class TimelineBlockProcessor {
 
       if ( tag.includes( 'Date' )) {
         // startDate, endDate, minDate, maxDate
-        const result = buildTimelineDate( value )
+        const result = buildTimelineDate( value, parseInt( this.settings.maxDigits ))
         this.args[tag] = result
         return
       }
@@ -356,8 +357,8 @@ export class TimelineBlockProcessor {
         createInternalLinkOnNoteCard( event, noteCard )
         noteCard.createEl( 'p', { text: event.body })
 
-        const start = buildTimelineDate( event.startDate )
-        const end = buildTimelineDate( event.endDate )
+        const start = buildTimelineDate( event.startDate, parseInt( this.settings.maxDigits ))
+        const end = buildTimelineDate( event.endDate, parseInt( this.settings.maxDigits ))
 
         if (
           start.toString() === 'Invalid Date' ||
@@ -481,23 +482,17 @@ export class TimelineBlockProcessor {
     await this.parseFiles( timelineNotes, timelineDates )
 
     // Sort events based on setting
-    if ( this.settings.sortDirection ) {
-      timelineDates.sort()
-    } else {
-      timelineDates.sort(( d1, d2 ) => {
-        return d2.localeCompare( d1 )
-      })
-    }
+    const sortedTimelineDates = sortTimelineDates( timelineDates, this.settings.sortDirection )
 
     const timelineDiv = document.createElement( 'div' )
     timelineDiv.setAttribute( 'class', 'timeline' )
 
     switch ( this.args.type ) {
     case 'flat':
-      await this.buildHorizontalTimeline( timelineDiv, timelineNotes, timelineDates, el )
+      await this.buildHorizontalTimeline( timelineDiv, timelineNotes, sortedTimelineDates, el )
       return
     default:
-      await this.buildVerticalTimeline( timelineDiv, timelineNotes, timelineDates, el )
+      await this.buildVerticalTimeline( timelineDiv, timelineNotes, sortedTimelineDates, el )
       return
     }
   }

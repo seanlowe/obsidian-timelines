@@ -1,5 +1,14 @@
 ## Changelog
 
+### v2.1.12
+
+Fix issue: `Refined Horizontal Timeline View` [#49](https://github.com/seanlowe/obsidian-timelines/issues/49)
+
+**Changes**:
+- removed incorrect function `createYearArgument` in favour of using `buildTimelineDate` everywhere a Date is needed
+- move `normalizeDate` and `buildTimelineDate` from `utils/index.ts` to own file `dates.ts` to avoid a circular dependency
+- updated docs with some extra info regarding this change
+
 ### v2.1.11
 
 Fix issue: `No body in timeline event created via frontmatter` [#48](https://github.com/seanlowe/obsidian-timelines/issues/48)
