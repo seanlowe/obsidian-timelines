@@ -89,7 +89,7 @@ export const getEventData = (
   const defaultBody    = isHTMLElementType( eventObject ) ? eventObject.innerText : ''
   const color          = retrieveEventValue( eventObject, 'color', '' )
   const endDate        = retrieveEventValue(
-    eventObject, 'endDate', null, frontMatterKeys?.endDateKey
+    eventObject, 'endDate', startDate, frontMatterKeys?.endDateKey
   )
   const era            = retrieveEventValue( eventObject, 'era', null )
   const eventImg       = retrieveEventValue( eventObject, 'img', null )

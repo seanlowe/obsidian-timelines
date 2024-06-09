@@ -17,19 +17,15 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
-### v2.1.13
+### v2.1.14
 
-Fix issue: `Timelines with negative dates render in the wrong order` [#22](https://github.com/seanlowe/obsidian-timelines/issues/22), and some other miscellaneous changes.
+Added support for time spanning events in vertical timelines
 
 **Changes**:
-- write new function for sorting the unique timeline date ID's
-- overhaul function `buildTimelineDates` to accurately handle use cases where the built-in JS `Date` object fell short
-- write new function `cleanDate` to take a normalized date and return one where all leading zeros have been removed
-- changed `normalizeDate` to append a `01` instead of `00` for missing hour sections
-- small docs change
-- added a contributors section on the README
-- updated LICENSE to 2024
-- deleted unnecessary copy of README from before docs overhaul
+- overhauled `buildVerticalTimeline()`
+- overhauled `vertical-timeline.scss`
+- changed `endDate` to default to the same as start date rather than null
+- added `DOM.Iterable` to `tsconfig.json`
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
