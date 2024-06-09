@@ -266,9 +266,9 @@ export class TimelineBlockProcessor {
       const noteDiv = [timeline.createDiv({
         cls: ['timeline-container', `timeline-${align}`]
       }, div => {
-        div.setAttribute( 'collapsed', 'false' )
         div.style.setProperty( '--timeline-indent', '0' )
         div.setAttribute( 'timeline-date', start )
+        div.setAttribute( 'collapsed', String( false ))
       })]
       const eventsDiv = noteDiv[0].createDiv({
         cls: 'timeline-event-list',
@@ -310,19 +310,18 @@ export class TimelineBlockProcessor {
 
       noteDiv[0].addEventListener( 'click', ( event ) => {
         event.preventDefault()
-        const collapsed = noteDiv[0].getAttribute( 'collapsed' ) === 'true' ? 'false' : 'true'
-        const display = collapsed === 'true' ? 'none' : 'block'
-        noteDiv[0].setAttribute( 'collapsed', collapsed )
-        noteDiv[0].getElementsByTagName( 'p' )[0]?.setCssProps({ 'display': display })
+        const collapsed = !JSON.parse( noteDiv[0].getAttribute( 'collapsed' ))
+        noteDiv[0].setAttribute( 'collapsed', String( collapsed ))
+        noteDiv[0].getElementsByTagName( 'p' )[0]?.setCssProps({ 'display': collapsed ? 'none' : 'block' })
 
         /* If this event has a duration (and thus has an end note), we hide all elements between the start and end
            note along with the end note itself */
         if( noteDiv[1] ) {
-          noteHdr[0].setText( noteDiv[0].getText() === datedTo[0] ? datedTo[2] : datedTo[0] )
+          noteHdr[0].setText( collapsed ? datedTo[2] : datedTo[0] )
           const notes = Array.from( timeline.children ) as HTMLElement[]
           const inner = notes.slice( notes.indexOf( noteDiv[0] ) + 1, notes.indexOf( noteDiv[1] ) + 1 )
           inner.forEach(( note: HTMLDivElement & { calcLength?: () => void }) => {
-            note.style.display = display
+            note.style.display = collapsed ? 'none' : 'block'
             note.calcLength?.()
           })
         }
