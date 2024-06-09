@@ -318,7 +318,7 @@ export class TimelineBlockProcessor {
            note along with the end note itself */
         if( noteDiv[1] ) {
           noteHdr[0].setText( collapsed ? datedTo[2] : datedTo[0] )
-          const notes = Array.from( timeline.children ) as HTMLElement[]
+          const notes = [...timeline.children]
           const inner = notes.slice( notes.indexOf( noteDiv[0] ) + 1, notes.indexOf( noteDiv[1] ) + 1 )
           inner.forEach(( note: HTMLDivElement & { calcLength?: () => void }) => {
             note.style.display = collapsed ? 'none' : 'block'
@@ -328,7 +328,7 @@ export class TimelineBlockProcessor {
 
         /* The CSS '--timeline-indent' variable allows for scaling down the event when contained within another event,
            but in this case it also tells us how many time spanning events have had their length altered as a consequence
-           of this event's mutation. */
+           of this note's mutation. */
         let nested = +noteDiv[0].style.getPropertyValue( '--timeline-indent' ) + ( noteDiv[1] ? 1 : 0 )
         for( let f = 'nextElementSibling', sibling = noteDiv[0][f]; nested > 0; sibling = sibling[f] ) {
           if( sibling.classList.contains( 'timeline-tail' )) {

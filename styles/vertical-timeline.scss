@@ -14,11 +14,11 @@ $event-widget-border-width: 4px;
   &::after {
   content: '';
   position: absolute;
-  width:            $timeline-line-width;
+  width: $timeline-line-width;
   background-color: var(--background-secondary);
   top: 0;
   bottom: 0;
-  left:  calc(50% - $timeline-line-width / 2);
+  left: calc(50% - $timeline-line-width / 2);
   }
 }
 
@@ -30,26 +30,28 @@ $event-widget-border-width: 4px;
   width: calc(50% - (var(--timeline-indent) * $timeline-indent-gap));
 
   /* Arrow pointing from note to widget */
-  &:not(.timeline-tail)::before {
-    content: " ";
-    height: 0;
-    position: absolute;
-    top: 22px;
-    width: 0;
-    z-index: 1;
-    border: medium solid var(--background-secondary);
-  }
+  &:not(.timeline-tail){
+    &::before {
+      content: " ";
+      height: 0;
+      position: absolute;
+      top: 22px;
+      width: 0;
+      z-index: 1;
+      border: medium solid var(--background-secondary);
+    }
 
-  &.timeline-left:not(.timeline-tail)::before {
-    right: 30px;
-    border-width: 10px 0 10px 10px;
-    border-color: transparent transparent transparent var(--background-secondary);
-  }
+    &.timeline-left::before {
+      right: 30px;
+      border-width: 10px 0 10px 10px;
+      border-color: transparent transparent transparent var(--background-secondary);
+    }
 
-  &.timeline-right:not(.timeline-tail)::before {
-    left: 30px;
-    border-width: 10px 10px 10px 0;
-    border-color: transparent var(--background-secondary) transparent transparent;
+    &.timeline-right::before {
+      left: 30px;
+      border-width: 10px 10px 10px 0;
+      border-color: transparent var(--background-secondary) transparent transparent;
+    }
   }
 
   /* The normal circle widget for events on the timeline */
