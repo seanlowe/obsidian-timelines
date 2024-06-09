@@ -1,41 +1,121 @@
+$timeline-indent-gap: 25px;
+$timeline-line-width: 10px;
+$timeline-widget-inset: 15px;
+$point-event-widget-width: 25px;
+$range-event-widget-width: 33px;
+$event-widget-border-width: 4px;
+
 /* The actual timeline (the vertical ruler) */
 .timeline {
-    position: relative;
-    max-width: 1200px;
-    margin: 0 auto;
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
 
-    &::after {
-    content: '';
-    position: absolute;
-    width: 10px;
-    background-color: var(--background-secondary);
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    margin-left: -3px;
-    }
+  &::after {
+  content: '';
+  position: absolute;
+  width:            $timeline-line-width;
+  background-color: var(--background-secondary);
+  top: 0;
+  bottom: 0;
+  left:  calc(50% - $timeline-line-width / 2);
+  }
 }
 
 /* Container around content */
 .timeline-container {
-    padding: 10px 40px;
-    position: relative;
-    background-color: inherit;
-    width: 50%;
+  padding: 10px 40px;
+  position: relative;
+  background-color: inherit;
+  width: calc(50% - (var(--timeline-indent) * $timeline-indent-gap));
 
-    /* The circles on the timeline */
+  /* Arrow pointing from note to widget */
+  &:not(.timeline-tail)::before {
+    content: " ";
+    height: 0;
+    position: absolute;
+    top: 22px;
+    width: 0;
+    z-index: 1;
+    border: medium solid var(--background-secondary);
+  }
+
+  &.timeline-left:not(.timeline-tail)::before {
+    right: 30px;
+    border-width: 10px 0 10px 10px;
+    border-color: transparent transparent transparent var(--background-secondary);
+  }
+
+  &.timeline-right:not(.timeline-tail)::before {
+    left: 30px;
+    border-width: 10px 10px 10px 0;
+    border-color: transparent var(--background-secondary) transparent transparent;
+  }
+
+  /* The normal circle widget for events on the timeline */
+  &:not(.timeline-head):not(.timeline-tail) {
     &::after {
-        content: '';
-        position: absolute;
-        width: 25px;
-        height: 25px;
-        right: -17px;
-        background-color: var(--background-secondary);
-        border: 4px solid #FF9F55;
-        top: 15px;
-        border-radius: 50%;
-        z-index: 1;
+      content: '';
+      position: absolute;
+      width: $point-event-widget-width;
+      height: $point-event-widget-width;
+      background-color: var(--background-secondary);
+      border: $event-widget-border-width solid #FF9F55;
+      top: $timeline-widget-inset;
+      border-radius: 25px;
+      z-index: 1;
     }
+
+    &.timeline-left::after {
+      right: - calc($point-event-widget-width / 2 + $event-widget-border-width);
+    }
+    &.timeline-right::after {
+      left: - calc($point-event-widget-width / 2 + $event-widget-border-width);
+    }
+  }
+
+  /* The elongated circle widget for time spanning events on the timeline */
+  &.timeline-head {
+    &::after {
+      content: '';
+      position: absolute;
+      width:            $range-event-widget-width;
+      min-height:       $range-event-widget-width;
+      height:           calc(var(--timeline-span-length) - $timeline-widget-inset);
+      background-color: var(--background-secondary);
+      border: $event-widget-border-width solid #00DB00;
+      top: $timeline-widget-inset;
+      border-radius: 33px;
+      z-index: 1;
+    }
+    &.timeline-left::after {
+      right: - calc($range-event-widget-width / 2 + $event-widget-border-width);
+    }
+    &.timeline-right::after {
+      left: - calc($range-event-widget-width / 2 + $event-widget-border-width);
+    }
+  }
+
+  /* The line segment joining dates for time spanning events */
+  &.timeline-tail {
+    & > h2::after {
+      $gap: 25px;
+
+      content: "";
+      position: absolute;
+      transform: translateY(calc(-100% - $gap));
+      width: 4px;
+      height: calc(var(--timeline-span-length) - 2 * $gap);
+      background-color: var(--text-normal);
+    }
+    &.timeline-left > h2::after {
+      left: 50px;
+    }
+
+    &.timeline-right > h2::after {
+      right: 50px;
+    }
+  }
 }
 
 .timeline-card p {
@@ -44,44 +124,15 @@
 
 /* Place the container to the left */
 .timeline-left {
-    left: 0;
-
-    /* Add arrows to the left container (pointing right) */
-    &::before {
-        content: " ";
-        height: 0;
-        position: absolute;
-        top: 22px;
-        width: 0;
-        z-index: 1;
-        right: 30px;
-        border: medium solid var(--background-secondary);
-        border-width: 10px 0 10px 10px;
-        border-color: transparent transparent transparent var(--background-secondary);
-    }
+    left: calc(var(--timeline-indent) * $timeline-indent-gap);
 }
 
 /* Place the container to the right */
 .timeline-right {
     left: 50%;
 
-    /* Add arrows to the right container (pointing left) */
-    &::before {
-        content: " ";
-        height: 0;
-        position: absolute;
-        top: 22px;
-        width: 0;
-        z-index: 1;
-        left: 30px;
-        border: medium solid var(--background-secondary);
-        border-width: 10px 10px 10px 0;
-        border-color: transparent var(--background-secondary) transparent transparent;
-    }
-
-    /* Fix the circle for containers on the right side */
-    &::after {
-        left: -16px;
+    &.timeline-timespan-end::after {
+      right: 10px;
     }
 }
 
