@@ -385,7 +385,7 @@ export class TimelineBlockProcessor {
          dates of the current event) are placed before their predecessor. */
       for( let s = [...timeline.children],i = s.indexOf( noteDiv[0] ); s[i-1]?.classList.contains( 'timeline-tail' ); i-- ) {
         const t = s[i-1].getAttribute( 'timeline-date' )
-        for( let j = [start, end, t].sort().lastIndexOf( t ); j++ > 0; s[i-1].before( ...noteDiv.slice( 0, j | ( j = 0 )))) {
+        for( let j = [start, end, t].sort().lastIndexOf( t ); j > 0; s[i-1].before( ...noteDiv.slice( 0, j )), j = 0 ) {
           const indent = +noteDiv[0].style.getPropertyValue( '--timeline-indent' ) + 1
           noteDiv.forEach( n => {
             n.style.setProperty( '--timeline-indent', `${ indent }` )
