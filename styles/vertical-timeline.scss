@@ -1,6 +1,10 @@
-$timeline-indent-gap: 25px;
+$note-segment-width: 10px;
 $timeline-line-width: 10px;
-$timeline-widget-inset: 15px;
+$timeline-indent-gap: 25px;
+$timeline-arrow-width: 10px;
+$timeline-arrow-margin: 30px;
+$timeline-note-padding: 40px;
+$timeline-widget-inset: 25px;
 $point-event-widget-width: 25px;
 $range-event-widget-width: 33px;
 $event-widget-border-width: 4px;
@@ -24,32 +28,32 @@ $event-widget-border-width: 4px;
 
 /* Container around content */
 .timeline-container {
-  padding: 10px 40px;
+  padding: 10px $timeline-note-padding;
   position: relative;
   background-color: inherit;
   width: calc(50% - (var(--timeline-indent) * $timeline-indent-gap));
 
   /* Arrow pointing from note to widget */
-  &:not(.timeline-tail){
+  & {
     &::before {
       content: " ";
       height: 0;
       position: absolute;
-      top: 22px;
+      top: $timeline-widget-inset - $timeline-arrow-width / 2;
       width: 0;
       z-index: 1;
       border: medium solid var(--background-secondary);
     }
 
     &.timeline-left::before {
-      right: 30px;
-      border-width: 10px 0 10px 10px;
+      right: $timeline-arrow-margin;
+      border-width: $timeline-arrow-width 0 $timeline-arrow-width $timeline-arrow-width;
       border-color: transparent transparent transparent var(--background-secondary);
     }
 
     &.timeline-right::before {
-      left: 30px;
-      border-width: 10px 10px 10px 0;
+      left: $timeline-arrow-margin;
+      border-width: $timeline-arrow-width $timeline-arrow-width $timeline-arrow-width 0;
       border-color: transparent var(--background-secondary) transparent transparent;
     }
   }
@@ -63,16 +67,16 @@ $event-widget-border-width: 4px;
       height: $point-event-widget-width;
       background-color: var(--background-secondary);
       border: $event-widget-border-width solid #FF9F55;
-      top: $timeline-widget-inset;
-      border-radius: 25px;
+      top: $timeline-widget-inset - $point-event-widget-width / 2;
+      border-radius: $point-event-widget-width;
       z-index: 1;
     }
 
     &.timeline-left::after {
-      right: - calc($point-event-widget-width / 2 + $event-widget-border-width);
+      right: - $point-event-widget-width / 2 - $event-widget-border-width;
     }
     &.timeline-right::after {
-      left: - calc($point-event-widget-width / 2 + $event-widget-border-width);
+      left: - $point-event-widget-width / 2 - $event-widget-border-width;
     }
   }
 
@@ -86,36 +90,66 @@ $event-widget-border-width: 4px;
       height:           calc(var(--timeline-span-length) - $timeline-widget-inset);
       background-color: var(--background-secondary);
       border: $event-widget-border-width solid #00DB00;
-      top: $timeline-widget-inset;
-      border-radius: 33px;
+      top: $timeline-widget-inset - $range-event-widget-width / 2;
+      border-radius: $range-event-widget-width;
       z-index: 1;
     }
     &.timeline-left::after {
-      right: - calc($range-event-widget-width / 2 + $event-widget-border-width);
+      right: - $range-event-widget-width / 2 - $event-widget-border-width;
     }
     &.timeline-right::after {
-      left: - calc($range-event-widget-width / 2 + $event-widget-border-width);
+      left: - $range-event-widget-width / 2 - $event-widget-border-width;
     }
   }
 
   /* The line segment joining dates for time spanning events */
   &.timeline-tail {
-    & > h2::after {
-      $gap: 25px;
+    $gap: 20px;
 
+    & > h2{
+      padding-top: 20px;;
+    }
+    & > h2::before {
+      content: "";
+      display: block;
+      width: calc(100% - $timeline-note-padding - $timeline-arrow-width - $timeline-arrow-margin);
+      height: $note-segment-width;
+      background-color: var(--background-secondary);
+      position: absolute;
+      top: $timeline-widget-inset;
+    }
+    &.timeline-left > h2::before {
+      left: 0;
+      margin-left: $timeline-note-padding;
+      border-bottom-left-radius: $note-segment-width;
+    }
+
+    &.timeline-right > h2::before {
+      right: 0;
+      margin-right: $timeline-note-padding;
+      border-bottom-right-radius: $note-segment-width;
+    }
+
+    & > h2::after {
       content: "";
       position: absolute;
       transform: translateY(calc(-100% - $gap));
-      width: 4px;
-      height: calc(var(--timeline-span-length) - 2 * $gap);
-      background-color: var(--text-normal);
+      width: $note-segment-width;
+      height: calc(var(--timeline-span-length) - $gap);
+      background-color: var(--background-secondary);
+      border-top-left-radius: $note-segment-width;
+      border-top-right-radius: $note-segment-width;
     }
     &.timeline-left > h2::after {
-      left: 50px;
+      left: 0;
+      margin-left: $timeline-note-padding;
+      border-bottom-right-radius: - $note-segment-width;
     }
 
     &.timeline-right > h2::after {
-      right: 50px;
+      right: 0;
+      margin-right: $timeline-note-padding;
+      border-bottom-left-radius: - $note-segment-width;
     }
   }
 }
@@ -126,7 +160,7 @@ $event-widget-border-width: 4px;
 
 /* Place the container to the left */
 .timeline-left {
-    left: calc(var(--timeline-indent) * $timeline-indent-gap);
+    left: calc($timeline-indent-gap * var(--timeline-indent));
 }
 
 /* Place the container to the right */
