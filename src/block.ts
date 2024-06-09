@@ -258,7 +258,7 @@ export class TimelineBlockProcessor {
       const start   = timelineNotes[date][0].startDate
       const end     = timelineNotes[date][0].endDate
       const era     = timelineNotes[date][0].era
-      const lengthy = timelineNotes[date][0].type !== 'point' && end > start
+      const lengthy = /^(background|range)$/.test( timelineNotes[date][0].type ) && end > start
       const align   = eventCount % 2 === 0 ? 'left' : 'right'
       const datedTo = [
         start.replace( /-0*$/g, '' ) + ( era ? ` ${era}` : '' ),
