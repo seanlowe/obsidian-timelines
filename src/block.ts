@@ -255,10 +255,11 @@ export class TimelineBlockProcessor {
     let eventCount = 0
     // Build the timeline html element
     for ( const date of timelineDates ) {
-      const start = timelineNotes[date][0].startDate
-      const end   = timelineNotes[date][0].endDate
-      const era   = timelineNotes[date][0].era
-      const align = eventCount % 2 === 0 ? 'left' : 'right'
+      const start   = timelineNotes[date][0].startDate
+      const end     = timelineNotes[date][0].endDate
+      const era     = timelineNotes[date][0].era
+      const lengthy = timelineNotes[date][0].type !== 'point' && end > start
+      const align   = eventCount % 2 === 0 ? 'left' : 'right'
       const datedTo = [
         start.replace( /-0*$/g, '' ) + ( era ? ` ${era}` : '' ),
         end  .replace( /-0*$/g, '' ) + ( era ? ` ${era}` : '' )
@@ -279,9 +280,7 @@ export class TimelineBlockProcessor {
         text: datedTo[0]
       })]
 
-      /* Ending date now defaults to the same as starting date, here we determine whether the ending date merits further
-         handling the event differently. */
-      if ( end > start ) {
+      if ( lengthy ) {
         datedTo[2] = datedTo[0] + ' to ' + datedTo[1]
         noteDiv[0].classList.add( 'timeline-head' )
         noteDiv[1] = timeline.createDiv({
@@ -316,7 +315,7 @@ export class TimelineBlockProcessor {
 
         /* If this event has a duration (and thus has an end note), we hide all elements between the start and end
            note along with the end note itself */
-        if( noteDiv[1] ) {
+        if( lengthy ) {
           noteHdr[0].setText( collapsed ? datedTo[2] : datedTo[0] )
           const notes = [...timeline.children]
           const inner = notes.slice( notes.indexOf( noteDiv[0] ) + 1, notes.indexOf( noteDiv[1] ) + 1 )
@@ -329,7 +328,7 @@ export class TimelineBlockProcessor {
         /* The CSS '--timeline-indent' variable allows for scaling down the event when contained within another event,
            but in this case it also tells us how many time spanning events have had their length altered as a consequence
            of this note's mutation. */
-        let nested = +noteDiv[0].style.getPropertyValue( '--timeline-indent' ) + ( noteDiv[1] ? 1 : 0 )
+        let nested = +noteDiv[0].style.getPropertyValue( '--timeline-indent' ) + ( lengthy ? 1 : 0 )
         for( let f = 'nextElementSibling', sibling = noteDiv[0][f]; nested > 0; sibling = sibling[f] ) {
           if( sibling.classList.contains( 'timeline-tail' )) {
             sibling.calcLength?.()
