@@ -154,10 +154,6 @@ $event-widget-border-width: 4px;
   }
 }
 
-.timeline-card p {
-  white-space: pre-wrap;
-}
-
 /* Place the container to the left */
 .timeline-left {
     left: calc($timeline-indent-gap * var(--timeline-indent));
