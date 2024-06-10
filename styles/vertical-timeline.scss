@@ -1,6 +1,6 @@
 $note-segment-width: 10px;
 $timeline-line-width: 10px;
-$timeline-indent-gap: 25px;
+$timeline-indent-gap: 20px;
 $timeline-arrow-width: 10px;
 $timeline-arrow-margin: 30px;
 $timeline-note-padding: 40px;
@@ -8,8 +8,6 @@ $timeline-widget-inset: 25px;
 $point-event-widget-width: 25px;
 $range-event-widget-width: 33px;
 $event-widget-border-width: 4px;
-
-$corrective-modifying-offset: 50px;
 
 /* The actual timeline (the vertical ruler) */
 .timeline {
@@ -39,17 +37,12 @@ $corrective-modifying-offset: 50px;
   & {
     &::before {
       content: " ";
+      width: 0;
       height: 0;
       position: absolute;
-      width: 0;
+      top: $timeline-widget-inset - $timeline-arrow-width / 2;
       z-index: 1;
       border: medium solid var(--background-secondary);
-    }
-    &:not(.timeline-tail)::before {
-      top: $timeline-widget-inset - $timeline-arrow-width / 2;
-    }
-    &.timeline-tail::before {
-      bottom: $timeline-widget-inset - $timeline-arrow-width / 2 + $corrective-modifying-offset;
     }
 
     &.timeline-left::before {
@@ -94,7 +87,7 @@ $corrective-modifying-offset: 50px;
       position: absolute;
       width:            $range-event-widget-width;
       min-height:       $range-event-widget-width;
-      height:           calc(var(--timeline-span-length) - $corrective-modifying-offset);
+      height:           calc(var(--timeline-span-length) + $range-event-widget-width);
       background-color: var(--background-secondary);
       border: $event-widget-border-width solid #00DB00;
       top: $timeline-widget-inset - $range-event-widget-width / 2;
