@@ -311,8 +311,9 @@ export class TimelineBlockProcessor {
         event.preventDefault()
         const collapsed = !JSON.parse( noteDiv[0].getAttribute( 'collapsed' ))
         noteDiv[0].setAttribute( 'collapsed', String( collapsed ))
-        noteDiv[0].getElementsByTagName( 'p' )[0]?.setCssProps({ 'display': collapsed ? 'none' : 'block' })
-
+        for( const p of noteDiv[0].getElementsByTagName( 'p' )) {
+          p.setCssProps({ 'display': collapsed ? 'none' : 'block' })
+        }
         /* If this event has a duration (and thus has an end note), we hide all elements between the start and end
            note along with the end note itself */
         if( lengthy ) {
