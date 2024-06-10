@@ -299,7 +299,7 @@ export class TimelineBlockProcessor {
            then these elements will not be responsive to layout changes. */
         ( noteDiv[1] as HTMLDivElement & { calcLength?: () => void }).calcLength = () =>  {
           const axisMin = noteDiv[0].getBoundingClientRect().top
-          const axisMax = noteHdr[1].getBoundingClientRect().bottom
+          const axisMax = noteDiv[1].getBoundingClientRect().top
           const spanMin = noteHdr[0].getBoundingClientRect().bottom
           const spanMax = noteHdr[1].getBoundingClientRect().top
           noteDiv[0].style.setProperty( '--timeline-span-length', `${axisMax - axisMin}px` )
