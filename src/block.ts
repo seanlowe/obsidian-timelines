@@ -1,4 +1,4 @@
-import type { AllNotesData, CardContainer, EventItem, InternalTimelineArgs, TimelinesSettings } from './types'
+import { AllNotesData, CardContainer, EventItem, InternalTimelineArgs, TimelinesSettings } from './types'
 import type { TFile, MetadataCache, Vault } from 'obsidian'
 import { MarkdownView } from 'obsidian'
 import { RENDER_TIMELINE } from './constants'
@@ -255,71 +255,77 @@ export class TimelineBlockProcessor {
     let eventCount = 0
     // Build the timeline html element
     for ( const date of timelineDates ) {
-      const start   = timelineNotes[date][0].startDate
-      const end     = timelineNotes[date][0].endDate
-      const era     = timelineNotes[date][0].era
-      const lengthy = /^(background|range)$/.test( timelineNotes[date][0].type ) && end > start
       const align   = eventCount % 2 === 0 ? 'left' : 'right'
-      const datedTo = [
-        start.replace( /-0*$/g, '' ) + ( era ? ` ${era}` : '' ),
-        end  .replace( /-0*$/g, '' ) + ( era ? ` ${era}` : '' )
+      const datedTo = [ timelineNotes[date][0].startDate.replace( /-0*$/g, '' )
+                    + ( timelineNotes[date][0].era ? ` ${timelineNotes[date][0].era}` : '' )
       ]
-      const noteDiv = [timeline.createDiv({
+      const noteDivs = [timeline.createDiv({
         cls: ['timeline-container', `timeline-${align}`]
       }, div => {
         div.style.setProperty( '--timeline-indent', '0' )
-        div.setAttribute( 'timeline-date', start )
+        div.setAttribute( 'timeline-date', timelineNotes[date][0].startDate )
         div.setAttribute( 'collapsed', String( false ))
       })]
-      const eventsDiv = noteDiv[0].createDiv({
+      const eventsDiv = noteDivs[0].createDiv({
         cls: 'timeline-event-list',
         attr: { 'style': 'display: block' }
       })
-      const noteHdr = [noteDiv[0].createEl( 'h2', {
+      const noteHdrs = [noteDivs[0].createEl( 'h2', {
         attr: { 'style' : `text-align: ${align};` },
         text: datedTo[0]
       })]
+      for ( const note of timelineNotes[date] ) {
+        if ( /^(background|range)$/.test( note.type ) && note.endDate > note.startDate ) {
+          if ( !noteDivs[0].classList.contains( 'timeline-head' )) noteDivs[0].classList.add( 'timeline-head' )
+          const dated = note.endDate + ( note.era ? ` ${note.era}` : '' )
+          if( !datedTo[1] || note.endDate > +noteDivs.last().getAttribute( 'timeline-date' )) {
+            datedTo[1] = datedTo[0] + ' to ' + dated
+          }
+          const noteDiv = timeline.createDiv({
+            cls: ['timeline-container', `timeline-${align}`, 'timeline-tail']
+          }, div => {
+            div.style.setProperty( '--timeline-indent', '0' )
+            div.setAttribute( 'timeline-date', note.endDate )
+          })
+          const noteHdr = noteDiv.createEl( 'h2', {
+            attr: { 'style' : `text-align: ${align};` },
+            text: dated
+          })
+          noteHdrs.push( noteHdr )
+          noteDivs.push( noteDiv )
+          for( const n of noteDivs ) {
+            if( +n.getAttribute( 'timeline-date' ) > note.endDate ) {
+              n.before( noteDiv )
+            }
+          }
 
-      if ( lengthy ) {
-        datedTo[2] = datedTo[0] + ' to ' + datedTo[1]
-        noteDiv[0].classList.add( 'timeline-head' )
-        noteDiv[1] = timeline.createDiv({
-          cls: ['timeline-container', `timeline-${align}`, 'timeline-tail']
-        }, div => {
-          div.style.setProperty( '--timeline-indent', '0' )
-          div.setAttribute( 'timeline-date', end )
-        })
-        noteHdr[1] = noteDiv[1].createEl( 'h2', {
-          attr: { 'style' : `text-align: ${align};` },
-          text: datedTo[1]
-        });
-
-        /* The CSS 'timeline-timespan-length' determines both the length of the event timeline widget on the timeline,
-           and the length of the vertical segment that spans between the displayed dates. If this value is not recalculated
-           then these elements will not be responsive to layout changes. */
-        ( noteDiv[1] as HTMLDivElement & { calcLength?: () => void }).calcLength = () =>  {
-          const axisMin = noteDiv[0].getBoundingClientRect().top
-          const axisMax = noteDiv[1].getBoundingClientRect().top
-          const spanMin = noteHdr[0].getBoundingClientRect().bottom
-          const spanMax = noteHdr[1].getBoundingClientRect().top
-          noteDiv[0].style.setProperty( '--timeline-span-length', `${axisMax - axisMin}px` )
-          noteDiv[1].style.setProperty( '--timeline-span-length', `${spanMax - spanMin}px` )
+          /* The CSS 'timeline-timespan-length' determines both the length of the event timeline widget on the timeline,
+             and the length of the vertical segment that spans between the displayed dates. If this value is not recalculated
+             then these elements will not be responsive to layout changes. */
+          ( noteDivs.last() as HTMLDivElement & { calcLength?: () => void }).calcLength = () =>  {
+            const axisMin = noteDivs[0].getBoundingClientRect().top
+            const axisMax = noteDiv    .getBoundingClientRect().top
+            const spanMin = noteHdrs[0].getBoundingClientRect().top
+            const spanMax = noteHdr    .getBoundingClientRect().top
+            noteDivs[0].style.setProperty( '--timeline-span-length', `${axisMax - axisMin}px` )
+            noteDiv    .style.setProperty( '--timeline-span-length', `${spanMax - spanMin}px` )
+          }
         }
       }
 
-      noteDiv[0].addEventListener( 'click', ( event ) => {
+      noteDivs[0].addEventListener( 'click', ( event ) => {
         event.preventDefault()
-        const collapsed = !JSON.parse( noteDiv[0].getAttribute( 'collapsed' ))
-        noteDiv[0].setAttribute( 'collapsed', String( collapsed ))
-        for( const p of noteDiv[0].getElementsByTagName( 'p' )) {
+        const collapsed = !JSON.parse( noteDivs[0].getAttribute( 'collapsed' ))
+        noteDivs[0].setAttribute( 'collapsed', String( collapsed ))
+        for( const p of noteDivs[0].getElementsByTagName( 'p' )) {
           p.setCssProps({ 'display': collapsed ? 'none' : 'block' })
         }
         /* If this event has a duration (and thus has an end note), we hide all elements between the start and end
            note along with the end note itself */
-        if( lengthy ) {
-          noteHdr[0].setText( collapsed ? datedTo[2] : datedTo[0] )
+        if( noteDivs.length > 0 ) {
+          noteHdrs[0].setText( collapsed ? datedTo[1] : datedTo[0] )
           const notes = [...timeline.children]
-          const inner = notes.slice( notes.indexOf( noteDiv[0] ) + 1, notes.indexOf( noteDiv[1] ) + 1 )
+          const inner = notes.slice( notes.indexOf( noteDivs.first()) + 1, notes.indexOf( noteDivs.last()) + 1 )
           inner.forEach(( note: HTMLDivElement & { calcLength?: () => void }) => {
             note.style.display = collapsed ? 'none' : 'block'
             note.calcLength?.()
@@ -329,8 +335,8 @@ export class TimelineBlockProcessor {
         /* The CSS '--timeline-indent' variable allows for scaling down the event when contained within another event,
            but in this case it also tells us how many time spanning events have had their length altered as a consequence
            of this note's mutation. */
-        let nested = +noteDiv[0].style.getPropertyValue( '--timeline-indent' ) + ( lengthy ? 1 : 0 )
-        for( let f = 'nextElementSibling', sibling = noteDiv[0][f]; nested > 0; sibling = sibling[f] ) {
+        let nested = +noteDivs[0].style.getPropertyValue( '--timeline-indent' ) + noteDivs.length - 1
+        for( let f = 'nextElementSibling', sibling = noteDivs[0][f]; nested > 0; sibling = sibling[f] ) {
           if( sibling.classList.contains( 'timeline-tail' )) {
             sibling.calcLength?.()
             nested--
@@ -382,11 +388,14 @@ export class TimelineBlockProcessor {
          previous event. If the index of the ending date of the previous event in the new array is greater than 0 then the
          note(s) preceding it (either the note belonging to the start date or the notes belonging to both the start and end
          dates of the current event) are placed before their predecessor. */
-      for( let s = [...timeline.children],i = s.indexOf( noteDiv[0] ); s[i-1]?.classList.contains( 'timeline-tail' ); i-- ) {
+      for( let s = [...timeline.children],i = s.indexOf( noteDivs[0] ); s[i-1]?.classList.contains( 'timeline-tail' ); i-- ) {
         const t = s[i-1].getAttribute( 'timeline-date' )
-        for( let j = [start, end, t].sort().lastIndexOf( t ); j > 0; s[i-1].before( ...noteDiv.slice( 0, j )), j = 0 ) {
-          const indent = +noteDiv[0].style.getPropertyValue( '--timeline-indent' ) + 1
-          noteDiv.forEach( n => {
+        const times = [t, ...noteDivs.map( n => {
+          return n.getAttribute( 'timeline-date' )
+        })]
+        for( let j = times.sort().lastIndexOf( t ); j > 0; s[i-1].before( ...noteDivs.slice( 0, j )), j = 0 ) {
+          const indent = +noteDivs[0].style.getPropertyValue( '--timeline-indent' ) + 1
+          noteDivs.forEach( n => {
             n.style.setProperty( '--timeline-indent', `${ indent }` )
           })
         }

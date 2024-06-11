@@ -35,13 +35,19 @@ $event-widget-border-width: 4px;
 
   /* Arrow pointing from note to widget */
   & {
+    &.timeline-left > h2 {
+      margin-left: $timeline-indent-gap;
+    }
+    &.timeline-right > h2 {
+      margin-right: $timeline-indent-gap;
+    }
     &::before {
       content: " ";
       width: 0;
       height: 0;
       position: absolute;
       top: $timeline-widget-inset - $timeline-arrow-width / 2;
-      z-index: 1;
+      z-index: 2;
       border: medium solid var(--background-secondary);
     }
 
@@ -104,30 +110,35 @@ $event-widget-border-width: 4px;
 
   /* The line segment joining dates for time spanning events */
   &.timeline-tail {
+    $border-width: 5px;
     $gap: 20px;
 
-    & > h2{
+    & > h2 {
       padding-top: $gap;
     }
     & > h2::before {
       content: "";
       display: block;
-      width: calc(100% - $timeline-note-padding - $timeline-arrow-width - $timeline-arrow-margin);
+      width: calc(100% - $timeline-note-padding - $timeline-arrow-width - $timeline-arrow-margin + $border-width);
       height: $note-segment-width;
       background-color: var(--background-secondary);
       position: absolute;
       top: $timeline-widget-inset;
+      border-bottom: $border-width solid var(--background-primary);
+      z-index: 1;
     }
     &.timeline-left > h2::before {
-      left: 0;
+      left: -$border-width;
       margin-left: $timeline-note-padding;
-      border-bottom-left-radius: $note-segment-width;
+      border-left: $border-width solid var(--background-primary);
+      border-bottom-left-radius: $note-segment-width * 2;
     }
 
     &.timeline-right > h2::before {
-      right: 0;
+      right: -$border-width;
       margin-right: $timeline-note-padding;
-      border-bottom-right-radius: $note-segment-width;
+      border-right: $border-width solid var(--background-primary);
+      border-bottom-right-radius: $note-segment-width * 2;
     }
 
     & > h2::after {
@@ -135,21 +146,20 @@ $event-widget-border-width: 4px;
       position: absolute;
       transform: translateY(calc(-100% - $gap));
       width: $note-segment-width;
-      height: calc(var(--timeline-span-length) - $gap);
+      height: calc(var(--timeline-span-length));
       background-color: var(--background-secondary);
       border-top-left-radius: $note-segment-width;
       border-top-right-radius: $note-segment-width;
+      z-index: 0;
     }
     &.timeline-left > h2::after {
       left: 0;
       margin-left: $timeline-note-padding;
-      border-bottom-right-radius: - $note-segment-width;
     }
 
     &.timeline-right > h2::after {
       right: 0;
       margin-right: $timeline-note-padding;
-      border-bottom-left-radius: - $note-segment-width;
     }
   }
 }
