@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 $note-segment-width: 10px;
 $timeline-line-width: 10px;
 $timeline-indent-gap: 20px;
@@ -16,13 +18,13 @@ $event-widget-border-width: 4px;
   margin: 0 auto;
 
   &::after {
-  content: '';
-  position: absolute;
-  width: $timeline-line-width;
-  background-color: var(--background-secondary);
-  top: 0;
-  bottom: 0;
-  left: calc(50% - $timeline-line-width / 2);
+    content: '';
+    position: absolute;
+    width: $timeline-line-width;
+    background-color: var(--background-secondary);
+    top: 0;
+    bottom: 0;
+    left: calc(50% - $timeline-line-width / 2);
   }
 }
 
@@ -38,15 +40,17 @@ $event-widget-border-width: 4px;
     &.timeline-left > h2 {
       margin-left: $timeline-indent-gap;
     }
+
     &.timeline-right > h2 {
       margin-right: $timeline-indent-gap;
     }
+
     &::before {
       content: " ";
       width: 0;
       height: 0;
       position: absolute;
-      top: calc($timeline-widget-inset - ($timeline-arrow-width / 2));
+      top: $timeline-widget-inset - $timeline-arrow-width * 0.5;
       z-index: 2;
       border: medium solid var(--background-secondary);
     }
@@ -72,17 +76,18 @@ $event-widget-border-width: 4px;
       width: $point-event-widget-width;
       height: $point-event-widget-width;
       background-color: var(--background-secondary);
-      border: $event-widget-border-width solid #FF9F55;
-      top: calc($timeline-widget-inset - ($point-event-widget-width / 2));
+      border: $event-widget-border-width solid var(--text-accent); // old color: #FF9F55 (orange)
+      top: $timeline-widget-inset - $point-event-widget-width * 0.5;
       border-radius: $point-event-widget-width;
       z-index: 1;
     }
 
     &.timeline-left::after {
-      right: calc(-1 * (($point-event-widget-width / 2) - $event-widget-border-width));
+      right: - $point-event-widget-width * 0.5 - $event-widget-border-width;
     }
+
     &.timeline-right::after {
-      left: calc(-1 * (($point-event-widget-width / 2) - $event-widget-border-width));
+      left: - $point-event-widget-width * 0.5 - $event-widget-border-width;
     }
   }
 
@@ -95,16 +100,19 @@ $event-widget-border-width: 4px;
       min-height:       $range-event-widget-width;
       height:           calc(var(--timeline-span-length) + $range-event-widget-width);
       background-color: var(--background-secondary);
-      border: $event-widget-border-width solid #00DB00;
-      top: calc($timeline-widget-inset - ($range-event-widget-width / 2));
+      filter: hue-rotate(180deg);
+      border: $event-widget-border-width solid var(--text-accent); // old color: #00DB00 (green)
+      top: $timeline-widget-inset - $range-event-widget-width * 0.5;
       border-radius: $range-event-widget-width;
       z-index: 1;
     }
+
     &.timeline-left::after {
-      right: calc(-1 * (($range-event-widget-width / 2) - $event-widget-border-width));
+      right: - $range-event-widget-width * 0.5 - $event-widget-border-width;
     }
+
     &.timeline-right::after {
-      left: calc(-1 * (($range-event-widget-width / 2) - $event-widget-border-width));
+      left: - $range-event-widget-width * 0.5 - $event-widget-border-width;
     }
   }
 
