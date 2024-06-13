@@ -22,65 +22,84 @@ export async function buildVerticalTimeline(
     const datedTo = [ timelineNotes[date][0].startDate.replace( /-0*$/g, '' )
                   + ( timelineNotes[date][0].era ? ` ${timelineNotes[date][0].era}` : '' )
     ]
-    const noteDivs = [timeline.createDiv({
-      cls: ['timeline-container', `timeline-${align}`]
-    }, div => {
-      div.style.setProperty( '--timeline-indent', '0' )
-      div.setAttribute( 'timeline-date', timelineNotes[date][0].startDate )
-      div.setAttribute( 'collapsed', String( false ))
-    })]
+
+    const noteDivs = [
+      timeline.createDiv(
+        { cls: ['timeline-container', `timeline-${align}`] }, 
+        ( div ) => {
+          div.style.setProperty( '--timeline-indent', '0' )
+          div.setAttribute( 'timeline-date', timelineNotes[date][0].startDate )
+          div.setAttribute( 'collapsed', 'false' )
+        }
+      )
+    ]
+
     const eventsDiv = noteDivs[0].createDiv({
       cls: 'timeline-event-list',
       attr: { 'style': 'display: block' }
     })
+
     const noteHdrs = [noteDivs[0].createEl( 'h2', {
       attr: { 'style' : `text-align: ${align};` },
       text: datedTo[0]
     })]
-    for ( const note of timelineNotes[date] ) {
-      if ( /^(background|range)$/.test( note.type ) && note.endDate > note.startDate ) {
-        if ( !noteDivs[0].classList.contains( 'timeline-head' )) noteDivs[0].classList.add( 'timeline-head' )
-        const dated = note.endDate + ( note.era ? ` ${note.era}` : '' )
-        if( !datedTo[1] || note.endDate > +noteDivs.last().getAttribute( 'timeline-date' )) {
-          datedTo[1] = datedTo[0] + ' to ' + dated
-        }
-        const noteDiv = timeline.createDiv({
-          cls: ['timeline-container', `timeline-${align}`, 'timeline-tail']
-        }, div => {
-          div.style.setProperty( '--timeline-indent', '0' )
-          div.setAttribute( 'timeline-date', note.endDate )
-        })
-        const noteHdr = noteDiv.createEl( 'h2', {
-          attr: { 'style' : `text-align: ${align};` },
-          text: dated
-        })
-        noteHdrs.push( noteHdr )
-        noteDivs.push( noteDiv )
-        for( const n of noteDivs ) {
-          if( +n.getAttribute( 'timeline-date' ) > note.endDate ) {
-            n.before( noteDiv )
-          }
-        }
 
-        /* The CSS 'timeline-timespan-length' determines both the length of the event timeline widget on the timeline,
-           and the length of the vertical segment that spans between the displayed dates. If this value is not recalculated
-           then these elements will not be responsive to layout changes. */
-        ( noteDivs.last() as HTMLDivElement & { calcLength?: () => void }).calcLength = () =>  {
-          const axisMin = noteDivs[0].getBoundingClientRect().top
-          const axisMax = noteDiv    .getBoundingClientRect().top
-          const spanMin = noteHdrs[0].getBoundingClientRect().top
-          const spanMax = noteHdr    .getBoundingClientRect().top
-          noteDivs[0].style.setProperty( '--timeline-span-length', `${axisMax - axisMin}px` )
-          noteDiv    .style.setProperty( '--timeline-span-length', `${spanMax - spanMin}px` )
+    for ( const note of timelineNotes[date] ) {
+      // skip events that are of type 'box' or 'point', if if the endDate is invalid
+      if ( ['box', 'point'].includes( note.type ) || note.endDate <= note.startDate ) {
+        continue
+      }
+
+      if ( !noteDivs[0].classList.contains( 'timeline-head' )) {
+        noteDivs[0].classList.add( 'timeline-head' ) 
+      }
+
+      const dated = note.endDate + ( note.era ? ` ${note.era}` : '' )
+      if ( !datedTo[1] || note.endDate > +noteDivs.last().getAttribute( 'timeline-date' )) {
+        datedTo[1] = datedTo[0] + ' to ' + dated
+      }
+
+      const noteDiv = timeline.createDiv({
+        cls: ['timeline-container', `timeline-${align}`, 'timeline-tail']
+      }, div => {
+        div.style.setProperty( '--timeline-indent', '0' )
+        div.setAttribute( 'timeline-date', note.endDate )
+      })
+      
+      const noteHdr = noteDiv.createEl( 'h2', {
+        attr: { 'style' : `text-align: ${align};` },
+        text: dated
+      })
+
+      noteHdrs.push( noteHdr )
+      noteDivs.push( noteDiv )
+      for ( const n of noteDivs ) {
+        if ( +n.getAttribute( 'timeline-date' ) > note.endDate ) {
+          n.before( noteDiv )
         }
       }
+
+      /* The CSS 'timeline-timespan-length' determines both the length of the event timeline widget on the timeline,
+           and the length of the vertical segment that spans between the displayed dates. If this value is not recalculated
+           then these elements will not be responsive to layout changes. */
+      ( noteDivs.last() as HTMLDivElement & { calcLength?: () => void }).calcLength = () =>  {
+        const axisMin = noteDivs[0].getBoundingClientRect().top
+        const axisMax = noteDiv    .getBoundingClientRect().top
+        const spanMin = noteHdrs[0].getBoundingClientRect().top
+        const spanMax = noteHdr    .getBoundingClientRect().top
+
+        noteDivs[0].style.setProperty( '--timeline-span-length', `${axisMax - axisMin}px` )
+        noteDiv    .style.setProperty( '--timeline-span-length', `${spanMax - spanMin}px` )
+      }
+      
     }
 
     noteDivs[0].addEventListener( 'click', ( event ) => {
       event.preventDefault()
+
       const collapsed = !JSON.parse( noteDivs[0].getAttribute( 'collapsed' ))
       noteDivs[0].setAttribute( 'collapsed', String( collapsed ))
-      for( const p of noteDivs[0].getElementsByTagName( 'p' )) {
+      for ( const p of noteDivs[0].getElementsByTagName( 'p' )) {
         p.setCssProps({ 'display': collapsed ? 'none' : 'block' })
       }
       /* If this event has a duration (and thus has an end note), we hide all elements between the start and end
@@ -99,8 +118,8 @@ export async function buildVerticalTimeline(
          but in this case it also tells us how many time spanning events have had their length altered as a consequence
          of this note's mutation. */
       let nested = +noteDivs[0].style.getPropertyValue( '--timeline-indent' ) + noteDivs.length - 1
-      for( let f = 'nextElementSibling', sibling = noteDivs[0][f]; nested > 0; sibling = sibling[f] ) {
-        if( sibling.classList.contains( 'timeline-tail' )) {
+      for ( let f = 'nextElementSibling', sibling = noteDivs[0][f]; nested > 0; sibling = sibling[f] ) {
+        if ( sibling.classList.contains( 'timeline-tail' )) {
           sibling.calcLength?.()
           nested--
         }
@@ -123,7 +142,9 @@ export async function buildVerticalTimeline(
       currentStyle.setProperty( 'display', 'none' )
     })*/
 
-    if ( !timelineNotes[date] ) continue
+    if ( !timelineNotes[date] ) {
+      continue 
+    }
 
     for ( const eventAtDate of timelineNotes[date] ) {
       const noteCard = eventsDiv.createDiv({ cls: 'timeline-card' })
@@ -163,6 +184,7 @@ export async function buildVerticalTimeline(
         })
       }
     }
+
     eventCount++
   }
   // Replace the selected tags with the timeline html
