@@ -8,7 +8,7 @@ toc: false
 
 <br></br>
 
-As we focused on vertical timelines in the previous guide "[**Getting Started**](../00_getting_started)", here we'll add a simple horizontal timeline.
+As we focused on vertical timelines in the previous guide "[**Getting Started**](../../../00_getting_started)", here we'll add a simple horizontal timeline.
 
 The codeblock for horizontal timelines is more involved. We have a total of **eight** possible parameters, although only **two** are actually required.
 
