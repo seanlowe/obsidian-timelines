@@ -25,7 +25,7 @@ Please take the time to read all the way through. Thanks!
 
 <br>
 
-See the changelog from the last major update to view any breaking changes [here](./changelog.md#v200).
+See the changelog from the last major update to view any breaking changes [here](https://github.com/seanlowe/obsidian-timelines/blob/main/changelog.md#v200).
 
 ### Examples
 

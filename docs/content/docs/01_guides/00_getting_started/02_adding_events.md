@@ -15,7 +15,7 @@ There are 2 ways to include a note in a timeline:
 
 We're going to use HTML, as it's a little simpler.
 
-> Read more about events [here](../events)
+> Read more about events [here](../../../02_events/)
 
 There's a handy little command for inserting an HTML command into a note of our choice.
 

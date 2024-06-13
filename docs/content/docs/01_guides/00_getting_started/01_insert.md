@@ -35,7 +35,7 @@ tags=now;test
 
 The render block takes a single line which is the _list of tags_ (separated by semicolons) by which to filter timeline-tagged notes. For example, in the above example block, **<u>only notes with all</u>** three tags (`now`, `test` and `timeline`) will be rendered.
 
-> Read more about available arguments [here](../arguments.md). 
+> Read more about available arguments [here](../../../03_arguments/). 
 
 (Don't worry, we'll come back this later when we look at horizontal timelines.)
 
