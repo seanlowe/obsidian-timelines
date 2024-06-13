@@ -4,6 +4,17 @@ export const availableColors = ['orange', 'blue', 'green', 'red', 'purple', 'yel
 const types = [ 'vis-background', 'vis-box', 'vis-point', 'vis-range', 'vis-line', 'vis-dot' ]
 // STOP - did you remember to change the matching variables in horizontal-timeline.scss?
 
+
+export const handleColor = ( color: string, noteCard: HTMLDivElement, id: string ): boolean => {
+  if ( !availableColors.includes( color )) {
+    handleDynamicColor( color, id )
+    return false
+  }
+
+  noteCard.addClass( color )
+  return true
+}
+
 type AddColorInput = {
   color: Color,
   selector: string,
@@ -30,7 +41,7 @@ const addColor = (
   return `${selector} ${block}`
 }
 
-export const handleDynamicColor = ( color: string, noteId: string ) => {
+const handleDynamicColor = ( color: string, noteId: string ) => {
   if ( !valid( color )) {
     throw new Error( `Invalid color: ${color}` )
   }
