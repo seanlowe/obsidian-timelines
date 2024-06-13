@@ -13,7 +13,7 @@ See the changelog from the last major update to view any breaking changes [here]
 
 Documentation has moved!
 
-I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at [https://seanlowe.github.io](https://seanlowe.github.io). Go check it out! If there are any problems, don't hesitate to create a new issue and point it out. Thanks!
+I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at [https://seanlowe.github.io/obsidian-timelines](https://seanlowe.github.io/obsidian-timelines). Go check it out! If there are any problems, don't hesitate to create a new issue and point it out. Thanks!
 
 ## Release Notes
 
