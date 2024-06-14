@@ -12,7 +12,7 @@ import { CleanedDateResultObject } from '../types'
  * 
  * @returns {CleanedDateResultObject}
  */
-const cleanDate = ( normalizedDate: string ): CleanedDateResultObject => {
+export const cleanDate = ( normalizedDate: string ): CleanedDateResultObject => {
   const isNegative = normalizedDate[0] === '-'
   const parts = normalizedDate.slice( 1 ).split( '-' )
 
@@ -142,7 +142,7 @@ export const buildTimelineDate = (
 /**
  * Correctly sort our timeline dates, taking heed of negative dates
  *
- * @param {string[]} timelineDates the array of event dates for the timeline
+ * @param {string[]} timelineDates the array of normalized noteId's (event start dates) for the timeline
  * @param {boolean} sortDirection false for descending, true for ascending
  */
 export const sortTimelineDates = ( timelineDates: string[], sortDirection: boolean ): string[] => {
@@ -163,13 +163,13 @@ export const sortTimelineDates = ( timelineDates: string[], sortDirection: boole
   if ( sortDirection ) {
     const negativeDates = strippedNegativeDates.map(( date ) => {
       return `-${date}` 
-    })
+    }) ?? []
 
     sortedTimelineDates = [...negativeDates, ...positiveDates]
   } else {
     const negativeDates = strippedNegativeDates.reverse().map(( date ) => {
       return `-${date}` 
-    })
+    }) ?? []
 
     sortedTimelineDates = [...positiveDates.reverse(), ...negativeDates]
   }

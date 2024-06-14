@@ -16,6 +16,7 @@ import {
   normalizeDate,
   setDefaultArgs,
   sortTimelineDates,
+  cleanDate,
 } from './utils'
 
 export class TimelineBlockProcessor {
@@ -159,15 +160,18 @@ export class TimelineBlockProcessor {
 
         const imgUrl = getImgUrl( this.appVault, eventImg )
 
+        const { cleanedDateString: cleanedStartDate } = cleanDate( normalizeDate( startDate ))
+        const { cleanedDateString:  cleanedEndDate  } = cleanDate( normalizeDate(  endDate  ))
+
         const note: CardContainer = {
           id: noteId,
           color,
-          endDate,
+          endDate: cleanedEndDate,
           era,
           img: imgUrl,
           body: noteBody,
           path: notePath,
-          startDate,
+          startDate: cleanedStartDate,
           title: noteTitle,
           type,
         }
