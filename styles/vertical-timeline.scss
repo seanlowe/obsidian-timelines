@@ -1,87 +1,188 @@
+@use 'sass:math';
+
+$note-segment-width: 10px;
+$timeline-line-width: 10px;
+$timeline-indent-gap: 20px;
+$timeline-arrow-width: 10px;
+$timeline-arrow-margin: 30px;
+$timeline-note-padding: 40px;
+$timeline-widget-inset: 25px;
+$point-event-widget-width: 25px;
+$range-event-widget-width: 33px;
+$event-widget-border-width: 4px;
+
 /* The actual timeline (the vertical ruler) */
 .timeline {
-    position: relative;
-    max-width: 1200px;
-    margin: 0 auto;
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
 
-    &::after {
+  &::after {
     content: '';
     position: absolute;
-    width: 10px;
+    width: $timeline-line-width;
     background-color: var(--background-secondary);
     top: 0;
     bottom: 0;
-    left: 50%;
-    margin-left: -3px;
-    }
+    left: calc(50% - $timeline-line-width / 2);
+  }
 }
 
 /* Container around content */
 .timeline-container {
-    padding: 10px 40px;
-    position: relative;
-    background-color: inherit;
-    width: 50%;
+  padding: 10px $timeline-note-padding;
+  position: relative;
+  background-color: inherit;
+  width: calc(50% - (var(--timeline-indent) * $timeline-indent-gap));
 
-    /* The circles on the timeline */
-    &::after {
-        content: '';
-        position: absolute;
-        width: 25px;
-        height: 25px;
-        right: -17px;
-        background-color: var(--background-secondary);
-        border: 4px solid #FF9F55;
-        top: 15px;
-        border-radius: 50%;
-        z-index: 1;
+  /* Arrow pointing from note to widget */
+  & {
+    &.timeline-left > h2 {
+      margin-left: $timeline-indent-gap;
     }
-}
 
-.timeline-card p {
-  white-space: pre-wrap;
+    &.timeline-right > h2 {
+      margin-right: $timeline-indent-gap;
+    }
+
+    &::before {
+      content: " ";
+      width: 0;
+      height: 0;
+      position: absolute;
+      top: $timeline-widget-inset - $timeline-arrow-width * 0.5;
+      z-index: 2;
+      border: medium solid var(--background-secondary);
+    }
+
+    &.timeline-left::before {
+      right: $timeline-arrow-margin;
+      border-width: $timeline-arrow-width 0 $timeline-arrow-width $timeline-arrow-width;
+      border-color: transparent transparent transparent var(--background-secondary);
+    }
+
+    &.timeline-right::before {
+      left: $timeline-arrow-margin;
+      border-width: $timeline-arrow-width $timeline-arrow-width $timeline-arrow-width 0;
+      border-color: transparent var(--background-secondary) transparent transparent;
+    }
+  }
+
+  /* The normal circle widget for events on the timeline */
+  &:not(.timeline-head):not(.timeline-tail) {
+    &::after {
+      content: '';
+      position: absolute;
+      width: $point-event-widget-width;
+      height: $point-event-widget-width;
+      background-color: var(--background-secondary);
+      border: $event-widget-border-width solid var(--text-accent); // old color: #FF9F55 (orange)
+      top: $timeline-widget-inset - $point-event-widget-width * 0.5;
+      border-radius: $point-event-widget-width;
+      z-index: 1;
+    }
+
+    &.timeline-left::after {
+      right: - $point-event-widget-width * 0.5 - $event-widget-border-width;
+    }
+
+    &.timeline-right::after {
+      left: - $point-event-widget-width * 0.5 - $event-widget-border-width;
+    }
+  }
+
+  /* The elongated circle widget for time spanning events on the timeline */
+  &.timeline-head {
+    &::after {
+      content: '';
+      position: absolute;
+      width:            $range-event-widget-width;
+      min-height:       $range-event-widget-width;
+      height:           calc(var(--timeline-span-length) + $range-event-widget-width);
+      background-color: var(--background-secondary);
+      filter: hue-rotate(180deg);
+      border: $event-widget-border-width solid var(--text-accent); // old color: #00DB00 (green)
+      top: $timeline-widget-inset - $range-event-widget-width * 0.5;
+      border-radius: $range-event-widget-width;
+      z-index: 1;
+    }
+
+    &.timeline-left::after {
+      right: - $range-event-widget-width * 0.5 - $event-widget-border-width;
+    }
+
+    &.timeline-right::after {
+      left: - $range-event-widget-width * 0.5 - $event-widget-border-width;
+    }
+  }
+
+  /* The line segment joining dates for time spanning events */
+  &.timeline-tail {
+    $border-width: 5px;
+    $gap: 20px;
+
+    & > h2 {
+      padding-top: $gap;
+    }
+    & > h2::before {
+      content: "";
+      display: block;
+      width: calc(100% - $timeline-note-padding - $timeline-arrow-width - $timeline-arrow-margin + $border-width);
+      height: $note-segment-width;
+      background-color: var(--background-secondary);
+      position: absolute;
+      top: $timeline-widget-inset;
+      border-bottom: $border-width solid var(--background-primary);
+      z-index: 1;
+    }
+    &.timeline-left > h2::before {
+      left: -$border-width;
+      margin-left: $timeline-note-padding;
+      border-left: $border-width solid var(--background-primary);
+      border-bottom-left-radius: $note-segment-width * 2;
+    }
+
+    &.timeline-right > h2::before {
+      right: -$border-width;
+      margin-right: $timeline-note-padding;
+      border-right: $border-width solid var(--background-primary);
+      border-bottom-right-radius: $note-segment-width * 2;
+    }
+
+    & > h2::after {
+      content: "";
+      position: absolute;
+      transform: translateY(calc(-100% - $gap));
+      width: $note-segment-width;
+      height: calc(var(--timeline-span-length));
+      background-color: var(--background-secondary);
+      border-top-left-radius: $note-segment-width;
+      border-top-right-radius: $note-segment-width;
+      z-index: 0;
+    }
+    &.timeline-left > h2::after {
+      left: 0;
+      margin-left: $timeline-note-padding;
+    }
+
+    &.timeline-right > h2::after {
+      right: 0;
+      margin-right: $timeline-note-padding;
+    }
+  }
 }
 
 /* Place the container to the left */
 .timeline-left {
-    left: 0;
-
-    /* Add arrows to the left container (pointing right) */
-    &::before {
-        content: " ";
-        height: 0;
-        position: absolute;
-        top: 22px;
-        width: 0;
-        z-index: 1;
-        right: 30px;
-        border: medium solid var(--background-secondary);
-        border-width: 10px 0 10px 10px;
-        border-color: transparent transparent transparent var(--background-secondary);
-    }
+    left: calc($timeline-indent-gap * var(--timeline-indent));
 }
 
 /* Place the container to the right */
 .timeline-right {
     left: 50%;
 
-    /* Add arrows to the right container (pointing left) */
-    &::before {
-        content: " ";
-        height: 0;
-        position: absolute;
-        top: 22px;
-        width: 0;
-        z-index: 1;
-        left: 30px;
-        border: medium solid var(--background-secondary);
-        border-width: 10px 10px 10px 0;
-        border-color: transparent var(--background-secondary) transparent transparent;
-    }
-
-    /* Fix the circle for containers on the right side */
-    &::after {
-        left: -16px;
+    &.timeline-timespan-end::after {
+      right: 10px;
     }
 }
 

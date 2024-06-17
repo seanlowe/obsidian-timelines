@@ -20,7 +20,7 @@ export default class TimelinesPlugin extends Plugin {
     const loaded = await this.loadData()
     this.settings = { ...DEFAULT_SETTINGS, ...loaded }
     this.blocks = new TimelineBlockProcessor( this.settings, this.app.metadataCache, this.app.vault )
-    this.commands = new TimelineCommandProcessor( this )
+    this.commands = new TimelineCommandProcessor( this, this.blocks.run.bind( this.blocks ))
   }
 
   onload = async () => {
@@ -41,7 +41,7 @@ export default class TimelinesPlugin extends Plugin {
           // If checking is true, we're simply "checking" if the command can be run.
           // If checking is false, then we want to actually perform the operation.
           if ( !checking ) {
-            this.blocks.insertTimelineIntoCurrentNote( markdownView )
+            this.commands.insertTimelineIntoCurrentNote( markdownView )
           }
 
           return true

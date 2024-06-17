@@ -16,4 +16,8 @@ export const DEFAULT_SETTINGS: TimelinesSettings = {
   maxDigits: '5',
 }
 
+export const DEVELOPER_SETTINGS = {
+  debug: false,
+}
+
 export const RENDER_TIMELINE: RegExp = /<!--TIMELINE BEGIN tags=['"]([^"]*?)['"]-->([\s\S]*?)<!--TIMELINE END-->/i

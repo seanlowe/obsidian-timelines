@@ -1,6 +1,8 @@
-import { AcceptableEventElements, developerSettings } from './types'
 import { App, PluginSettingTab, Setting } from 'obsidian'
+
 import TimelinesPlugin from './main'
+import { DEVELOPER_SETTINGS } from './constants'
+import { AcceptableEventElements } from './types'
 
 export class TimelinesSettingTab extends PluginSettingTab {
   plugin: TimelinesPlugin
@@ -106,7 +108,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
     new Setting( containerEl )
       .setName( 'Start date keys' )
       .setDesc( 'Comma-separated list of frontmatter keys for start date. Example: start-date,fc-date' )
-      .addText( text => {
+      .addText(( text ) => {
         return text
           .setPlaceholder( this.plugin.settings.frontMatterKeys.startDateKey.join( ',' ))
           .onChange( async ( value ) => {
@@ -118,7 +120,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
     new Setting( containerEl )
       .setName( 'End date keys' )
       .setDesc( 'Comma-separated list of frontmatter keys for end date.' )
-      .addText( text => {
+      .addText(( text ) => {
         return text
           .setPlaceholder( this.plugin.settings.frontMatterKeys.endDateKey.join( ',' ))
           .onChange( async ( value ) => {
@@ -130,7 +132,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
     new Setting( containerEl )
       .setName( 'Title keys' )
       .setDesc( 'Comma-separated list of frontmatter keys for title.' )
-      .addText( text => {
+      .addText(( text ) => {
         return text
           .setPlaceholder( this.plugin.settings.frontMatterKeys.titleKey.join( ',' ))
           .onChange( async ( value ) => {
@@ -147,9 +149,9 @@ export class TimelinesSettingTab extends PluginSettingTab {
         Debug mode will default to off on plugin load and the current value will not be saved.`
       )
       .addToggle(( toggle ) => {
-        toggle.setValue( developerSettings.debug )
+        toggle.setValue( DEVELOPER_SETTINGS.debug )
         toggle.onChange(( value ) => {
-          developerSettings.debug = value
+          DEVELOPER_SETTINGS.debug = value
         })
       })
   }

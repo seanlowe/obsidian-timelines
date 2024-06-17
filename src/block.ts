@@ -1,11 +1,9 @@
-import type { AllNotesData, CardContainer, EventItem, InternalTimelineArgs, TimelinesSettings } from './types'
 import type { TFile, MetadataCache, Vault } from 'obsidian'
-import { MarkdownView } from 'obsidian'
-import { RENDER_TIMELINE } from './constants'
+
+import { buildHorizontalTimeline, buildVerticalTimeline, showEmptyTimelineMessage } from './timelines'
+import { AllNotesData, CardContainer, InternalTimelineArgs, TimelinesSettings } from './types'
 import {
-  availableColors,
   buildTimelineDate,
-  createInternalLinkOnNoteCard,
   createTagList,
   convertEntryToMilliseconds,
   filterMDFiles,
@@ -13,17 +11,13 @@ import {
   getEventsInFile,
   getImgUrl,
   getNumEventsInFile,
-  handleDynamicColor,
   isHTMLElementType,
   logger,
   normalizeDate,
   setDefaultArgs,
   sortTimelineDates,
+  cleanDate,
 } from './utils'
-
-// Horizontal (Vis-Timeline) specific imports
-import { Timeline } from 'vis-timeline/esnext'
-import { DataSet } from 'vis-data'
 
 export class TimelineBlockProcessor {
   appVault: Vault
@@ -43,42 +37,6 @@ export class TimelineBlockProcessor {
   setup() {
     this.args = setDefaultArgs()
     this.files = this.appVault.getMarkdownFiles()
-  }
-
-  /**
-   * Insert the statically generated timeline into the current note
-   *
-   * @param sourceView
-   */
-  async insertTimelineIntoCurrentNote(
-    sourceView: MarkdownView,
-  ) {
-    const editor = sourceView.editor
-    if ( !editor ) return
-
-    const source = editor.getValue()
-    const match = RENDER_TIMELINE.exec( source )
-    if ( !match || match.length === 1 ) return
-
-    const tagList = `tags=${match[1]}`
-    logger( 'taglist', tagList )
-
-    const div = document.createElement( 'div' )
-    await this.run( tagList, div )
-
-    const renderedString = `<div class="timeline-rendered">${new Date().toString()}</div>`
-    const rendered = ( new DOMParser()).parseFromString( renderedString, 'text/html' ).body.firstChild
-    div.appendChild( rendered )
-
-    const firstCommentEndIndex = source.indexOf( '-->' )
-    const lastCommentStartIndex = source.lastIndexOf( '<!--' )
-
-    editor.replaceRange(
-      ( new XMLSerializer()).serializeToString( div ),
-      { ch: firstCommentEndIndex + 2, line: 1 },
-      { ch: lastCommentStartIndex - 1, line: 1 },
-      source
-    )
   }
 
   /**
@@ -202,15 +160,18 @@ export class TimelineBlockProcessor {
 
         const imgUrl = getImgUrl( this.appVault, eventImg )
 
+        const { cleanedDateString: cleanedStartDate } = cleanDate( normalizeDate( startDate ))
+        const { cleanedDateString:  cleanedEndDate  } = cleanDate( normalizeDate(  endDate  ))
+
         const note: CardContainer = {
           id: noteId,
           color,
-          endDate,
+          endDate: cleanedEndDate,
           era,
           img: imgUrl,
           body: noteBody,
           path: notePath,
-          startDate,
+          startDate: cleanedStartDate,
           title: noteTitle,
           type,
         }
@@ -228,233 +189,12 @@ export class TimelineBlockProcessor {
     }
   }
 
-  handleColor( color: string, noteCard: HTMLDivElement, id: string ): boolean {
-    if ( !availableColors.includes( color )) {
-      handleDynamicColor( color, id )
-      return false
-    }
-
-    noteCard.addClass( color )
-    return true
-  }
-
-  /**
-   * Build a vertical timeline
-   *
-   * @param timelineDiv - the timeline html element
-   * @param timelineNotes - notes which have our timeline tags
-   * @param timelineDates - dates we parsed from event data
-   * @param el - the element to append the timeline to
-   */
-  async buildVerticalTimeline(
-    timelineDiv:HTMLElement,
-    timelineNotes: AllNotesData,
-    timelineDates: string[],
-    el: HTMLElement
-  ) {
-    let eventCount = 0
-    // Build the timeline html element
-    for ( const date of timelineDates ) {
-      const noteContainer = timelineDiv.createDiv({ cls: 'timeline-container' })
-      const eventContainer = noteContainer.createDiv({
-        cls: 'timeline-event-list',
-        attr: { 'style': 'display: block' }
-      })
-      let dateText = timelineNotes[date][0].startDate.replace( /-0*$/g, '' ).replace( /-0*$/g, '' ).replace( /-0*$/g, '' )
-      if ( timelineNotes[date][0].era ) {
-        dateText += ` ${timelineNotes[date][0].era}`
-      }
-      const noteHeader = noteContainer.createEl( 'h2', { text: dateText })
-
-      noteContainer.addEventListener( 'click', ( event ) => {
-        event.preventDefault()
-        const currentStyle = eventContainer.style
-        if ( currentStyle.getPropertyValue( 'display' ) === 'none' ) {
-          currentStyle.setProperty( 'display', 'block' )
-          return
-        }
-
-        // note from https://github.com/Darakah/obsidian-timelines/pull/58
-        // TODO: Stop Propagation: don't close timeline-card when clicked.
-        // `vis-timeline-graph2d.js` contains a method called `_updateContents` that makes the display
-        // attribute disappear on click via line 7426: `element.innerHTML = '';`
-        currentStyle.setProperty( 'display', 'none' )
-      })
-
-      const alignment = eventCount % 2 === 0 ? 'left' : 'right'
-      noteContainer.addClass( `timeline-${alignment}` )
-      noteHeader.setAttribute( 'style', `text-align: ${alignment};` )
-
-      if ( !timelineNotes[date] ) continue
-
-      for ( const eventAtDate of timelineNotes[date] ) {
-        const noteCard = eventContainer.createDiv({ cls: 'timeline-card' })
-        // add an image only if available
-        if ( eventAtDate.img ) {
-          noteCard.createDiv({
-            cls: 'thumb',
-            attr: { style: `background-image: url(${eventAtDate.img});` }
-          })
-        }
-
-        if ( eventAtDate.color ) {
-          // todo : add more support for other custom classes
-          this.handleColor( eventAtDate.color, noteCard, eventAtDate.id )
-        }
-
-        createInternalLinkOnNoteCard( eventAtDate, noteCard )
-        noteCard.createEl( 'p', { text: eventAtDate.body.trim() })
-      }
-      eventCount++
-    }
-
-    // Replace the selected tags with the timeline html
-    el.appendChild( timelineDiv )
-    return
-  }
-
-  /**
-   * Build a horizontal timeline
-   *
-   * @param timelineDiv - the timeline html element
-   * @param timelineNotes - notes which have our timeline tags
-   * @param timelineDates - dates we parsed from event data
-   * @param el - the element to append the timeline to
-   */
-  async buildHorizontalTimeline(
-    timelineDiv: HTMLElement,
-    timelineNotes: AllNotesData,
-    timelineDates: string[],
-    el: HTMLElement
-  ) {
-    // Create a DataSet
-    const items = new DataSet( [] )
-
-    if ( !timelineDates ) {
-      logger( 'No dates found for the timeline' )
-      return
-    }
-
-    timelineDates.forEach(( date ) => {
-      // add all events at this date
-      Object.values( timelineNotes[date] ).forEach(( event: CardContainer ) => {
-        const noteCard = document.createElement( 'div' )
-        noteCard.className = 'timeline-card'
-
-        // add an image only if available
-        if ( event.img ) {
-          noteCard.createDiv({
-            cls: 'thumb',
-            attr: { style: `background-image: url(${event.img});` }
-          })
-        }
-
-        let colorIsClass = false
-        if ( event.color ) {
-          colorIsClass = this.handleColor( event.color, noteCard, event.id )
-        }
-
-        createInternalLinkOnNoteCard( event, noteCard )
-        noteCard.createEl( 'p', { text: event.body })
-
-        const start = buildTimelineDate( event.startDate, parseInt( this.settings.maxDigits ))
-        const end = buildTimelineDate( event.endDate, parseInt( this.settings.maxDigits ))
-
-        if (
-          start.toString() === 'Invalid Date' ||
-          ( [ 'range', 'background' ].includes( event.type ) && end.toString() === 'Invalid Date' )
-        ) {
-          console.warn( 'Invalid start or end date - check for Month/Day values that are 0', { start, end, event })
-
-          return
-        }
-
-        const eventItem: EventItem = {
-          id: items.length + 1,
-          content: event.title ?? '',
-          start: start,
-          className: colorIsClass ? event.color ?? 'gray' : `nid-${event.id}`,
-          type: event.type,
-          end: end ?? null,
-          path: event.path,
-          _event: event,
-        }
-
-        // Add Event data
-        items.add( eventItem )
-      })
-    })
-
-    // Configuration for the Timeline
-    const options = {
-      start: this.args.startDate,
-      end: this.args.endDate,
-      min: this.args.minDate,
-      max: this.args.maxDate,
-      minHeight: this.args.divHeight,
-      showCurrentTime: false,
-      showTooltips: false,
-      zoomMin: this.args.zoomInLimit,
-      zoomMax: this.args.zoomOutLimit,
-      template: ( item: EventItem ) => {
-        const eventContainer = document.createElement( this.settings.notePreviewOnHover ? 'a' : 'div' )
-        if ( 'href' in eventContainer ) {
-          eventContainer.addClass( 'internal-link' )
-          eventContainer.href = item.path
-        }
-
-        eventContainer.setText( item.content )
-
-        return eventContainer
-      }
-    }
-
-    timelineDiv.setAttribute( 'class', 'timeline-vis' )
-    const timeline = new Timeline( timelineDiv, items, options )
-
-    // these are probably non-performant but it works so ¯\_(ツ)_/¯
-    // dynamically add and remove a "special" class on hover
-    // cannot use standard :hover styling due to the structure
-    // of the timeline being so broken up across elements. This
-    // ensures that all elements related to an event are highlighted.
-    timeline.on( 'itemover', ( props ) => {
-      const event = items.get( props.item ) as unknown as EventItem
-      const newClass = event.className + ' runtime-hover'
-      document.documentElement.style.setProperty( '--hoverHighlightColor', event._event?.color ?? 'white' )
-      items.updateOnly( [{ ...event, className: newClass }] )
-
-      return () => {
-        timeline.off( 'itemover' )
-      }
-    })
-
-    timeline.on( 'itemout', ( props ) => {
-      const event = items.get( props.item ) as unknown as EventItem
-      const newClass = event.className.split( ' runtime-hover' )[0]
-      items.updateOnly( [{ ...event, className: newClass }] )
-
-      return () => {
-        timeline.off( 'itemout' )
-      }
-    })
-
-    // Replace the selected tags with the timeline html
-    el.appendChild( timelineDiv )
-  }
-
-  async showEmptyTimelineMessage( el: HTMLElement, tagList: string[] ) {
-    const timelineDiv = document.createElement( 'div' )
-    timelineDiv.setAttribute( 'class', 'empty-timeline' )
-    const message = `No events found for tags: [ '${tagList.join( "', '" )}' ]`
-
-    timelineDiv.createEl( 'p', { text: message })
-    el.appendChild( timelineDiv )
-  }
+  
 
   async run(
     source: string,
     el: HTMLElement,
-  ) {
+  ): Promise<void> {
     this.setup()
 
     // read arguments
@@ -471,7 +211,7 @@ export class TimelineBlockProcessor {
 
     if ( !this.currentFileList || this.currentFileList.length === 0 ) {
       logger( 'No files found for the timeline' )
-      await this.showEmptyTimelineMessage( el, Array.from( this.args.tags ))
+      await showEmptyTimelineMessage( el, Array.from( this.args.tags ))
       return
     }
 
@@ -489,10 +229,10 @@ export class TimelineBlockProcessor {
 
     switch ( this.args.type ) {
     case 'flat':
-      await this.buildHorizontalTimeline( timelineDiv, timelineNotes, sortedTimelineDates, el )
+      await buildHorizontalTimeline( timelineDiv, timelineNotes, sortedTimelineDates, el )
       return
     default:
-      await this.buildVerticalTimeline( timelineDiv, timelineNotes, sortedTimelineDates, el )
+      await buildVerticalTimeline( timelineDiv, timelineNotes, sortedTimelineDates, el )
       return
     }
   }

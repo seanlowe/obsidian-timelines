@@ -9,10 +9,6 @@ export enum AcceptableEventElements {
   span = 'span',
 }
 
-export const developerSettings = {
-  debug: false,
-}
-
 /* ------------------------------ */
 /*           Interfaces           */
 /* ------------------------------ */
@@ -107,6 +103,6 @@ export interface TimelinesSettings {
 /*              Types             */
 /* ------------------------------ */
 
-export type NoteData = CardContainer[]
-export type AllNotesData = NoteData[]
+export type AllNotesData = (CardContainer[])[]
+export type DivWithCalcFunc = HTMLDivElement & { calcLength?: () => void }
 export type EventCountData = ( HTMLElement | FrontMatterCache | null )[]

@@ -1,19 +1,26 @@
 import { Vault, MetadataCache, MarkdownView, Workspace } from 'obsidian'
+
+import { RENDER_TIMELINE } from './constants'
+import TimelinesPlugin from './main'
 import { TimelinesSettings } from './types'
 import { confirmUserInEditor, getNumEventsInFile, logger } from './utils'
-import TimelinesPlugin from './main'
 
 export class TimelineCommandProcessor {
-  plugin: TimelinesPlugin
   appVault: Vault
   metadataCache: MetadataCache
+  plugin: TimelinesPlugin
+  run: ( tagList: string, div: HTMLDivElement ) => Promise<void>
   settings: TimelinesSettings
 
-  constructor( mainPluginInstance: TimelinesPlugin ) {
+  constructor(
+    mainPluginInstance: TimelinesPlugin,
+    runFunction: ( tagList: string, div: HTMLDivElement ) => Promise<void>
+  ) {
     this.plugin = mainPluginInstance
     this.appVault = this.plugin.app.vault
     this.metadataCache = this.plugin.app.metadataCache
     this.settings = this.plugin.settings
+    this.run = runFunction
   }
 
   handleStatusBarUpdates = async ( plugin: TimelinesPlugin ) => {
@@ -45,6 +52,30 @@ export class TimelineCommandProcessor {
     plugin.registerEvent(
       plugin.app.workspace.on( 'file-open', plugin.onFileOpen.bind( this ))
     )
+  }
+
+  /**
+   * Get the number of events to build the "Timeline: X event(s)" span in the status bar
+   *
+   * @param workspace
+   */
+  getStatusBarText = async ( workspace: Workspace ): Promise<string | null> => {
+    const file = workspace.getActiveViewOfType( MarkdownView )?.file
+
+    if ( !file ) {
+      return null
+    }
+
+    const { totalEvents } = await getNumEventsInFile({ file, appVault: this.appVault, fileCache: this.metadataCache }, null )
+
+    switch ( totalEvents ) {
+    case 0:
+      return 'Timeline: No events'
+    case 1:
+      return 'Timeline: 1 event'
+    default:
+      return `Timeline: ${totalEvents} events`
+    }
   }
 
   updateStatusBarText = async ( plugin: TimelinesPlugin ) => {
@@ -117,26 +148,38 @@ export class TimelineCommandProcessor {
   }
 
   /**
-   * Get the number of events to build the "Timeline: X event(s)" span in the status bar
+   * Insert the statically generated timeline into the current note
    *
-   * @param workspace
+   * @param sourceView
    */
-  getStatusBarText = async ( workspace: Workspace ): Promise<string | null> => {
-    const file = workspace.getActiveViewOfType( MarkdownView )?.file
+  insertTimelineIntoCurrentNote = async (
+    sourceView: MarkdownView,
+  ) => {
+    const editor = sourceView.editor
+    if ( !editor ) return
 
-    if ( !file ) {
-      return null
-    }
+    const source = editor.getValue()
+    const match = RENDER_TIMELINE.exec( source )
+    if ( !match || match.length === 1 ) return
 
-    const { totalEvents } = await getNumEventsInFile({ file, appVault: this.appVault, fileCache: this.metadataCache }, null )
+    const tagList = `tags=${match[1]}`
+    logger( 'taglist', tagList )
 
-    switch ( totalEvents ) {
-    case 0:
-      return 'Timeline: No events'
-    case 1:
-      return 'Timeline: 1 event'
-    default:
-      return `Timeline: ${totalEvents} events`
-    }
+    const div = document.createElement( 'div' )
+    await this.run( tagList, div )
+
+    const renderedString = `<div class="timeline-rendered">${new Date().toString()}</div>`
+    const rendered = ( new DOMParser()).parseFromString( renderedString, 'text/html' ).body.firstChild
+    div.appendChild( rendered )
+
+    const firstCommentEndIndex = source.indexOf( '-->' )
+    const lastCommentStartIndex = source.lastIndexOf( '<!--' )
+
+    editor.replaceRange(
+      ( new XMLSerializer()).serializeToString( div ),
+      { ch: firstCommentEndIndex + 2, line: 1 },
+      { ch: lastCommentStartIndex - 1, line: 1 },
+      source
+    )
   }
 }
