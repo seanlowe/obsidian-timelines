@@ -6,7 +6,6 @@ import {
   buildTimelineDate,
   createTagList,
   convertEntryToMilliseconds,
-  filterMDFiles,
   getEventData,
   getEventsInFile,
   getImgUrl,
@@ -17,6 +16,8 @@ import {
   setDefaultArgs,
   sortTimelineDates,
   cleanDate,
+  filterMdFilesByOptionalTags,
+  filterMdFilesByRequiredTags,
 } from './utils'
 
 export class TimelineBlockProcessor {
@@ -140,7 +141,7 @@ export class TimelineBlockProcessor {
             const tag = rawTag.trim().replace( '#', '' )
             logger( 'examining tag:', tag )
             // loop over all the override tags and if any of them are in the tag list, add it
-            if ( this.args.tags.includes( tag )) {
+            if ( this.args.tags.tagList.includes( tag ) || this.args.tags.optionalTags.includes( tag )) {
               logger( 'Override tags overlap with tag list, adding note' )
               overrideTagsAreContainedInTagList = true
               continue
@@ -201,15 +202,32 @@ export class TimelineBlockProcessor {
 
     logger( '# of files and tags', { fileCount: this.files.length, tags: this.args.tags })
     // Filter all markdown files to only those containing the tag list
+
     this.currentFileList = this.files.filter(( file ) => {
-      return filterMDFiles( file, Array.from( this.args.tags ), this.metadataCache )
+      const hasRequiredTag = filterMdFilesByRequiredTags( file, this.args.tags.tagList, this.metadataCache )
+      const hasOptionalTag = filterMdFilesByOptionalTags( file, this.args.tags.optionalTags, this.metadataCache )
+
+      if ( hasRequiredTag ) {
+        // check if we have any optional tags?
+        // idk man
+      }
+
+      return hasRequiredTag
+    })
+
+    const allFilesMatchingOptionalTags = this.files.filter(( file ) => {
+      return filterMdFilesByOptionalTags( file, this.args.tags.optionalTags, this.metadataCache )
+    })
+
+    this.currentFileList = allFilesMatchingOptionalTags.filter(( file ) => {
+      return filterMdFilesByRequiredTags( file, this.args.tags.tagList, this.metadataCache )
     })
 
     logger( 'this.currentFileList', this.currentFileList )
 
     if ( !this.currentFileList || this.currentFileList.length === 0 ) {
       logger( 'No files found for the timeline' )
-      await showEmptyTimelineMessage( el, Array.from( this.args.tags ))
+      await showEmptyTimelineMessage( el, Array.from( [...this.args.tags.tagList, ...this.args.tags.optionalTags] ))
       return
     }
 

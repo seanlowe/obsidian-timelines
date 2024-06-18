@@ -98,6 +98,11 @@ export interface InternalTimelineArgs {
   zoomOutLimit: number,
 }
 
+export interface ParsedTagObject {
+  tagList: string[],
+  optionalTags: string[],
+}
+
 export interface TimelinesSettings {
   eventElement: AcceptableEventElements,
   frontMatterKeys: FrontMatterKeys,
