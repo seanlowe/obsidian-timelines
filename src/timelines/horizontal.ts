@@ -1,4 +1,4 @@
-import { AllNotesData, CardContainer, EventItem } from '../types'
+import { CardContainer, EventItem, HorizontalTimelineInput } from '../types'
 import { buildTimelineDate, createInternalLinkOnNoteCard, handleColor, logger } from '../utils'
 
 // Horizontal (Vis-Timeline) specific imports
@@ -14,10 +14,14 @@ import { DataSet } from 'vis-data'
    * @param el - the element to append the timeline to
    */
 export async function buildHorizontalTimeline(
-  timelineDiv: HTMLElement,
-  timelineNotes: AllNotesData,
-  timelineDates: string[],
-  el: HTMLElement
+  {
+    args,
+    div: timelineDiv,
+    dates: timelineDates,
+    el,
+    notes: timelineNotes,
+    settings,
+  }: HorizontalTimelineInput
 ) {
   // Create a DataSet
   const items = new DataSet( [] )
@@ -49,8 +53,8 @@ export async function buildHorizontalTimeline(
       createInternalLinkOnNoteCard( event, noteCard )
       noteCard.createEl( 'p', { text: event.body })
 
-      const start = buildTimelineDate( event.startDate, parseInt( this.settings.maxDigits ))
-      const end = buildTimelineDate( event.endDate, parseInt( this.settings.maxDigits ))
+      const start = buildTimelineDate( event.startDate, parseInt( settings.maxDigits ))
+      const end = buildTimelineDate( event.endDate, parseInt( settings.maxDigits ))
 
       if (
         start.toString() === 'Invalid Date' ||
@@ -79,17 +83,17 @@ export async function buildHorizontalTimeline(
 
   // Configuration for the Timeline
   const options = {
-    start: this.args.startDate,
-    end: this.args.endDate,
-    min: this.args.minDate,
-    max: this.args.maxDate,
-    minHeight: this.args.divHeight,
+    start: args.startDate,
+    end: args.endDate,
+    min: args.minDate,
+    max: args.maxDate,
+    minHeight: args.divHeight,
     showCurrentTime: false,
     showTooltips: false,
-    zoomMin: this.args.zoomInLimit,
-    zoomMax: this.args.zoomOutLimit,
+    zoomMin: args.zoomInLimit,
+    zoomMax: args.zoomOutLimit,
     template: ( item: EventItem ) => {
-      const eventContainer = document.createElement( this.settings.notePreviewOnHover ? 'a' : 'div' )
+      const eventContainer = document.createElement( settings.notePreviewOnHover ? 'a' : 'div' )
       if ( 'href' in eventContainer ) {
         eventContainer.addClass( 'internal-link' )
         eventContainer.href = item.path

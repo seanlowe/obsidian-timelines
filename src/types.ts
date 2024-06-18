@@ -21,18 +21,6 @@ export interface CleanedDateResultObject {
   year: number
 }
 
-export interface InternalTimelineArgs {
-  divHeight: number,
-  endDate: Date,
-  maxDate: Date,
-  minDate: Date,
-  startDate: Date,
-  tags: string[],
-  type: string | null,
-  zoomInLimit: number,
-  zoomOutLimit: number,
-}
-
 export interface CardContainer {
   id: string,
   body: string,
@@ -89,6 +77,27 @@ export interface GetFileDataInput {
   fileCache: MetadataCache | null,
 }
 
+export interface HorizontalTimelineInput {
+  args: InternalTimelineArgs,
+  dates: string[],
+  div: HTMLElement,
+  el: HTMLElement,
+  notes: AllNotesData,
+  settings: TimelinesSettings,
+}
+
+export interface InternalTimelineArgs {
+  divHeight: number,
+  endDate: Date,
+  maxDate: Date,
+  minDate: Date,
+  startDate: Date,
+  tags: string[],
+  type: string | null,
+  zoomInLimit: number,
+  zoomOutLimit: number,
+}
+
 export interface TimelinesSettings {
   eventElement: AcceptableEventElements,
   frontMatterKeys: FrontMatterKeys,
@@ -103,6 +112,6 @@ export interface TimelinesSettings {
 /*              Types             */
 /* ------------------------------ */
 
-export type AllNotesData = (CardContainer[])[]
+export type AllNotesData = ( CardContainer[] )[]
 export type DivWithCalcFunc = HTMLDivElement & { calcLength?: () => void }
 export type EventCountData = ( HTMLElement | FrontMatterCache | null )[]

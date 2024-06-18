@@ -1,7 +1,7 @@
 import type { TFile, MetadataCache, Vault } from 'obsidian'
 
 import { buildHorizontalTimeline, buildVerticalTimeline, showEmptyTimelineMessage } from './timelines'
-import { AllNotesData, CardContainer, InternalTimelineArgs, TimelinesSettings } from './types'
+import { AllNotesData, CardContainer, HorizontalTimelineInput, InternalTimelineArgs, TimelinesSettings } from './types'
 import {
   buildTimelineDate,
   createTagList,
@@ -189,8 +189,6 @@ export class TimelineBlockProcessor {
     }
   }
 
-  
-
   async run(
     source: string,
     el: HTMLElement,
@@ -228,9 +226,19 @@ export class TimelineBlockProcessor {
     timelineDiv.setAttribute( 'class', 'timeline' )
 
     switch ( this.args.type ) {
-    case 'flat':
-      await buildHorizontalTimeline( timelineDiv, timelineNotes, sortedTimelineDates, el )
+    case 'flat': {
+      const requiredData: HorizontalTimelineInput = {
+        args: this.args,
+        dates: sortedTimelineDates,
+        div: timelineDiv,
+        el,
+        notes: timelineNotes,
+        settings: this.settings,
+      }
+
+      await buildHorizontalTimeline( requiredData )
       return
+    }
     default:
       await buildVerticalTimeline( timelineDiv, timelineNotes, sortedTimelineDates, el )
       return
