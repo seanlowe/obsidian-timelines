@@ -1,11 +1,13 @@
-import type { TFile, MetadataCache, Vault } from 'obsidian'
+import type { MetadataCache, TFile, Vault } from 'obsidian'
 
 import { buildHorizontalTimeline, buildVerticalTimeline, showEmptyTimelineMessage } from './timelines'
 import { AllNotesData, CardContainer, HorizontalTimelineInput, InternalTimelineArgs, TimelinesSettings } from './types'
 import {
   buildTimelineDate,
-  createTagList,
+  cleanDate,
   convertEntryToMilliseconds,
+  createTagList,
+  filterMdFiles,
   getEventData,
   getEventsInFile,
   getImgUrl,
@@ -15,9 +17,6 @@ import {
   normalizeDate,
   setDefaultArgs,
   sortTimelineDates,
-  cleanDate,
-  filterMdFilesByOptionalTags,
-  filterMdFilesByRequiredTags,
 } from './utils'
 
 export class TimelineBlockProcessor {
@@ -114,7 +113,7 @@ export class TimelineBlockProcessor {
 
         const {
           color: initialColor,
-          endDate,
+          endDate: initialEndDate,
           era,
           eventImg,
           noteBody,
@@ -126,6 +125,7 @@ export class TimelineBlockProcessor {
         } = eventData
 
         const color = initialColor === 'grey' ? 'gray' : initialColor
+        const endDate = initialEndDate !== '' ? initialEndDate : startDate
 
         if ( tags ) {
           logger( 'this note contains override tags' )
@@ -160,6 +160,10 @@ export class TimelineBlockProcessor {
         logger( 'noteId', noteId )
 
         const imgUrl = getImgUrl( this.appVault, eventImg )
+
+        if ( !endDate ) {
+          console.warn( 'kjahsdkjahdkjhakdhasdaskdjhka', { endDate, startDate, initialEndDate })
+        }
 
         const { cleanedDateString: cleanedStartDate } = cleanDate( normalizeDate( startDate ))
         const { cleanedDateString:  cleanedEndDate  } = cleanDate( normalizeDate(  endDate  ))
@@ -201,29 +205,25 @@ export class TimelineBlockProcessor {
     logger( 'this.args', this.args )
 
     logger( '# of files and tags', { fileCount: this.files.length, tags: this.args.tags })
-    // Filter all markdown files to only those containing the tag list
 
-    this.currentFileList = this.files.filter(( file ) => {
-      const hasRequiredTag = filterMdFilesByRequiredTags( file, this.args.tags.tagList, this.metadataCache )
-      const hasOptionalTag = filterMdFilesByOptionalTags( file, this.args.tags.optionalTags, this.metadataCache )
-
-      if ( hasRequiredTag ) {
-        // check if we have any optional tags?
-        // idk man
-      }
-
-      return hasRequiredTag
+    // filter to all files that have any of the optional tags
+    const filesWithOptionalTags = this.files.filter(( file ) => {
+      return filterMdFiles( file, this.args.tags.optionalTags, this.metadataCache, true )
     })
 
-    const allFilesMatchingOptionalTags = this.files.filter(( file ) => {
-      return filterMdFilesByOptionalTags( file, this.args.tags.optionalTags, this.metadataCache )
+    // filter through the files with the correct optional tags 
+    // to those that also have the required tags
+    const filesWithRequiredTags = filesWithOptionalTags.filter(( file ) => {
+      return filterMdFiles( file, this.args.tags.tagList, this.metadataCache, false )
     })
-
-    this.currentFileList = allFilesMatchingOptionalTags.filter(( file ) => {
-      return filterMdFilesByRequiredTags( file, this.args.tags.tagList, this.metadataCache )
+    
+    this.currentFileList = filesWithRequiredTags
+    
+    logger( 'tagged file objects', {
+      filesWithOptionalTags,
+      filesWithRequiredTags,
+      current: this.currentFileList
     })
-
-    logger( 'this.currentFileList', this.currentFileList )
 
     if ( !this.currentFileList || this.currentFileList.length === 0 ) {
       logger( 'No files found for the timeline' )

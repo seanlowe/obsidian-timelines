@@ -7,7 +7,7 @@ import {
   Vault,
   normalizePath
 } from 'obsidian'
-import { CardContainer, ParsedTagObject } from '../types'
+import { CardContainer } from '../types'
 import { logger } from './debug'
 import { parseTag } from './arguments'
 
@@ -18,6 +18,7 @@ export * from './debug'
 export * from './events'
 export * from './frontmatter'
 
+
 /**
  * Filter markdown files by tag
  *
@@ -26,66 +27,40 @@ export * from './frontmatter'
  * @param {MetadataCache} metadataCache - See Obsidian's {@link MetadataCache}
  * @returns {boolean} true if file contains all tags in tagList, false otherwise
  */
-export function filterMdFilesByRequiredTags( file: TFile, tagList: string[], metadataCache: MetadataCache ): boolean {
-  if ( !tagList || tagList.length === 0 ) {
+export function filterMdFiles( file: TFile, tags: string[], metadataCache: MetadataCache, parseOptional: boolean ): boolean {
+  if ( !tags || tags.length === 0 ) {
     return true
   }
 
   const rawTags = getAllTags( metadataCache.getFileCache( file ))
   logger( `rawTags from file: ${file.name}:`, rawTags )
 
-  const tags = rawTags.map(( e ) => {
-    // remove "#"
-    return e.slice( 1 )
+  const mappedTags = rawTags.map(( e ) => {
+    return e.slice( 1 ) // removes the "#"
   })
-  logger( `getAllTags from file: ${file.name}:`, tags )
 
-  if ( !tags.length ) {
+  logger( `getAllTags from file: ${file.name}:`, mappedTags )
+  if ( !mappedTags.length ) {
     return false
   }
 
   const fileTags: string[] = []
-  tags.forEach(( tag ) => {
+  mappedTags.forEach(( tag ) => {
     return parseTag( tag, fileTags )
   })
 
-  return tagList.every(( val ) => {
-    logger( `testing val: ${val}`, fileTags.includes( String( val )))
-    return fileTags.includes( String( val ))
-  })
-}
-
-export const filterMdFilesByOptionalTags = (
-  file: TFile,
-  optionalTags: string[],
-  metadataCache: MetadataCache
-): boolean => {
-  if ( !optionalTags || optionalTags.length === 0 ) {
-    return true
+  if ( parseOptional ) {
+    return tags.some(( val ) => {
+      logger( `testing optional val: ${val}`, fileTags.includes( String( val )))
+      return fileTags.includes( String( val ))
+    })
+  } else {
+    return tags.every(( val ) => {
+      logger( `testing required val: ${val}`, fileTags.includes( String( val )))
+      return fileTags.includes( String( val ))
+    })
   }
 
-  const rawTags = getAllTags( metadataCache.getFileCache( file ))
-  logger( `rawTags from file: ${file.name}:`, rawTags )
-
-  const tags = rawTags.map(( e ) => {
-    // remove "#"
-    return e.slice( 1 )
-  })
-  logger( `getAllTags from file: ${file.name}:`, tags )
-
-  if ( !tags.length ) {
-    return false
-  }
-
-  const fileTags: string[] = []
-  tags.forEach(( tag ) => {
-    return parseTag( tag, fileTags )
-  })
-
-  return tagList.every(( val ) => {
-    logger( `testing val: ${val}`, fileTags.includes( String( val )))
-    return fileTags.includes( String( val ))
-  })
 }
 
 /**

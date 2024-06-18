@@ -92,7 +92,7 @@ export interface InternalTimelineArgs {
   maxDate: Date,
   minDate: Date,
   startDate: Date,
-  tags: string[],
+  tags: ParsedTagObject,
   type: string | null,
   zoomInLimit: number,
   zoomOutLimit: number,

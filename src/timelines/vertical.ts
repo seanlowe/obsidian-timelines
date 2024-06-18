@@ -38,11 +38,14 @@ export async function buildVerticalTimeline(
       cls: 'timeline-event-list',
       attr: { 'style': 'display: block' }
     })
-
-    const noteHdrs = [noteDivs[0].createEl( 'h2', {
-      attr: { 'style' : `text-align: ${align};` },
-      text: datedTo[0]
-    })]
+    
+    const noteHdrs: HTMLHeadingElement[] = []
+    if ( noteDivs !== undefined ) {
+      noteHdrs.push( noteDivs[0].createEl( 'h2', {
+        attr: { 'style' : `text-align: ${align};` },
+        text: datedTo[0]
+      }))
+    }
 
     for ( const note of timelineNotes[date] ) {
       const { endDate: endDateString, era } = note
@@ -60,28 +63,36 @@ export async function buildVerticalTimeline(
 
       const dated = endDateString + ( era ?? '' )
       const lastTimelineDate = buildTimelineDate( noteDivs.last().getAttribute( 'timeline-date' ))
-      if ( !datedTo[1] || endDate > lastTimelineDate ) {
+      if ( !datedTo[1] || endDate > lastTimelineDate && endDate !== startDate ) {
         datedTo[1] = datedTo[0] + ' to ' + dated
       }
 
-      const noteDiv = timeline.createDiv(
-        { cls: ['timeline-container', `timeline-${align}`, 'timeline-tail'] }, 
-        ( div ) => {
-          div.style.setProperty( '--timeline-indent', '0' )
-          div.setAttribute( 'timeline-date', endDateString )
-        }
-      )
-      
-      const noteHdr = noteDiv.createEl( 'h2', {
-        attr: { 'style' : `text-align: ${align};` },
-        text: dated
-      })
+      let noteDiv: HTMLDivElement
+      if ( endDate > startDate ) {
+        noteDiv = timeline.createDiv(
+          { cls: ['timeline-container', `timeline-${align}`, 'timeline-tail'] }, 
+          ( div ) => {
+            div.style.setProperty( '--timeline-indent', '0' )
+            div.setAttribute( 'timeline-date', endDateString )
+          }
+        )
+      }
 
-      noteHdrs.push( noteHdr )
-      noteDivs.push( noteDiv )
+      if ( noteDiv !== undefined ) {
+        noteHdrs.push( noteDiv.createEl( 'h2', {
+          attr: { 'style' : `text-align: ${align};` },
+          text: dated
+        }))
+
+        noteDivs.push( noteDiv )
+      }
+
       for ( const n of noteDivs ) {
-        const timelineDate = buildTimelineDate( n.getAttribute( 'timeline-date' ))
+        if ( !n ) {
+          continue
+        }
 
+        const timelineDate = buildTimelineDate( n.getAttribute( 'timeline-date' ))
         if ( timelineDate > endDate ) {
           n.before( noteDiv )
         }
@@ -91,6 +102,9 @@ export async function buildVerticalTimeline(
            and the length of the vertical segment that spans between the displayed dates. If this value is not recalculated
            then these elements will not be responsive to layout changes. */
       ( noteDivs.last() as DivWithCalcFunc ).calcLength = () => {
+        const noteDiv = noteDivs[noteDivs.length - 1]
+        const noteHdr = noteHdrs[noteHdrs.length - 1]
+
         const axisMin = noteDivs[0].getBoundingClientRect().top
         const axisMax = noteDiv    .getBoundingClientRect().top
         const spanMin = noteHdrs[0].getBoundingClientRect().top

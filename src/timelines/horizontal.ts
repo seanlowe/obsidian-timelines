@@ -54,7 +54,12 @@ export async function buildHorizontalTimeline(
       noteCard.createEl( 'p', { text: event.body })
 
       const start = buildTimelineDate( event.startDate, parseInt( settings.maxDigits ))
-      const end = buildTimelineDate( event.endDate, parseInt( settings.maxDigits ))
+      let end: Date | null
+      if ( !event.endDate ) {
+        end = start
+      } else {
+        end = buildTimelineDate( event.endDate, parseInt( settings.maxDigits ))
+      }
 
       if (
         start.toString() === 'Invalid Date' ||
