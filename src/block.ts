@@ -95,6 +95,15 @@ export class TimelineBlockProcessor {
       combinedEventsAndFrontMatter.forEach(( event ) => {
         let eventData = null
 
+        if ( !isHTMLElementType( event ) && Object.keys( event ).length < 3 ) {
+          console.warn(
+            'parseFiles | event has fewer than 3 keys. Required keys for Frontmatter events are:',
+            [ 'startDate', 'endDate', 'showOnTimeline' ]
+          )      
+
+          return
+        }
+
         eventData = getEventData( event, file, this.settings.frontMatterKeys )
         if ( !eventData ) {
           console.warn( `malformed eventData, skipping event in file: ${file.name}`, { event, eventData })

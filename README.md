@@ -21,13 +21,14 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
-### v2.2.1
+### v2.2.2
 
-Fix issue: `Flat timeline doesn't render.` [#60](https://github.com/seanlowe/obsidian-timelines/issues/60)
+Fix issue: `[Bug - Horizontal] Perfectly functional timelines, but countless notifications of "no date found for ___.md" (for each event), everytime I open the timeline note.` [#68](https://github.com/seanlowe/obsidian-timelines/issues/68)
 
 **Changes:**
-- pass additional parameters to `buildHorizontalTimeline` that are now required due to being in its own file
-- create interface type for the input to `buildHorizontalTimeline`
+- add check to make sure a frontmatter "event" makes sense before trying to retrieve event data from it
+
+Also includes some improvements to debugging logs so that it's easier to find the information needed.
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
