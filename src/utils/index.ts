@@ -27,17 +27,18 @@ export * from './frontmatter'
  * @returns {boolean} true if file contains all tags in tagList, false otherwise
  */
 export function filterMDFiles( file: TFile, tagList: string[], metadataCache: MetadataCache ): boolean {
+  logger( 'filterMDFiles | -----------------' )
   if ( !tagList || tagList.length === 0 ) {
     return true
   }
 
   const rawTags = getAllTags( metadataCache.getFileCache( file ))
-  logger( `rawTags from file: ${file.name}:`, rawTags )
+  logger( `filterMDFiles | rawTags from file: ${file.name}:`, rawTags )
 
   const tags = rawTags.map(( e ) => {
     return e.slice( 1 )
   })
-  logger( `getAllTags from file: ${file.name}:`, tags )
+  logger( `filterMDFiles | getAllTags from file: ${file.name}:`, tags )
 
   if ( !tags.length ) {
     return false
@@ -49,7 +50,7 @@ export function filterMDFiles( file: TFile, tagList: string[], metadataCache: Me
   })
 
   return tagList.every(( val ) => {
-    logger( `testing val: ${val}`, fileTags.includes( String( val )))
+    logger( `filterMDFiles | testing val: ${val}`, fileTags.includes( String( val )))
     return fileTags.includes( String( val ))
   })
 }
