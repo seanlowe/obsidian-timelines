@@ -1,5 +1,13 @@
 ## Changelog
 
+### v2.2.1
+
+Fix issue: `Flat timeline doesn't render.` [#60](https://github.com/seanlowe/obsidian-timelines/issues/60)
+
+**Changes:**
+- pass additional parameters to `buildHorizontalTimeline` that are now required due to being in its own file
+- create interface type for the input to `buildHorizontalTimeline`
+
 ### v2.2.0
 
 Implement Issue: `Feature suggestion, time spans in vertical timelines` [#52](https://github.com/seanlowe/obsidian-timelines/issues/52): Added support for time spanning events in vertical timelines
