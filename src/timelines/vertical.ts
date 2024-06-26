@@ -1,4 +1,4 @@
-import { AllNotesData, DivWithCalcFunc } from '../types'
+import { AllNotesData, CardContainer, DivWithCalcFunc } from '../types'
 import { buildTimelineDate, createInternalLinkOnNoteCard, handleColor } from '../utils'
 
 /**
@@ -18,17 +18,25 @@ export async function buildVerticalTimeline(
   let eventCount = 0
   // Build the timeline html element
   for ( const date of timelineDates ) {
-    const align   = eventCount % 2 === 0 ? 'left' : 'right'
-    const datedTo = [ timelineNotes[date][0].startDate.replace( /-0*$/g, '' )
-                  + ( timelineNotes[date][0].era ? ` ${timelineNotes[date][0].era}` : '' )
-    ]
+    // determine what side of the timeline an event should render
+    const align = eventCount % 2 === 0 ? 'left' : 'right'
+
+    const notes: CardContainer[] = timelineNotes[date]
+    if ( !notes ) {
+      continue 
+    }
+
+    const firstNote: CardContainer = notes[0]
+
+    // build out the date byline for events
+    const datedTo = [ firstNote.startDate.replace( /-0*$/g, '' ) + ( firstNote.era ? ` ${firstNote.era}` : '' ) ]
 
     const noteDivs = [
       timeline.createDiv(
         { cls: ['timeline-container', `timeline-${align}`] }, 
         ( div ) => {
           div.style.setProperty( '--timeline-indent', '0' )
-          div.setAttribute( 'timeline-date', timelineNotes[date][0].startDate )
+          div.setAttribute( 'timeline-date', firstNote.startDate )
           div.setAttribute( 'collapsed', 'false' )
         }
       )
@@ -47,7 +55,7 @@ export async function buildVerticalTimeline(
       }))
     }
 
-    for ( const note of timelineNotes[date] ) {
+    for ( const note of notes ) {
       const { endDate: endDateString, era } = note
       const startDate = buildTimelineDate( note.startDate )
       const endDate = buildTimelineDate( endDateString )
@@ -113,6 +121,23 @@ export async function buildVerticalTimeline(
         noteDivs[0].style.setProperty( '--timeline-span-length', `${axisMax - axisMin}px` )
         noteDiv    .style.setProperty( '--timeline-span-length', `${spanMax - spanMin}px` )
       }
+
+      const noteCard = eventsDiv.createDiv({ cls: 'timeline-card' })
+      // add an image only if available
+      if ( note.img ) {
+        noteCard.createDiv({
+          cls: 'thumb',
+          attr: { style: `background-image: url(${note.img});` }
+        })
+      }
+
+      if ( note.color ) {
+        // todo : add more support for other custom classes
+        handleColor( note.color, noteCard, note.id )
+      }
+
+      createInternalLinkOnNoteCard( note, noteCard )
+      note.body && noteCard.createEl( 'p', { text: note.body.trim() })
     }
 
     noteDivs[0].addEventListener( 'click', ( event ) => {
@@ -123,6 +148,7 @@ export async function buildVerticalTimeline(
       for ( const p of noteDivs[0].getElementsByTagName( 'p' )) {
         p.setCssProps({ 'display': collapsed ? 'none' : 'block' })
       }
+
       /* If this event has a duration (and thus has an end note), we hide all elements between the start and end
          note along with the end note itself */
       if ( noteDivs.length > 0 ) {
@@ -163,29 +189,6 @@ export async function buildVerticalTimeline(
       currentStyle.setProperty( 'display', 'none' )
     })*/
 
-    if ( !timelineNotes[date] ) {
-      continue 
-    }
-
-    for ( const eventAtDate of timelineNotes[date] ) {
-      const noteCard = eventsDiv.createDiv({ cls: 'timeline-card' })
-      // add an image only if available
-      if ( eventAtDate.img ) {
-        noteCard.createDiv({
-          cls: 'thumb',
-          attr: { style: `background-image: url(${eventAtDate.img});` }
-        })
-      }
-
-      if ( eventAtDate.color ) {
-        // todo : add more support for other custom classes
-        handleColor( eventAtDate.color, noteCard, eventAtDate.id )
-      }
-
-      createInternalLinkOnNoteCard( eventAtDate, noteCard )
-      eventAtDate.body && noteCard.createEl( 'p', { text: eventAtDate.body.trim() })
-    }
-
     /* If the previous note is of class 'timeline-tail' then there's a chance that the current node belongs nested within
        the previous one. Here we iterate backwards for as long as elements of the class 'timeline-tail' are encountered.
 
@@ -193,17 +196,18 @@ export async function buildVerticalTimeline(
        previous event. If the index of the ending date of the previous event in the new array is greater than 0 then the
        note(s) preceding it (either the note belonging to the start date or the notes belonging to both the start and end
        dates of the current event) are placed before their predecessor. */
-    for ( let s = [...timeline.children],i = s.indexOf( noteDivs[0] ); s[i-1]?.classList.contains( 'timeline-tail' ); i-- ) {
-      const t = s[i-1].getAttribute( 'timeline-date' )
+    const allTimelineChildren = [...timeline.children]
+    for ( let i = allTimelineChildren.indexOf( noteDivs[0] ); allTimelineChildren[i-1]?.classList.contains( 'timeline-tail' ); i-- ) {
+      const t = allTimelineChildren[i-1].getAttribute( 'timeline-date' )
       const times = [
         t,
-        ...noteDivs.map(( n ) => {
-          return n.getAttribute( 'timeline-date' )
+        ...noteDivs.map(( note ) => {
+          return note.getAttribute( 'timeline-date' )
         })
       ]
 
       const lastTIndex = times.sort().lastIndexOf( t )
-      for ( let j = lastTIndex; j > 0; s[i-1].before( ...noteDivs.slice( 0, j )), j = 0 ) {
+      for ( let j = lastTIndex; j > 0; allTimelineChildren[i-1].before( ...noteDivs.slice( 0, j )), j = 0 ) {
         const indent = +noteDivs[0].style.getPropertyValue( '--timeline-indent' ) + 1
         noteDivs.forEach(( n ) => {
           n.style.setProperty( '--timeline-indent', `${ indent }` )
