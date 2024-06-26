@@ -127,7 +127,7 @@ export const buildTimelineDate = (
     returnDate = new Date( luxonDateString )
   }
 
-  logger( 'date variables inside of buildTimelineDate', {
+  logger( 'buildTimelineDate | date variables', {
     rawDate,
     normalizedDate,
     cleanedDateString,

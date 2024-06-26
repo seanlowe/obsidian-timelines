@@ -96,7 +96,7 @@ export default class TimelinesPlugin extends Plugin {
 
   onFileOpen = async () => {
     if ( !this.commands ) {
-      logger( 'Command processor was not initialized' )
+      logger( 'main | Command processor was not initialized' )
 
       await this.initialize()
     }

@@ -33,7 +33,7 @@ export async function getNumEventsInFile(
 ): Promise<EventTypeNumbers> {
   let combinedEventsAndFrontMatter = eventData
   if ( !combinedEventsAndFrontMatter ) {
-    logger( 'no eventData, getting events from file' )
+    logger( 'getNumEventsInFile | no eventData, getting events from file' )
     const { file, appVault, fileCache } = getFileData ?? {}
     combinedEventsAndFrontMatter = await getEventsInFile( file, appVault, fileCache )
   }
@@ -42,7 +42,7 @@ export async function getNumEventsInFile(
   const frontMatter = combinedEventsAndFrontMatter.filter( isFrontMatterCacheType )
   const events = combinedEventsAndFrontMatter.filter( isHTMLElementType )
 
-  logger( 'events & frontmatter', { events, frontMatter })
+  logger( 'getNumEventsInFile | events & frontmatter', { events, frontMatter })
   const numFrontMatter = frontMatter.length
   const numEvents = events.length
 
@@ -68,7 +68,7 @@ export const getEventsInFile = async (
     fileEvents.push( frontMatterData )
   }
 
-  logger( 'fileEvents', fileEvents )
+  logger( 'getEventsInFile | fileEvents', fileEvents )
 
   return fileEvents
 }
@@ -78,6 +78,7 @@ export const getEventData = (
   file: TFile,
   frontMatterKeys: FrontMatterKeys,
 ): EventDataObject | null => {
+  logger( 'getEventData | function starting for eventObject:', eventObject )
   const startDate = retrieveEventValue(
     eventObject, 'startDate', null, frontMatterKeys?.startDateKey
   )
@@ -137,6 +138,7 @@ const retrieveHTMLValue = (
   datasetKey: string,
   defaultValue: string | null,
 ): string | null => {
+  logger( 'retrieveHTMLValue | datasetKey:', datasetKey )
   const result = event.dataset[datasetKey]
 
   return result ?? defaultValue
@@ -148,7 +150,7 @@ const retrieveFrontMatterValue = (
   defaultValue: string | null,
   frontMatterKeys?: string[] | null,
 ): string | null => {
-  logger( 'in retrieveFrontMatterValue w/ datasetKet', datasetKey )
+  logger( 'retrieveFrontMatterValue | datasetKey:', datasetKey )
   const result = event[datasetKey]
     ?? findMatchingFrontMatterKey( event, frontMatterKeys )
 
