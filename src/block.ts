@@ -95,13 +95,22 @@ export class TimelineBlockProcessor {
       combinedEventsAndFrontMatter.forEach(( event ) => {
         let eventData = null
 
+        if ( !isHTMLElementType( event ) && Object.keys( event ).length < 3 ) {
+          console.warn(
+            'parseFiles | event has fewer than 3 keys. Required keys for Frontmatter events are:',
+            [ 'startDate', 'endDate', 'showOnTimeline' ]
+          )      
+
+          return
+        }
+
         eventData = getEventData( event, file, this.settings.frontMatterKeys )
         if ( !eventData ) {
           console.warn( `malformed eventData, skipping event in file: ${file.name}`, { event, eventData })
           return
         }
 
-        logger( 'eventData', eventData )
+        logger( 'parseFiles | eventData', eventData )
 
         if ( numEvents && !isHTMLElementType( event ) && eventData?.showOnTimeline !== true ) {
           console.warn(
@@ -128,21 +137,21 @@ export class TimelineBlockProcessor {
         const endDate = initialEndDate !== '' ? initialEndDate : startDate
 
         if ( tags ) {
-          logger( 'this note contains override tags' )
+          logger( 'parseFiles | this note contains override tags' )
           // frontmatter tags come through as an array,
           // HTML override tags are a semi-colon separated string
           const noteTags = typeof tags === 'string' ? tags?.split( ';' ) : tags
 
-          logger( 'noteTags:', noteTags )
-          logger( 'this.args.tags:', this.args.tags )
+          logger( 'parseFiles | noteTags:', noteTags )
+          logger( 'parseFiles | this.args.tags:', this.args.tags )
 
           let overrideTagsAreContainedInTagList = false
           for ( const rawTag of noteTags ) {
             const tag = rawTag.trim().replace( '#', '' )
-            logger( 'examining tag:', tag )
+            logger( 'parseFiles | examining tag:', tag )
             // loop over all the override tags and if any of them are in the tag list, add it
             if ( this.args.tags.tagList.includes( tag ) || this.args.tags.optionalTags.includes( tag )) {
-              logger( 'Override tags overlap with tag list, adding note' )
+              logger( 'parseFiles | Override tags overlap with tag list, adding note' )
               overrideTagsAreContainedInTagList = true
               continue
             }
@@ -150,14 +159,14 @@ export class TimelineBlockProcessor {
 
           // if the override tags do not overlap with the tag list, do not display this note
           if ( !overrideTagsAreContainedInTagList ) {
-            logger( 'Override tags do not overlap with tag list, skipping note' )
+            logger( 'parseFiles | Override tags do not overlap with tag list, skipping note' )
             return
           }
         }
 
         // check if a valid date is specified
         const noteId = normalizeDate( startDate, parseInt( this.settings.maxDigits ))
-        logger( 'noteId', noteId )
+        logger( 'parseFiles | noteId', noteId )
 
         const imgUrl = getImgUrl( this.appVault, eventImg )
 
@@ -188,7 +197,7 @@ export class TimelineBlockProcessor {
           // if note_id already present prepend or append to it
           timelineNotes[noteId][this.settings.sortDirection ? 'unshift' : 'push']( note )
 
-          logger( 'Repeat date: %o', timelineNotes[noteId] )
+          logger( 'parseFiles | Repeat date: %o', timelineNotes[noteId] )
         }
       })
     }
@@ -202,9 +211,9 @@ export class TimelineBlockProcessor {
 
     // read arguments
     await this.readArguments( source )
-    logger( 'this.args', this.args )
+    logger( 'run | this.args', this.args )
 
-    logger( '# of files and tags', { fileCount: this.files.length, tags: this.args.tags })
+    logger( 'run | # of files and tags', { fileCount: this.files.length, tags: this.args.tags })
 
     // filter to all files that have any of the optional tags
     const filesWithOptionalTags = this.files.filter(( file ) => {
@@ -219,14 +228,14 @@ export class TimelineBlockProcessor {
     
     this.currentFileList = filesWithRequiredTags
     
-    logger( 'tagged file objects', {
+    logger( 'run | tagged file objects', {
       filesWithOptionalTags,
       filesWithRequiredTags,
       current: this.currentFileList
     })
 
     if ( !this.currentFileList || this.currentFileList.length === 0 ) {
-      logger( 'No files found for the timeline' )
+      logger( 'run | No files found for the timeline' )
       await showEmptyTimelineMessage( el, Array.from( [...this.args.tags.tagList, ...this.args.tags.optionalTags] ))
       return
     }

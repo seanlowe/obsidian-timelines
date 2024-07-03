@@ -28,18 +28,19 @@ export * from './frontmatter'
  * @returns {boolean} true if file contains all tags in tagList, false otherwise
  */
 export function filterMdFiles( file: TFile, tags: string[], metadataCache: MetadataCache, parseOptional: boolean ): boolean {
+  logger( 'filterMDFiles | -----------------' )
   if ( !tags || tags.length === 0 ) {
     return true
   }
 
   const rawTags = getAllTags( metadataCache.getFileCache( file ))
-  logger( `rawTags from file: ${file.name}:`, rawTags )
+  logger( `filterMDFiles | rawTags from file: ${file.name}:`, rawTags )
 
   const mappedTags = rawTags.map(( e ) => {
     return e.slice( 1 ) // removes the "#"
   })
 
-  logger( `getAllTags from file: ${file.name}:`, mappedTags )
+  logger( `filterMDFiles | getAllTags from file: ${file.name}:`, mappedTags )
   if ( !mappedTags.length ) {
     return false
   }
@@ -51,16 +52,15 @@ export function filterMdFiles( file: TFile, tags: string[], metadataCache: Metad
 
   if ( parseOptional ) {
     return tags.some(( val ) => {
-      logger( `testing optional val: ${val}`, fileTags.includes( String( val )))
+      logger( `filterMDFiles | testing optional val: ${val}`, fileTags.includes( String( val )))
       return fileTags.includes( String( val ))
     })
   } else {
     return tags.every(( val ) => {
-      logger( `testing required val: ${val}`, fileTags.includes( String( val )))
+      logger( `filterMDFiles | testing required val: ${val}`, fileTags.includes( String( val )))
       return fileTags.includes( String( val ))
     })
   }
-
 }
 
 /**

@@ -2,7 +2,7 @@ import { FrontMatterCache } from 'obsidian'
 import { logger } from './debug'
 
 export const findMatchingFrontMatterKey = ( frontMatter: FrontMatterCache | null, keys: string[] ): string | null => {
-  logger( 'keys', keys )
+  logger( 'findMatchingFrontMatterKey | keys:', keys )
   if ( keys?.length === 1 ) {
     return frontMatter?.[keys[0]]
   }
@@ -17,6 +17,6 @@ export const findMatchingFrontMatterKey = ( frontMatter: FrontMatterCache | null
     }
   }
 
-  logger( `No matching key found for ${keys}` )
+  logger( `findMatchingFrontMatterKey | No matching key found for ${keys}` )
   return null
 }

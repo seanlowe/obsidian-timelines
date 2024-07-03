@@ -27,7 +27,7 @@ export async function buildHorizontalTimeline(
   const items = new DataSet( [] )
 
   if ( !timelineDates ) {
-    logger( 'No dates found for the timeline' )
+    logger( 'buildHorizontalTimeline | No dates found for the timeline' )
     return
   }
 

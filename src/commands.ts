@@ -24,7 +24,7 @@ export class TimelineCommandProcessor {
   }
 
   handleStatusBarUpdates = async ( plugin: TimelinesPlugin ) => {
-    logger( 'in handleStatusBarUpdates' )
+    logger( 'handleStatusBarUpdates | ' )
     if ( !this.settings.showEventCounter ) {
       // ensure the status bar item is removed
       if ( plugin.statusBarItem ) {
@@ -163,7 +163,7 @@ export class TimelineCommandProcessor {
     if ( !match || match.length === 1 ) return
 
     const tagList = `tags=${match[1]}`
-    logger( 'taglist', tagList )
+    logger( 'insertTimelineIntoCurrentNote | taglist', tagList )
 
     const div = document.createElement( 'div' )
     await this.run( tagList, div )
