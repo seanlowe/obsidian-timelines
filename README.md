@@ -21,14 +21,13 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
-### v2.2.2
 
-Fix issue: `[Bug - Horizontal] Perfectly functional timelines, but countless notifications of "no date found for ___.md" (for each event), everytime I open the timeline note.` [#68](https://github.com/seanlowe/obsidian-timelines/issues/68)
+### v2.2.3
+
+Implement issue: `[Feature] A Hotkey or command to redraw the timeline after edit` [#74](https://github.com/seanlowe/obsidian-timelines/issues/74)
 
 **Changes:**
-- add check to make sure a frontmatter "event" makes sense before trying to retrieve event data from it
-
-Also includes some improvements to debugging logs so that it's easier to find the information needed.
+- added a new command: `Reload current note`. Thanks to [dataview](https://github.com/blacksmithgu/obsidian-dataview) for adding this functionality initially and I just yoinked it for this plugin. Woot Woot MIT licensure!
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

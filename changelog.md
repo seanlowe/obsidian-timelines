@@ -1,5 +1,14 @@
 ## Changelog
 
+### v2.2.2
+
+Fix issue: `[Bug - Horizontal] Perfectly functional timelines, but countless notifications of "no date found for ___.md" (for each event), everytime I open the timeline note.` [#68](https://github.com/seanlowe/obsidian-timelines/issues/68)
+
+**Changes:**
+- add check to make sure a frontmatter "event" makes sense before trying to retrieve event data from it
+
+Also includes some improvements to debugging logs so that it's easier to find the information needed.
+
 ### v2.2.1
 
 Fix issue: `Flat timeline doesn't render.` [#60](https://github.com/seanlowe/obsidian-timelines/issues/60)
