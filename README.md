@@ -21,13 +21,12 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
+### v2.2.4
 
-### v2.2.3
-
-Implement issue: `[Feature] A Hotkey or command to redraw the timeline after edit` [#74](https://github.com/seanlowe/obsidian-timelines/issues/74)
+Fix issue: `[Bug - Vertical] collapsing an event that is not a time range changes date to "undefined"` [#67](https://github.com/seanlowe/obsidian-timelines/issues/67)
 
 **Changes:**
-- added a new command: `Reload current note`. Thanks to [dataview](https://github.com/blacksmithgu/obsidian-dataview) for adding this functionality initially and I just yoinked it for this plugin. Woot Woot MIT licensure!
+- added small sanity check when displaying the "A to B" time string on collapsed events to make sure the string actually exists
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
