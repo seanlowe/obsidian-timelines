@@ -142,6 +142,7 @@ export async function buildVerticalTimeline(
 
     noteDivs[0].addEventListener( 'click', ( event ) => {
       event.preventDefault()
+      console.log( 'clicked on an event div' )
 
       const collapsed = !JSON.parse( noteDivs[0].getAttribute( 'collapsed' ))
       noteDivs[0].setAttribute( 'collapsed', String( collapsed ))
@@ -152,7 +153,13 @@ export async function buildVerticalTimeline(
       /* If this event has a duration (and thus has an end note), we hide all elements between the start and end
          note along with the end note itself */
       if ( noteDivs.length > 0 ) {
-        noteHdrs[0].setText( collapsed ? datedTo[1] : datedTo[0] )
+        if ( !datedTo[1] ) {
+          console.log( '!datedTo[1]', { x:!datedTo[1] })
+          noteHdrs[0].setText( datedTo[0] )
+        } else {
+          noteHdrs[0].setText( collapsed ? datedTo[1] : datedTo[0] )
+        }
+
         const notes = [...timeline.children]
         const inner = notes.slice( notes.indexOf( noteDivs.first()) + 1, notes.indexOf( noteDivs.last()) + 1 )
         inner.forEach(( note: DivWithCalcFunc ) => {
@@ -174,6 +181,7 @@ export async function buildVerticalTimeline(
     })
 
 
+    // doesn't apply to vertical timelines?
     /*noteContainer[0].addEventListener( 'click', ( event ) => {
       event.preventDefault()
       const currentStyle = eventContainer.style
@@ -197,7 +205,11 @@ export async function buildVerticalTimeline(
        note(s) preceding it (either the note belonging to the start date or the notes belonging to both the start and end
        dates of the current event) are placed before their predecessor. */
     const allTimelineChildren = [...timeline.children]
-    for ( let i = allTimelineChildren.indexOf( noteDivs[0] ); allTimelineChildren[i-1]?.classList.contains( 'timeline-tail' ); i-- ) {
+    for ( 
+      let i = allTimelineChildren.indexOf( noteDivs[0] );
+      allTimelineChildren[i-1]?.classList.contains( 'timeline-tail' );
+      i--
+    ) {
       const t = allTimelineChildren[i-1].getAttribute( 'timeline-date' )
       const times = [
         t,

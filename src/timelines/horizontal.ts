@@ -53,12 +53,22 @@ export async function buildHorizontalTimeline(
       createInternalLinkOnNoteCard( event, noteCard )
       noteCard.createEl( 'p', { text: event.body })
 
+      let type: string = event.type
+      let typeOverride = false
+      let end: Date | null = null
       const start = buildTimelineDate( event.startDate, parseInt( settings.maxDigits ))
-      let end: Date | null
-      if ( !event.endDate ) {
-        end = start
-      } else {
+      if ( event.endDate && event.endDate !== '' ) {
+        console.log( 'there is an endDate for event:', event )
         end = buildTimelineDate( event.endDate, parseInt( settings.maxDigits ))
+      } else {
+        // if there is no end date, we cannot render as anything other than 'point'
+        console.log( '!! -- NO endDate for event:', event )
+        type = 'point'
+        typeOverride = true
+      }
+
+      if ( event.type === '' ) {
+        console.log( 'yeehaw' )
       }
 
       if (
@@ -75,7 +85,7 @@ export async function buildHorizontalTimeline(
         content: event.title ?? '',
         start: start,
         className: colorIsClass ? event.color ?? 'gray' : `nid-${event.id}`,
-        type: event.type,
+        type: typeOverride ? type : event.type,
         end: end ?? null,
         path: event.path,
         _event: event,
