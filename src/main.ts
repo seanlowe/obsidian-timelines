@@ -79,6 +79,21 @@ export default class TimelinesPlugin extends Plugin {
       }
     })
 
+    this.addCommand({
+      id: 'reload-open-note',
+      name: 'Reload current note',
+      checkCallback: ( checking: boolean ) => {
+        const markdownView = this.app.workspace.getActiveViewOfType( MarkdownView )
+        if ( markdownView ) {
+          if ( !checking ) {
+            this.commands.reloadNote( markdownView )
+          }
+
+          return true
+        }
+      },
+    })
+
     this.addSettingTab( new TimelinesSettingTab( this.app, this ))
 
     this.addRibbonIcon( 'code-2', 'Insert Timeline Event', async () => {
