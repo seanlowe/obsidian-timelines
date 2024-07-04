@@ -112,7 +112,7 @@ export async function buildVerticalTimeline(
       /* If this event has a duration (and thus has an end note), we hide all elements between the start and end
          note along with the end note itself */
       if ( noteDivs.length > 0 ) {
-        noteHdrs[0].setText( collapsed ? datedTo[1] : datedTo[0] )
+        noteHdrs[0].setText( collapsed && datedTo[1] ? datedTo[1] : datedTo[0] )
         const notes = [...timeline.children]
         const inner = notes.slice( notes.indexOf( noteDivs.first()) + 1, notes.indexOf( noteDivs.last()) + 1 )
         inner.forEach(( note: DivWithCalcFunc ) => {

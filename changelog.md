@@ -1,5 +1,12 @@
 ## Changelog
 
+### v2.2.3
+
+Implement issue: `[Feature] A Hotkey or command to redraw the timeline after edit` [#74](https://github.com/seanlowe/obsidian-timelines/issues/74)
+
+**Changes:**
+- added a new command: `Reload current note`. Thanks to [dataview](https://github.com/blacksmithgu/obsidian-dataview) for adding this functionality initially and I just yoinked it for this plugin. Woot Woot MIT licensure!
+
 ### v2.2.2
 
 Fix issue: `[Bug - Horizontal] Perfectly functional timelines, but countless notifications of "no date found for ___.md" (for each event), everytime I open the timeline note.` [#68](https://github.com/seanlowe/obsidian-timelines/issues/68)
