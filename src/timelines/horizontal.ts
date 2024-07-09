@@ -35,7 +35,7 @@ export async function buildHorizontalTimeline(
     // add all events at this date
     Object.values( timelineNotes[date] ).forEach(( event: CardContainer ) => {
       const noteCard = document.createElement( 'div' )
-      noteCard.className = 'timeline-card'
+      noteCard.className = 'timeline-card ' + event.classes
 
       // add an image only if available
       if ( event.img ) {
@@ -65,11 +65,13 @@ export async function buildHorizontalTimeline(
         return
       }
 
+      const initialClassName = colorIsClass ? event.color ?? 'gray' : `nid-${event.id}`
+
       const eventItem: EventItem = {
         id: items.length + 1,
         content: event.title ?? '',
         start: start,
-        className: colorIsClass ? event.color ?? 'gray' : `nid-${event.id}`,
+        className: initialClassName + ' ' + event.classes,
         type: event.type,
         end: end ?? null,
         path: event.path,
