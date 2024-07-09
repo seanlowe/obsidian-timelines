@@ -21,12 +21,13 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
-### v2.2.4
+### v2.2.5
 
-Fix issue: `[Bug - Vertical] collapsing an event that is not a time range changes date to "undefined"` [#67](https://github.com/seanlowe/obsidian-timelines/issues/67)
+Implement feature: Custom attributes on timeline nodes [#63](https://github.com/seanlowe/obsidian-timelines/issues/63)
 
 **Changes:**
-- added small sanity check when displaying the "A to B" time string on collapsed events to make sure the string actually exists
+- added a new key to a couple types to allow passing in the argument `data-classes` to HTML (just `classes` for frontmatter)
+- updated docs with information about the new key
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

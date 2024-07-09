@@ -1,4 +1,4 @@
-import { AllNotesData, DivWithCalcFunc } from '../types'
+import { AllNotesData, CardContainer, DivWithCalcFunc } from '../types'
 import { buildTimelineDate, createInternalLinkOnNoteCard, handleColor } from '../utils'
 
 /**
@@ -44,7 +44,9 @@ export async function buildVerticalTimeline(
       text: datedTo[0]
     })]
 
-    for ( const note of timelineNotes[date] ) {
+    for ( const rawNote of timelineNotes[date] ) {
+      // for confirmation of types
+      const note: CardContainer = rawNote
       const { endDate: endDateString, era } = note
       const startDate = buildTimelineDate( note.startDate )
       const endDate = buildTimelineDate( endDateString )
@@ -65,7 +67,7 @@ export async function buildVerticalTimeline(
       }
 
       const noteDiv = timeline.createDiv(
-        { cls: ['timeline-container', `timeline-${align}`, 'timeline-tail'] }, 
+        { cls: ['timeline-container', `timeline-${align}`, 'timeline-tail'] },
         ( div ) => {
           div.style.setProperty( '--timeline-indent', '0' )
           div.setAttribute( 'timeline-date', endDateString )
@@ -155,6 +157,7 @@ export async function buildVerticalTimeline(
 
     for ( const eventAtDate of timelineNotes[date] ) {
       const noteCard = eventsDiv.createDiv({ cls: 'timeline-card' })
+      noteCard.className += ` ${eventAtDate.classes}`
       // add an image only if available
       if ( eventAtDate.img ) {
         noteCard.createDiv({

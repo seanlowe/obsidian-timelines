@@ -1,5 +1,12 @@
 ## Changelog
 
+### v2.2.4
+
+Fix issue: `[Bug - Vertical] collapsing an event that is not a time range changes date to "undefined"` [#67](https://github.com/seanlowe/obsidian-timelines/issues/67)
+
+**Changes:**
+- added small sanity check when displaying the "A to B" time string on collapsed events to make sure the string actually exists
+
 ### v2.2.3
 
 Implement issue: `[Feature] A Hotkey or command to redraw the timeline after edit` [#74](https://github.com/seanlowe/obsidian-timelines/issues/74)
