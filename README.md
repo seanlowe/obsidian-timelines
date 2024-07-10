@@ -21,14 +21,13 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
-### v2.2.2
+### v2.2.5
 
-Fix issue: `[Bug - Horizontal] Perfectly functional timelines, but countless notifications of "no date found for ___.md" (for each event), everytime I open the timeline note.` [#68](https://github.com/seanlowe/obsidian-timelines/issues/68)
+Implement feature: Custom attributes on timeline nodes [#63](https://github.com/seanlowe/obsidian-timelines/issues/63)
 
 **Changes:**
-- add check to make sure a frontmatter "event" makes sense before trying to retrieve event data from it
-
-Also includes some improvements to debugging logs so that it's easier to find the information needed.
+- added a new key to a couple types to allow passing in the argument `data-classes` to HTML (just `classes` for frontmatter)
+- updated docs with information about the new key
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

@@ -91,6 +91,7 @@ export const getEventData = (
   const defaultBody    = isHTMLElementType( eventObject ) ? eventObject.innerText : ''
 
   // event parameters
+  const classes        = retrieveEventValue( eventObject, 'classes', '' )
   const color          = retrieveEventValue( eventObject, 'color', '' )
   const endDate        = retrieveEventValue(
     eventObject, 'endDate', startDate, frontMatterKeys?.endDateKey
@@ -107,6 +108,7 @@ export const getEventData = (
   const showOnTimeline = retrieveEventValue( eventObject, 'showOnTimeline', null )
 
   const eventData: EventDataObject = {
+    classes,
     color,
     endDate,
     era,

@@ -1,5 +1,28 @@
 ## Changelog
 
+### v2.2.4
+
+Fix issue: `[Bug - Vertical] collapsing an event that is not a time range changes date to "undefined"` [#67](https://github.com/seanlowe/obsidian-timelines/issues/67)
+
+**Changes:**
+- added small sanity check when displaying the "A to B" time string on collapsed events to make sure the string actually exists
+
+### v2.2.3
+
+Implement issue: `[Feature] A Hotkey or command to redraw the timeline after edit` [#74](https://github.com/seanlowe/obsidian-timelines/issues/74)
+
+**Changes:**
+- added a new command: `Reload current note`. Thanks to [dataview](https://github.com/blacksmithgu/obsidian-dataview) for adding this functionality initially and I just yoinked it for this plugin. Woot Woot MIT licensure!
+
+### v2.2.2
+
+Fix issue: `[Bug - Horizontal] Perfectly functional timelines, but countless notifications of "no date found for ___.md" (for each event), everytime I open the timeline note.` [#68](https://github.com/seanlowe/obsidian-timelines/issues/68)
+
+**Changes:**
+- add check to make sure a frontmatter "event" makes sense before trying to retrieve event data from it
+
+Also includes some improvements to debugging logs so that it's easier to find the information needed.
+
 ### v2.2.1
 
 Fix issue: `Flat timeline doesn't render.` [#60](https://github.com/seanlowe/obsidian-timelines/issues/60)

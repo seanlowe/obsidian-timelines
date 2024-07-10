@@ -1,7 +1,14 @@
 import type { MetadataCache, TFile, Vault } from 'obsidian'
 
 import { buildHorizontalTimeline, buildVerticalTimeline, showEmptyTimelineMessage } from './timelines'
-import { AllNotesData, CardContainer, HorizontalTimelineInput, InternalTimelineArgs, TimelinesSettings } from './types'
+import {
+  AllNotesData,
+  CardContainer,
+  EventDataObject,
+  HorizontalTimelineInput,
+  InternalTimelineArgs,
+  TimelinesSettings
+} from './types'
 import {
   buildTimelineDate,
   cleanDate,
@@ -87,13 +94,13 @@ export class TimelineBlockProcessor {
   async parseFiles(
     timelineNotes: AllNotesData,
     timelineDates: string[]
-  ) {
+  ): Promise<void> {
     for ( const file of this.currentFileList ) {
       const combinedEventsAndFrontMatter = await getEventsInFile( file, this.appVault, this.metadataCache )
       const { numEvents } = await getNumEventsInFile( null, combinedEventsAndFrontMatter )
 
       combinedEventsAndFrontMatter.forEach(( event ) => {
-        let eventData = null
+        let eventData: EventDataObject | null = null
 
         if ( !isHTMLElementType( event ) && Object.keys( event ).length < 3 ) {
           console.warn(
@@ -121,6 +128,7 @@ export class TimelineBlockProcessor {
         }
 
         const {
+          classes,
           color: initialColor,
           endDate: initialEndDate,
           era,
@@ -179,6 +187,7 @@ export class TimelineBlockProcessor {
 
         const note: CardContainer = {
           id: noteId,
+          classes,
           color,
           endDate: cleanedEndDate,
           era,

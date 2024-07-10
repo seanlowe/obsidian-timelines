@@ -53,16 +53,21 @@ For statically generated timelines, events that occur at the same time are group
 - Optional
 - If a title is not specified, the name of the note will be used
 
-## Description (`data-description`)
-- Optional
-- Redundant; If a description is not specified, the `innerText` of the `div`/`span` will be used. If neither are populated, the body of the event will be empty.
-
 ## Background Image (`data-img`)
   - Optional
   - If an image is not specified, no image will be shown (just text)
   - If an invalid url is given, an empty black section will be seen for that note card
 
 Note: Currently only assets specified via `http` or `absolute local path` will render. Obsidian release `v0.10.13` blocked obsidian links for background images. 
+
+## Classes (`data-classes`):
+  - Optional
+  - A list of classes to append to an event item's class list. There is no indication that these classes are added until you create an obsidian CSS snippet (or something similar) to define the styling rules for that class.
+  - This works pretty much as expected on vertical timelines. On horizontal timelines, however, if you want your class to affect the text of the event, you need to make sure you have your class selector as such: `.your-fancy-new-class > div > div > a`. This is due to how `vis-timeline` creates its elements.
+
+## Description (`data-description`)
+- Optional
+- Redundant; If a description is not specified, the `innerText` of the `div`/`span` will be used. If neither are populated, the body of the event will be empty.
 
 ## Era (`data-era`)
   - Optional
@@ -76,16 +81,6 @@ Note: Currently only assets specified via `http` or `absolute local path` will r
 
 Note: If a value is not supplied, events will be colored `white` (or `gray` for background events) on the timeline.
 
-## Type (`data-type`)
-  - Optional
-  - Tells the timeline what type of event to display for this entry.
-
-Note: Acceptable values for `data-type` are:
-  - `background`, best used for time periods
-  - `box`
-  - `point`, which is exactly what it sounds like, and
-  - `range`
-
 ## Path (`data-path`)
   - Optional
   - An alternate path to link the title to (excluding `[[` and `]]`). Default to the note the event is defined in, but you can use this to specify other notes or link to headers or blocks internally within the note. For example, `data-path='My Note#Event Subhead'` would link directly to the `Event Subhead` header in `My Note`
@@ -96,3 +91,12 @@ Note: Acceptable values for `data-type` are:
   - An override to the tags that the event should be counted with. Allows you to have a note with events on separate timelines. For example, 1 event has tag "A" and a second has tag "B". A combined timeline will display both, but now you can also have 2 separate timelines where only the applicable ("A" or "B") events will be displayed.
   - Values are a string of tags separated by semicolons, similar to the tags list on either of the codeblocks for displaying timelines. Ex: `data-tags="timeline-A;timeline-B"`
 
+## Type (`data-type`)
+  - Optional
+  - Tells the timeline what type of event to display for this entry.
+
+Note: Acceptable values for `data-type` are:
+  - `background`, best used for time periods
+  - `box`
+  - `point`, which is exactly what it sounds like, and
+  - `range`

@@ -1,9 +1,17 @@
-import { Vault, MetadataCache, MarkdownView, Workspace } from 'obsidian'
+import { Vault, MetadataCache, MarkdownView, Workspace, WorkspaceLeaf } from 'obsidian'
 
 import { RENDER_TIMELINE } from './constants'
 import TimelinesPlugin from './main'
 import { TimelinesSettings } from './types'
 import { confirmUserInEditor, getNumEventsInFile, logger } from './utils'
+
+// link to dataview code:
+// https://github.com/blacksmithgu/obsidian-dataview/blob/15b8d527e3d5822c5ef9bfd23f528a64769d545b/src/main.ts#L126C8-L139
+
+// credit: blacksmithgu/obsidian-dataview, main.ts lines 126-128 (as of 7/4/24)
+interface WorkspaceLeafRebuild extends WorkspaceLeaf {
+  rebuildView(): void;
+}
 
 export class TimelineCommandProcessor {
   appVault: Vault
@@ -181,5 +189,13 @@ export class TimelineCommandProcessor {
       { ch: lastCommentStartIndex - 1, line: 1 },
       source
     )
+  }
+
+
+  reloadNote = ( view: MarkdownView ) => {
+    // credit: blacksmithgu/obsidian-dataview, main.ts lines 135-137 (as of 7/4/24)
+    if ( view ) {
+      ( view.leaf as WorkspaceLeafRebuild ).rebuildView()
+    }
   }
 }

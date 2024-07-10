@@ -24,6 +24,7 @@ export interface CleanedDateResultObject {
 export interface CardContainer {
   id: string,
   body: string,
+  classes: string,
   color: string,
   endDate: string,
   era: string,
@@ -35,6 +36,7 @@ export interface CardContainer {
 }
 
 export interface EventDataObject {
+  classes: string,
   color: string,
   endDate: string,
   era: string,
