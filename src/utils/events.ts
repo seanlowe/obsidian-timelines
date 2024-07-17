@@ -87,7 +87,10 @@ export const getEventData = (
     return null
   }
 
+  // defaults
   const defaultBody    = isHTMLElementType( eventObject ) ? eventObject.innerText : ''
+
+  // event parameters
   const classes        = retrieveEventValue( eventObject, 'classes', '' )
   const color          = retrieveEventValue( eventObject, 'color', '' )
   const endDate        = retrieveEventValue(
@@ -119,6 +122,7 @@ export const getEventData = (
     type
   }
 
+  logger( 'getEventData | full event:', { eventData })
   return eventData
 }
 
@@ -143,7 +147,11 @@ const retrieveHTMLValue = (
   logger( 'retrieveHTMLValue | datasetKey:', datasetKey )
   const result = event.dataset[datasetKey]
 
-  return result ?? defaultValue
+  if ( !result || result === '' ) {
+    return defaultValue
+  }
+
+  return result
 }
 
 const retrieveFrontMatterValue = (

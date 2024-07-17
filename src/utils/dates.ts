@@ -12,7 +12,10 @@ import { CleanedDateResultObject } from '../types'
  * 
  * @returns {CleanedDateResultObject}
  */
-export const cleanDate = ( normalizedDate: string ): CleanedDateResultObject => {
+export const cleanDate = ( normalizedDate: string ): CleanedDateResultObject | null => {
+  if ( !normalizedDate ) {
+    return null
+  }
   const isNegative = normalizedDate[0] === '-'
   const parts = normalizedDate.slice( 1 ).split( '-' )
 
