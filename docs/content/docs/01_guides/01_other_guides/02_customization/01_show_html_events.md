@@ -17,6 +17,7 @@ Timeline span and div entries (.ob-timelines class) are hidden in preview by def
   display: inline-block !important;
   font-style: italic;
 }
+
 /* Use the before pseudo element to display attributes of the span or div */
 .ob-timelines::before {
   content: "🔖 " attr(data-start-date) ": " attr(data-title) ".";

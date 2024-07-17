@@ -21,13 +21,13 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
-### v2.2.5
+### v2.2.6
 
-Implement feature: Custom attributes on timeline nodes [#63](https://github.com/seanlowe/obsidian-timelines/issues/63)
+Bug Fix for: `Custom attributes on timeline nodes` [#63](https://github.com/seanlowe/obsidian-timelines/issues/63)
 
 **Changes:**
-- added a new key to a couple types to allow passing in the argument `data-classes` to HTML (just `classes` for frontmatter)
-- updated docs with information about the new key
+- added the correct changes to the `insert event` commands so that events inserted that way have all the applicable attributes.
+- added a new page in the docs for understanding how to add custom classes to your timeline events.
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

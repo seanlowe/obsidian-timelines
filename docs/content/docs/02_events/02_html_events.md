@@ -19,7 +19,7 @@ Examples of HTML events:
   data-img='absolute/path/to/image.png'
   data-type='background'
 >
-	Some Time Period that only lasted 10 days
+  Some Time Period that only lasted 10 days
 </span>
 
 <div
@@ -29,7 +29,7 @@ Examples of HTML events:
   data-title='Another Event'
   data-type='range'
 >
-	A minimal event
+  A minimal event
 </div>
 ```
 
@@ -39,14 +39,15 @@ A timeline entry can be created using `span` or `div` HTML elements (`div` is th
 
 ```html
 <div class="ob-timelines"
-	data-title=""
-	data-color=""
-	data-type=""
-	data-start-date=""
-	data-end-date=""
-	data-era=""
-	data-path=""
-	data-tags=""
+  data-title=""
+  data-classes=""
+  data-color=""
+  data-type=""
+  data-start-date=""
+  data-end-date=""
+  data-era=""
+  data-path=""
+  data-tags=""
 > some content </div>
 ```
 
