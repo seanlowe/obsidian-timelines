@@ -1,5 +1,13 @@
 ## Changelog
 
+### v2.2.5
+
+Implement feature: Custom attributes on timeline nodes [#63](https://github.com/seanlowe/obsidian-timelines/issues/63)
+
+**Changes:**
+- added a new key to a couple types to allow passing in the argument `data-classes` to HTML (just `classes` for frontmatter)
+- updated docs with information about the new key
+
 ### v2.2.4
 
 Fix issue: `[Bug - Vertical] collapsing an event that is not a time range changes date to "undefined"` [#67](https://github.com/seanlowe/obsidian-timelines/issues/67)

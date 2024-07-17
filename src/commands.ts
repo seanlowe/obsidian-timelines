@@ -104,6 +104,7 @@ export class TimelineCommandProcessor {
     newEventElement.setAttribute( 'class', 'ob-timelines' )
     newEventElement.setAttribute( 'data-title', '' )
     newEventElement.setAttribute( 'data-description', '' )
+    newEventElement.setAttribute( 'data-classes', '' )
     newEventElement.setAttribute( 'data-color', '' )
     newEventElement.setAttribute( 'data-type', '' )
     newEventElement.setAttribute( 'data-start-date', '' )
@@ -134,6 +135,7 @@ export class TimelineCommandProcessor {
     const frontmatterJson = {
       title: '',
       description: '',
+      classes: '',
       color: '',
       type: '',
       startDate: '',
@@ -191,7 +193,11 @@ export class TimelineCommandProcessor {
     )
   }
 
-
+  /**
+   * Reload the current note without having to reload the entire application.
+   *
+   * @param {MarkdownView} view - the current view (the note, it's just the note.)
+   */
   reloadNote = ( view: MarkdownView ) => {
     // credit: blacksmithgu/obsidian-dataview, main.ts lines 135-137 (as of 7/4/24)
     if ( view ) {
