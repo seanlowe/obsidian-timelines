@@ -1,4 +1,5 @@
 import type { TFile, MetadataCache, Vault } from 'obsidian'
+import { Notice } from 'obsidian'
 
 import { buildHorizontalTimeline, buildVerticalTimeline, showEmptyTimelineMessage } from './timelines'
 import {
@@ -200,8 +201,23 @@ export class TimelineBlockProcessor {
           normalizedEndDate = ''
         }
 
-        const { cleanedDateString: cleanedStartDate } = cleanDate( noteId )
-        const { cleanedDateString:  cleanedEndDate  } = cleanDate( normalizedEndDate )
+        const cleanedStartDateObject = cleanDate( noteId )
+        const cleanedEndDateObject   = cleanDate( normalizedEndDate )
+
+        if ( !cleanedStartDateObject ) {
+          const message = 'get fucked, no start date object'
+          new Notice( message )
+          throw new Error( message )
+        }
+
+        if ( !cleanedEndDateObject ) {
+          const message = 'get fucked, no end date object'
+          new Notice( message )
+          throw new Error( message )
+        }
+
+        const { cleanedDateString: cleanedStartDate } = cleanedStartDateObject
+        const { cleanedDateString:  cleanedEndDate  } = cleanedEndDateObject
 
         const note: CardContainer = {
           id: noteId,

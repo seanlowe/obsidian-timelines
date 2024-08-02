@@ -1,5 +1,11 @@
 import { AllNotesData, CardContainer, DivWithCalcFunc } from '../types'
-import { buildTimelineDate, createInternalLinkOnNoteCard, handleColor, normalizeAndCleanDate } from '../utils'
+import {
+  buildMinimizedDateString,
+  buildTimelineDate,
+  createInternalLinkOnNoteCard,
+  handleColor,
+  // normalizeAndCleanDate
+} from '../utils'
 
 /**
    * Build a vertical timeline
@@ -18,46 +24,52 @@ export async function buildVerticalTimeline(
   let eventCount = 0
   // Build the timeline html element
   for ( const date of timelineDates ) {
-    const align   = eventCount % 2 === 0 ? 'left' : 'right'
-
-    const firstDate = timelineNotes[date][0]
-    // const datedTo = [ firstDate.startDate.replace( /-0*$/g, '' ) + ( firstDate.era ? ` ${firstDate.era}` : '' )]
-    const normalizedAndCleanedDateObject = normalizeAndCleanDate( firstDate.startDate )
-    if ( !normalizedAndCleanedDateObject ) {
-      throw new Error( `Could not normalize and/or clean the date: ${firstDate}` )
+    if ( !timelineNotes[date] ) {
+      continue
     }
 
-    console.log({ normalizedAndCleanedDateObject })
-    const { cleanedDateString: datedFrom } = normalizedAndCleanedDateObject
-    const datedTo = [ datedFrom + ( firstDate.era ? ` ${firstDate.era}` : '' )]
+    const align = eventCount % 2 === 0 ? 'left' : 'right'
 
-    const noteDivs = [
-      timeline.createDiv(
-        { cls: ['timeline-container', `timeline-${align}`] }, 
-        ( div ) => {
-          div.style.setProperty( '--timeline-indent', '0' )
-          div.setAttribute( 'timeline-date', firstDate.startDate )
-          div.setAttribute( 'collapsed', 'false' )
-        }
-      )
-    ]
+    const firstNote = timelineNotes[date][0]
+    const firstDate = firstNote.startDate
+    const {
+      readable: readableStartDate,
+      // cleaned: datedFrom,
+      normalized: normalizedStartDate,
+    } = buildMinimizedDateString( firstDate )
+    const datedTo = [ readableStartDate + ( firstDate.era ? ` ${firstDate.era}` : '' )]
 
-    const eventsDiv = noteDivs[0].createDiv({
+    const noteDivs: HTMLDivElement[] = []
+    const containerDiv = timeline.createDiv(
+      { cls: ['timeline-container', `timeline-${align}`] },
+      ( div ) => {
+        div.style.setProperty( '--timeline-indent', '0' )
+        div.setAttribute( 'timeline-date', normalizedStartDate ) // should this be the normalizedDate rather than the cleaned Date?
+        // div.setAttribute( 'timeline-date', datedFrom ) // should this be the normalizedDate rather than the cleaned Date?
+        // div.setAttribute( 'timeline-date', firstDate.startDate )
+        div.setAttribute( 'collapsed', 'false' )
+      }
+    )
+
+    noteDivs.push( containerDiv )
+
+    const eventsDiv = containerDiv.createDiv({
       cls: 'timeline-event-list',
-      attr: { 'style': 'display: block' }
+      attr: { style: 'display: block' }
     })
 
-    const noteHdrs = [noteDivs[0].createEl( 'h2', {
-      attr: { 'style' : `text-align: ${align};` },
-      text: datedTo[0]
-    })]
+    containerDiv.createEl( 'h2', {
+      attr: { style: `text-align: ${align};` },
+      text: readableStartDate
+      // text: firstDate
+    })
 
     for ( const rawNote of timelineNotes[date] ) {
       // for confirmation of types
       const note: CardContainer = rawNote
-      const { endDate: endDateString, era } = note
-      const startDate = buildTimelineDate( note.startDate )
-      let endDate: Date | null | string = buildTimelineDate( endDateString )
+      const { endDate: end, era, startDate: start, type } = note
+      const startDate: Date | null | string = buildTimelineDate( start )
+      let endDate: Date | null | string     = buildTimelineDate( end )
 
       if ( !startDate ) {
         console.error( "Couldn't build a start date for timeline on vertical timeline" )
@@ -68,85 +80,94 @@ export async function buildVerticalTimeline(
         endDate = ''
       }
 
-      // skip events that are of type 'box' or 'point', or if the endDate exists and is invalid
-      if ( ['box', 'point'].includes( note.type ) || endDate < startDate ) {
+      // skip events that are of type 'box' or 'point', or if the endDate is invalid
+      if ( ['box', 'point'].includes( type ) || endDate < startDate  || !noteDivs ) {
         continue
       }
 
-      if ( !noteDivs[0].classList.contains( 'timeline-head' )) {
-        noteDivs[0].classList.add( 'timeline-head' ) 
+      if ( !containerDiv.classList.contains( 'timeline-head' )) {
+        containerDiv.classList.add( 'timeline-head' )
       }
 
-      if ( !noteDivs ) {
-        continue
-      }
+      const {
+        readable: readableEndDate,
+        // cleaned: cleanedEndDate,
+        normalized: normalizedEndDate
+      } = buildMinimizedDateString( end )
+      const endDateFormatted = readableEndDate + ( era ? ` ${era}` : '' )
 
-      const dated = endDateString + ( era ?? '' )
-      const lastTimelineDate = buildTimelineDate( noteDivs.last()!.getAttribute( 'timeline-date' ))
+
+      const lastTimelineDate = buildTimelineDate( noteDivs[noteDivs.length - 1].getAttribute( 'timeline-date' ))
       if ( !lastTimelineDate ) {
         console.error( "There's no last timeline date" )
-        continue
+        continue // change to break?
       }
+
       if ( !datedTo[1] || endDate > lastTimelineDate ) {
-        datedTo[1] = datedTo[0] + ' to ' + dated
+        datedTo[1] = `${datedTo[0]} to ${endDateFormatted}`
       }
 
       const noteDiv = timeline.createDiv(
         { cls: ['timeline-container', `timeline-${align}`, 'timeline-tail'] },
         ( div ) => {
           div.style.setProperty( '--timeline-indent', '0' )
-          div.setAttribute( 'timeline-date', endDateString )
+          div.setAttribute( 'timeline-date', normalizedEndDate )
+          // div.setAttribute( 'timeline-date', cleanedEndDate )
+          // div.setAttribute( 'timeline-date', end )
         }
       )
-      
-      const noteHdr = noteDiv.createEl( 'h2', {
-        attr: { 'style' : `text-align: ${align};` },
-        text: dated
+
+      noteDiv.createEl( 'h2', {
+        attr: { style: `text-align: ${align};` },
+        text: endDateFormatted
       })
-
-      noteHdrs.push( noteHdr )
       noteDivs.push( noteDiv )
-      for ( const n of noteDivs ) {
-        const timelineDate = buildTimelineDate( n.getAttribute( 'timeline-date' ))
 
+      for ( let i = noteDivs.length - 2; i >= 0; i-- ) {
+        const timelineDate = buildTimelineDate( noteDivs[i].getAttribute( 'timeline-date' ))
         if ( timelineDate && ( timelineDate > endDate )) {
-          n.before( noteDiv )
+          noteDivs[i].before( noteDiv )
         }
       }
 
       /* The CSS 'timeline-timespan-length' determines both the length of the event timeline widget on the timeline,
            and the length of the vertical segment that spans between the displayed dates. If this value is not recalculated
            then these elements will not be responsive to layout changes. */
-      ( noteDivs.last() as DivWithCalcFunc ).calcLength = () => {
-        const axisMin = noteDivs[0].getBoundingClientRect().top
-        const axisMax = noteDiv    .getBoundingClientRect().top
-        const spanMin = noteHdrs[0].getBoundingClientRect().top
-        const spanMax = noteHdr    .getBoundingClientRect().top
+      ( noteDiv as DivWithCalcFunc ).calcLength = () => {
+        const axisMin = containerDiv.getBoundingClientRect().top
+        const axisMax = noteDiv.getBoundingClientRect().top
+        const spanMin = containerDiv.querySelector( 'h2' )?.getBoundingClientRect().top ?? 0
+        const spanMax = noteDiv.querySelector( 'h2' )?.getBoundingClientRect().top ?? 0
 
-        noteDivs[0].style.setProperty( '--timeline-span-length', `${axisMax - axisMin}px` )
-        noteDiv    .style.setProperty( '--timeline-span-length', `${spanMax - spanMin}px` )
+        containerDiv.style.setProperty( '--timeline-span-length', `${axisMax - axisMin}px` )
+        noteDiv     .style.setProperty( '--timeline-span-length', `${spanMax - spanMin}px` )
       }
     }
 
-    noteDivs[0].addEventListener( 'click', ( event ) => {
+    containerDiv.addEventListener( 'click', ( event ) => {
       event.preventDefault()
 
-      const collapsed = !JSON.parse( noteDivs[0].getAttribute( 'collapsed' ) ?? '{}' )
-      noteDivs[0].setAttribute( 'collapsed', String( collapsed ))
-      for ( const p of noteDivs[0].getElementsByTagName( 'p' )) {
-        p.setCssProps({ 'display': collapsed ? 'none' : 'block' })
-      }
+      const collapsed = !JSON.parse( containerDiv.getAttribute( 'collapsed' ) ?? '{}' )
+      containerDiv.setAttribute( 'collapsed', String( collapsed ))
+
+      Array.from( containerDiv.getElementsByTagName( 'p' )).forEach(( p ) => {
+        p.style.display = collapsed ? 'none' : 'block'
+      })
+
       /* If this event has a duration (and thus has an end note), we hide all elements between the start and end
          note along with the end note itself */
-      if ( noteDivs.length > 0 ) {
-        noteHdrs[0].setText( collapsed && datedTo[1] ? datedTo[1] : datedTo[0] )
-        const notes: Element[] = [...timeline.children]
-        const inner = notes.slice( 
-          notes.indexOf( noteDivs.first() as Element ) + 1,
-          notes.indexOf( noteDivs.last() as Element ) + 1
-        )
+      if ( noteDivs.length > 1 ) {
+        const h2 = containerDiv.querySelector( 'h2' )
+        if ( !h2 ) {
+          return
+        }
 
-        inner.forEach(( note: DivWithCalcFunc ) => {
+        h2.innerText = collapsed && datedTo[1] ? datedTo[1] : datedTo[0]
+        const innerNotes = Array.from( timeline.children ).slice(
+          Array.from( timeline.children ).indexOf( noteDivs[0] ) + 1,
+          Array.from( timeline.children ).indexOf( noteDivs[noteDivs.length - 1] ) + 1
+        )
+        innerNotes.forEach(( note: DivWithCalcFunc ) => {
           note.style.display = collapsed ? 'none' : 'block'
           note.calcLength?.()
         })
@@ -155,12 +176,14 @@ export async function buildVerticalTimeline(
       /* The CSS '--timeline-indent' variable allows for scaling down the event when contained within another event,
          but in this case it also tells us how many time spanning events have had their length altered as a consequence
          of this note's mutation. */
-      let nested = +noteDivs[0].style.getPropertyValue( '--timeline-indent' ) + noteDivs.length - 1
-      for ( let f = 'nextElementSibling', sibling = noteDivs[0][f]; nested > 0; sibling = sibling[f] ) {
+      let nested = +containerDiv.style.getPropertyValue( '--timeline-indent' ) + noteDivs.length - 1
+      let sibling = containerDiv.nextElementSibling
+      while ( nested > 0 && sibling ) {
         if ( sibling.classList.contains( 'timeline-tail' )) {
-          sibling.calcLength?.()
+          ( sibling as DivWithCalcFunc ).calcLength?.()
           nested--
         }
+        sibling = sibling.nextElementSibling
       }
     })
 
@@ -180,14 +203,14 @@ export async function buildVerticalTimeline(
       currentStyle.setProperty( 'display', 'none' )
     })*/
 
-    if ( !timelineNotes[date] ) {
-      continue 
-    }
-
     for ( const eventAtDate of timelineNotes[date] ) {
       const noteCard = eventsDiv.createDiv({ cls: 'timeline-card' })
-      noteCard.className += ` ${eventAtDate.classes}`
-      // add an image only if available
+      createInternalLinkOnNoteCard( eventAtDate, noteCard )
+
+      if ( eventAtDate.classes ) {
+        noteCard.classList.add( eventAtDate.classes )
+      }
+
       if ( eventAtDate.img ) {
         noteCard.createDiv({
           cls: 'thumb',
@@ -195,13 +218,14 @@ export async function buildVerticalTimeline(
         })
       }
 
+      // todo : add more support for other custom classes
       if ( eventAtDate.color ) {
-        // todo : add more support for other custom classes
         handleColor( eventAtDate.color, noteCard, eventAtDate.id )
       }
 
-      createInternalLinkOnNoteCard( eventAtDate, noteCard )
-      eventAtDate.body && noteCard.createEl( 'p', { text: eventAtDate.body.trim() })
+      if ( eventAtDate.body ) {
+        noteCard.createEl( 'p', { text: eventAtDate.body.trim() })
+      }
     }
 
     /* If the previous note is of class 'timeline-tail' then there's a chance that the current node belongs nested within
@@ -211,25 +235,26 @@ export async function buildVerticalTimeline(
        previous event. If the index of the ending date of the previous event in the new array is greater than 0 then the
        note(s) preceding it (either the note belonging to the start date or the notes belonging to both the start and end
        dates of the current event) are placed before their predecessor. */
-    for ( let s = [...timeline.children],i = s.indexOf( noteDivs[0] ); s[i-1]?.classList.contains( 'timeline-tail' ); i-- ) {
-      const t = s[i-1].getAttribute( 'timeline-date' )
-      const times = [
-        t,
-        ...noteDivs.map(( n ) => {
-          return n.getAttribute( 'timeline-date' )
-        })
-      ]
+    for ( let i = noteDivs.length - 2; i >= 0; i-- ) {
+      if ( noteDivs[i].classList.contains( 'timeline-tail' )) {
+        const t = noteDivs[i].getAttribute( 'timeline-date' )
+        const times = [t, ...noteDivs.map(( n ) => {
+          return n.getAttribute( 'timeline-date' ) 
+        })].sort()
+        const lastTIndex = times.lastIndexOf( t )
 
-      const lastTIndex = times.sort().lastIndexOf( t )
-      for ( let j = lastTIndex; j > 0; s[i-1].before( ...noteDivs.slice( 0, j )), j = 0 ) {
-        const indent = +noteDivs[0].style.getPropertyValue( '--timeline-indent' ) + 1
-        noteDivs.forEach(( n ) => {
-          n.style.setProperty( '--timeline-indent', `${ indent }` )
-        })
+        for ( let j = lastTIndex; j > 0; j = 0 ) {
+          noteDivs[i].before( ...noteDivs.slice( 0, j ))
+          const indent = +noteDivs[0].style.getPropertyValue( '--timeline-indent' ) + 1
+          noteDivs.forEach(( n ) => {
+            return n.style.setProperty( '--timeline-indent', `${indent}` ) 
+          })
+        }
       }
     }
 
     eventCount++
+    console.log({ datedTo })
   }
 
   // Replace the selected tags with the timeline html

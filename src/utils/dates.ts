@@ -4,19 +4,84 @@ import { logger } from './debug'
 import { DEFAULT_SETTINGS } from '../constants'
 import { CleanedDateResultObject } from '../types'
 
-const makeSureDateSectionIsNotZero = ( section: string, sectionValue: number, defaultValue: number ): number => {
-  if ( section !== 'year' && sectionValue === 0 ) {
-    return defaultValue
+interface MinimizedResult {
+  readable: string,
+  cleaned: string,
+  normalized: string,
+}
+
+interface NormalizeAndCleanDateOutput extends CleanedDateResultObject {
+  normalizedDate: string
+}
+
+export const buildMinimizedDateString = ( str: string ): MinimizedResult => {
+  const normalizedAndCleaned = normalizeAndCleanDate( str )
+  if ( !normalizedAndCleaned ) {
+    throw new Error( `Could not normalize and/or clean the date: ${str}` )
   }
 
-  switch (section) {
-    case 'year'
+  const { cleanedDateString: cleaned, normalizedDate: normalized } = normalizedAndCleaned
+  const readable = minimizeDateString( cleaned )
+
+  const result: MinimizedResult = {
+    readable,
+    cleaned,
+    normalized,
   }
 
-  // const year  = numParts[0] * ( isNegative ? -1 : 1 )
-  // const month = ( numParts[1] ?? 1 ) - ( numParts[0] !== 0 ? 1 : 0 )
-  // const day   = numParts[2]
-  // const hour  = numParts[3] ?? 1
+  return result
+}
+
+/** 
+ * @param dateString
+ * 
+ * @returns {string}
+ */
+const minimizeDateString = ( dateString: string ): string => {
+  const chars = Array.from( dateString )
+
+  let isNegative = false
+  if ( chars[0] === '-' ) {
+    isNegative = true
+  }
+
+  let sections: string[] = []
+  if ( isNegative ) {
+    sections = chars.slice( 1, chars.length ).join( '' ).split( '-' )
+  } else {
+    sections = chars.join( '' ).split( '-' )
+  }
+
+  if ( !sections.length ) {
+    throw new Error( 'idk man' )
+  }
+
+  // 0 is year
+  // 1 is month
+  // 2 is day
+  // 3 is hour
+
+  console.log( 'before', { sections })
+
+  // we always at least have the year
+  const remainingSections: string[] = [ (( isNegative ? '-' : '' ) + sections[0] ) ]
+  for ( let i = 1; i < 4; i++ ) {
+    // if whatever section we're looking at is invalid, skip
+    if ( [0, -1].includes( parseInt( sections[i] ))) {
+      continue
+    }
+
+    // if we're looking at hour but day is not set, skip
+    if ( i === 3 && parseInt( sections[i - 1] ) < 1 ) {
+      continue
+    }
+
+    remainingSections.push( sections[i] )
+  }
+
+  console.log( 'remaining', { remainingSections })
+
+  return remainingSections.join( '-' )
 }
 
 /**
@@ -55,10 +120,6 @@ export const cleanDate = ( normalizedDate: string ): CleanedDateResultObject | n
   return resultObject
 }
 
-interface NormalizeAndCleanDateOutput extends CleanedDateResultObject {
-  normalizedDate: string
-}
-
 export const normalizeAndCleanDate = (
   date: string | null,
   maxDigits: number = parseInt( DEFAULT_SETTINGS.maxDigits )
@@ -78,7 +139,6 @@ export const normalizeAndCleanDate = (
     normalizedDate
   }
 }
-
 
 /**
  * Takes a date string and normalizes it so there are always 4 sections, each the length specified by maxDigits
@@ -104,14 +164,7 @@ export const normalizeDate = (
     date = date.substring( 1 )
   }
 
-  console.log( 'normalizeDate', { date })
   const sections = date.split( '-' )
-
-  sections.forEach((section, index) => {
-    if (parseInt(section) === 0) {
-      // sections.splice(index, 1) // doesn't work because could cause sections to get out of order
-    }
-  })
 
   // cases:
   // 4 sections: YYYY-MM-DD-HH (perfect, send it off as is)
@@ -150,12 +203,6 @@ export const buildTimelineDate = (
   rawDate: string | null,
   maxDigits?: number
 ): Date | null => {
-  // const normalizedDate = normalizeDate( rawDate, maxDigits ?? parseInt( DEFAULT_SETTINGS.maxDigits ))
-  // if ( !normalizedDate ) {
-  //   return null
-  // }
-  
-  // const cleanedDateObject = cleanDate( normalizedDate )
   const normalizedAndCleanedDateObject = normalizeAndCleanDate( rawDate, maxDigits )
   if ( !normalizedAndCleanedDateObject ) {
     return null
