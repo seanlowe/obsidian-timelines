@@ -27,7 +27,10 @@ const makeSureDateSectionIsNotZero = ( section: string, sectionValue: number, de
  * 
  * @returns {CleanedDateResultObject}
  */
-export const cleanDate = ( normalizedDate: string ): CleanedDateResultObject => {
+export const cleanDate = ( normalizedDate: string ): CleanedDateResultObject | null => {
+  if ( normalizedDate === null ) {
+    return null
+  }
   const isNegative = normalizedDate[0] === '-'
   const parts = normalizedDate.slice( 1 ).split( '-' )
 
