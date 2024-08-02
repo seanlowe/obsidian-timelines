@@ -99,7 +99,17 @@ export class TimelineBlockProcessor {
       const combinedEventsAndFrontMatter = await getEventsInFile( file, this.appVault, this.metadataCache )
       const { numEvents } = await getNumEventsInFile( null, combinedEventsAndFrontMatter )
 
+      if ( !combinedEventsAndFrontMatter ) {
+        // skip this loop
+        continue
+      }
+
       combinedEventsAndFrontMatter.forEach(( event ) => {
+        if ( !event ) {
+          // skip this loop
+          return
+        }
+
         let eventData: EventDataObject | null = null
 
         if ( !isHTMLElementType( event ) && Object.keys( event ).length < 3 ) {
@@ -177,8 +187,21 @@ export class TimelineBlockProcessor {
 
         const imgUrl = getImgUrl( this.appVault, eventImg )
 
-        const { cleanedDateString: cleanedStartDate } = cleanDate( normalizeDate( startDate ))
-        const { cleanedDateString:  cleanedEndDate  } = cleanDate( normalizeDate(  endDate  ))
+        // normalizedStartDate is the same as noteId
+        let normalizedEndDate   = normalizeDate(  endDate  )
+
+        if ( !noteId ) {
+          console.error( "Cannot normalize the event's start date! Skipping" ) 
+          return
+        }
+
+        if ( !normalizedEndDate ) {
+          console.log( 'get fucked' )
+          normalizedEndDate = ''
+        }
+
+        const { cleanedDateString: cleanedStartDate } = cleanDate( noteId )
+        const { cleanedDateString:  cleanedEndDate  } = cleanDate( normalizedEndDate )
 
         const note: CardContainer = {
           id: noteId,

@@ -16,6 +16,7 @@
     "module": "ESNext",
     "moduleResolution": "node",
     // "noImplicitAny": true,
+    "strictNullChecks": true,
     "target": "es6",
   },
   "include": [

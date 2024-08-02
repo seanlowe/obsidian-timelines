@@ -1,4 +1,5 @@
 import { FrontMatterCache, MetadataCache, TFile, Vault } from 'obsidian'
+import { DataItem } from 'vis-timeline'
 
 /* ------------------------------ */
 /*              Enums             */
@@ -54,7 +55,7 @@ export interface EventItem {
   id: number,
   className: string,
   content: string,
-  end: Date,
+  end: Date | undefined,
   path: string,
   start: Date,
   type: string,
@@ -115,5 +116,6 @@ export interface TimelinesSettings {
 /* ------------------------------ */
 
 export type AllNotesData = ( CardContainer[] )[]
+export type CombinedTimelineEventData = EventItem & DataItem
 export type DivWithCalcFunc = HTMLDivElement & { calcLength?: () => void }
 export type EventCountData = ( HTMLElement | FrontMatterCache | null )[]

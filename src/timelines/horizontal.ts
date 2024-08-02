@@ -1,5 +1,11 @@
-import { CardContainer, EventItem, HorizontalTimelineInput } from '../types'
-import { buildTimelineDate, createInternalLinkOnNoteCard, handleColor, logger } from '../utils'
+import { CardContainer, CombinedTimelineEventData, EventItem, HorizontalTimelineInput } from '../types'
+import {
+  buildCombinedTimelineDataObject,
+  buildTimelineDate,
+  createInternalLinkOnNoteCard,
+  handleColor,
+  logger
+} from '../utils'
 
 // Horizontal (Vis-Timeline) specific imports
 import { Timeline } from 'vis-timeline/esnext'
@@ -24,7 +30,9 @@ export async function buildHorizontalTimeline(
   }: HorizontalTimelineInput
 ) {
   // Create a DataSet
-  const items = new DataSet( [] )
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // const items = new DataSet<any>( [] )
+  const items = new DataSet<CombinedTimelineEventData>( [] )
 
   if ( !timelineDates ) {
     logger( 'buildHorizontalTimeline | No dates found for the timeline' )
@@ -54,11 +62,16 @@ export async function buildHorizontalTimeline(
       noteCard.createEl( 'p', { text: event.body })
 
       const start = buildTimelineDate( event.startDate, parseInt( settings.maxDigits ))
+      if ( !start ) {
+        console.error( "Couldn't build the starting timeline date for the horizontal timeline" )
+        return
+      }
+
       const end = buildTimelineDate( event.endDate, parseInt( settings.maxDigits ))
 
       if (
         start.toString() === 'Invalid Date' ||
-          ( [ 'range', 'background' ].includes( event.type ) && end.toString() === 'Invalid Date' )
+          ( [ 'range', 'background' ].includes( event.type ) && end?.toString() === 'Invalid Date' )
       ) {
         console.warn( 'Invalid start or end date - check for Month/Day values that are 0', { start, end, event })
 
@@ -73,13 +86,15 @@ export async function buildHorizontalTimeline(
         start: start,
         className: initialClassName + ' ' + event.classes,
         type: event.type,
-        end: end ?? null,
+        end: end ?? undefined,
         path: event.path,
         _event: event,
       }
 
+      const timelineItem: CombinedTimelineEventData = buildCombinedTimelineDataObject( eventItem )
+
       // Add Event data
-      items.add( eventItem )
+      items.add( timelineItem )
     })
   })
 
@@ -119,7 +134,9 @@ export async function buildHorizontalTimeline(
     const event = items.get( props.item ) as unknown as EventItem
     const newClass = event.className + ' runtime-hover'
     document.documentElement.style.setProperty( '--hoverHighlightColor', event._event?.color ?? 'white' )
-    items.updateOnly( [{ ...event, className: newClass }] )
+    const timelineItem = buildCombinedTimelineDataObject( event, { className: newClass })
+    // const timelineItem = convertEventItemToDataItem({ ...event, className: newClass })
+    items.updateOnly( [timelineItem] )
 
     return () => {
       timeline.off( 'itemover' )
@@ -129,7 +146,9 @@ export async function buildHorizontalTimeline(
   timeline.on( 'itemout', ( props ) => {
     const event = items.get( props.item ) as unknown as EventItem
     const newClass = event.className.split( ' runtime-hover' )[0]
-    items.updateOnly( [{ ...event, className: newClass }] )
+    const timelineItem = buildCombinedTimelineDataObject( event, { className: newClass })
+    // const timelineItem = convertEventItemToDataItem({ ...event, className: newClass })
+    items.updateOnly( [timelineItem] )
 
     return () => {
       timeline.off( 'itemout' )

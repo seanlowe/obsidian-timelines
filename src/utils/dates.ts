@@ -4,6 +4,21 @@ import { logger } from './debug'
 import { DEFAULT_SETTINGS } from '../constants'
 import { CleanedDateResultObject } from '../types'
 
+const makeSureDateSectionIsNotZero = ( section: string, sectionValue: number, defaultValue: number ): number => {
+  if ( section !== 'year' && sectionValue === 0 ) {
+    return defaultValue
+  }
+
+  switch (section) {
+    case 'year'
+  }
+
+  // const year  = numParts[0] * ( isNegative ? -1 : 1 )
+  // const month = ( numParts[1] ?? 1 ) - ( numParts[0] !== 0 ? 1 : 0 )
+  // const day   = numParts[2]
+  // const hour  = numParts[3] ?? 1
+}
+
 /**
  * Take a normalizedDate and clean it of leading zeros, the return all the various
  * parts needed for buildTimelineDate
@@ -22,7 +37,7 @@ export const cleanDate = ( normalizedDate: string ): CleanedDateResultObject => 
   
   const cleanedDateString = isNegative ? '-' + numParts.join( '-' ) : numParts.join( '-' )
   const year  = numParts[0] * ( isNegative ? -1 : 1 )
-  const month = ( numParts[1] ?? 1 ) - 1
+  const month = ( numParts[1] ?? 1 ) - ( numParts[0] !== 0 ? 1 : 0 )
   const day   = numParts[2]
   const hour  = numParts[3] ?? 1
 
@@ -37,6 +52,31 @@ export const cleanDate = ( normalizedDate: string ): CleanedDateResultObject => 
   return resultObject
 }
 
+interface NormalizeAndCleanDateOutput extends CleanedDateResultObject {
+  normalizedDate: string
+}
+
+export const normalizeAndCleanDate = (
+  date: string | null,
+  maxDigits: number = parseInt( DEFAULT_SETTINGS.maxDigits )
+): NormalizeAndCleanDateOutput | null => {
+  const normalizedDate = normalizeDate( date, maxDigits )
+  if ( !normalizedDate ) {
+    return null
+  }
+  
+  const cleanedDateObject = cleanDate( normalizedDate )
+  if ( !cleanedDateObject ) {
+    return null
+  }
+
+  return {
+    ...cleanedDateObject,
+    normalizedDate
+  }
+}
+
+
 /**
  * Takes a date string and normalizes it so there are always 4 sections, each the length specified by maxDigits
  * If there are missing sections, they will be inserted with a value of 01 (except for hours, which will be 00)
@@ -47,7 +87,7 @@ export const cleanDate = ( normalizedDate: string ): CleanedDateResultObject => 
  * @returns {string}
  */
 export const normalizeDate = (
-  date: string,
+  date: string | null,
   maxDigits: number = parseInt( DEFAULT_SETTINGS.maxDigits )
 ): string | null => {
   if ( !date ) {
@@ -61,7 +101,14 @@ export const normalizeDate = (
     date = date.substring( 1 )
   }
 
+  console.log( 'normalizeDate', { date })
   const sections = date.split( '-' )
+
+  sections.forEach((section, index) => {
+    if (parseInt(section) === 0) {
+      // sections.splice(index, 1) // doesn't work because could cause sections to get out of order
+    }
+  })
 
   // cases:
   // 4 sections: YYYY-MM-DD-HH (perfect, send it off as is)
@@ -97,26 +144,27 @@ export const normalizeDate = (
  * @returns {Date | null}
  */
 export const buildTimelineDate = (
-  rawDate: string,
+  rawDate: string | null,
   maxDigits?: number
 ): Date | null => {
-  const normalizedDate = normalizeDate( rawDate, maxDigits ?? parseInt( DEFAULT_SETTINGS.maxDigits ))
-  if ( !normalizedDate ) {
-    return null
-  }
+  // const normalizedDate = normalizeDate( rawDate, maxDigits ?? parseInt( DEFAULT_SETTINGS.maxDigits ))
+  // if ( !normalizedDate ) {
+  //   return null
+  // }
   
-  const cleanedDateObject = cleanDate( normalizedDate )
-  if ( !normalizedDate ) {
+  // const cleanedDateObject = cleanDate( normalizedDate )
+  const normalizedAndCleanedDateObject = normalizeAndCleanDate( rawDate, maxDigits )
+  if ( !normalizedAndCleanedDateObject ) {
     return null
   }
-  const { cleanedDateString, year, month, day, hour } = cleanedDateObject
+  const { cleanedDateString, year, month, day, hour, normalizedDate } = normalizedAndCleanedDateObject
 
   // native JS Date handles negative years and recent dates pretty decent
   // so if year is negative, or if the year is recent (past 1900)
   // we can just use the JS Date directly with no workarounds
   let returnDate: Date
-  let luxonDateTime: DateTime
-  let luxonDateString: string
+  let luxonDateTime: DateTime | null = null
+  let luxonDateString: string | null = null
   if ( year < 0 || year > 1900 ) {
     returnDate = new Date( year, month, day, hour )
   } else {
@@ -124,13 +172,20 @@ export const buildTimelineDate = (
     // the date that we want. JS Date will change "0001-00-01" to "Jan 1st 1970"
     luxonDateTime = DateTime.fromFormat( cleanedDateString, 'y-M-d-H' )
     luxonDateString = luxonDateTime.toISO()
+
+    if ( !luxonDateString ) {
+      console.error( "Couldn't create a luxon date string!" )
+      return null
+    }
+
     returnDate = new Date( luxonDateString )
   }
 
   logger( 'buildTimelineDate | date variables', {
     rawDate,
-    normalizedDate,
     cleanedDateString,
+    normalizedAndCleanedDateObject,
+    normalizedDate,
     luxonDateTime,
     luxonDateString,
     returnDate

@@ -1,5 +1,5 @@
 import { AllNotesData, CardContainer, DivWithCalcFunc } from '../types'
-import { buildTimelineDate, createInternalLinkOnNoteCard, handleColor } from '../utils'
+import { buildTimelineDate, createInternalLinkOnNoteCard, handleColor, normalizeAndCleanDate } from '../utils'
 
 /**
    * Build a vertical timeline
@@ -19,16 +19,24 @@ export async function buildVerticalTimeline(
   // Build the timeline html element
   for ( const date of timelineDates ) {
     const align   = eventCount % 2 === 0 ? 'left' : 'right'
-    const datedTo = [ timelineNotes[date][0].startDate.replace( /-0*$/g, '' )
-                  + ( timelineNotes[date][0].era ? ` ${timelineNotes[date][0].era}` : '' )
-    ]
+
+    const firstDate = timelineNotes[date][0]
+    // const datedTo = [ firstDate.startDate.replace( /-0*$/g, '' ) + ( firstDate.era ? ` ${firstDate.era}` : '' )]
+    const normalizedAndCleanedDateObject = normalizeAndCleanDate( firstDate.startDate )
+    if ( !normalizedAndCleanedDateObject ) {
+      throw new Error( `Could not normalize and/or clean the date: ${firstDate}` )
+    }
+
+    console.log({ normalizedAndCleanedDateObject })
+    const { cleanedDateString: datedFrom } = normalizedAndCleanedDateObject
+    const datedTo = [ datedFrom + ( firstDate.era ? ` ${firstDate.era}` : '' )]
 
     const noteDivs = [
       timeline.createDiv(
         { cls: ['timeline-container', `timeline-${align}`] }, 
         ( div ) => {
           div.style.setProperty( '--timeline-indent', '0' )
-          div.setAttribute( 'timeline-date', timelineNotes[date][0].startDate )
+          div.setAttribute( 'timeline-date', firstDate.startDate )
           div.setAttribute( 'collapsed', 'false' )
         }
       )
@@ -49,9 +57,18 @@ export async function buildVerticalTimeline(
       const note: CardContainer = rawNote
       const { endDate: endDateString, era } = note
       const startDate = buildTimelineDate( note.startDate )
-      const endDate = buildTimelineDate( endDateString )
+      let endDate: Date | null | string = buildTimelineDate( endDateString )
 
-      // skip events that are of type 'box' or 'point', or if the endDate is invalid
+      if ( !startDate ) {
+        console.error( "Couldn't build a start date for timeline on vertical timeline" )
+        continue
+      }
+
+      if ( !endDate ) {
+        endDate = ''
+      }
+
+      // skip events that are of type 'box' or 'point', or if the endDate exists and is invalid
       if ( ['box', 'point'].includes( note.type ) || endDate < startDate ) {
         continue
       }
@@ -60,8 +77,16 @@ export async function buildVerticalTimeline(
         noteDivs[0].classList.add( 'timeline-head' ) 
       }
 
+      if ( !noteDivs ) {
+        continue
+      }
+
       const dated = endDateString + ( era ?? '' )
-      const lastTimelineDate = buildTimelineDate( noteDivs.last().getAttribute( 'timeline-date' ))
+      const lastTimelineDate = buildTimelineDate( noteDivs.last()!.getAttribute( 'timeline-date' ))
+      if ( !lastTimelineDate ) {
+        console.error( "There's no last timeline date" )
+        continue
+      }
       if ( !datedTo[1] || endDate > lastTimelineDate ) {
         datedTo[1] = datedTo[0] + ' to ' + dated
       }
@@ -84,7 +109,7 @@ export async function buildVerticalTimeline(
       for ( const n of noteDivs ) {
         const timelineDate = buildTimelineDate( n.getAttribute( 'timeline-date' ))
 
-        if ( timelineDate > endDate ) {
+        if ( timelineDate && ( timelineDate > endDate )) {
           n.before( noteDiv )
         }
       }
@@ -106,7 +131,7 @@ export async function buildVerticalTimeline(
     noteDivs[0].addEventListener( 'click', ( event ) => {
       event.preventDefault()
 
-      const collapsed = !JSON.parse( noteDivs[0].getAttribute( 'collapsed' ))
+      const collapsed = !JSON.parse( noteDivs[0].getAttribute( 'collapsed' ) ?? '{}' )
       noteDivs[0].setAttribute( 'collapsed', String( collapsed ))
       for ( const p of noteDivs[0].getElementsByTagName( 'p' )) {
         p.setCssProps({ 'display': collapsed ? 'none' : 'block' })
@@ -115,8 +140,12 @@ export async function buildVerticalTimeline(
          note along with the end note itself */
       if ( noteDivs.length > 0 ) {
         noteHdrs[0].setText( collapsed && datedTo[1] ? datedTo[1] : datedTo[0] )
-        const notes = [...timeline.children]
-        const inner = notes.slice( notes.indexOf( noteDivs.first()) + 1, notes.indexOf( noteDivs.last()) + 1 )
+        const notes: Element[] = [...timeline.children]
+        const inner = notes.slice( 
+          notes.indexOf( noteDivs.first() as Element ) + 1,
+          notes.indexOf( noteDivs.last() as Element ) + 1
+        )
+
         inner.forEach(( note: DivWithCalcFunc ) => {
           note.style.display = collapsed ? 'none' : 'block'
           note.calcLength?.()
