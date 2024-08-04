@@ -53,15 +53,10 @@ const minimizeDateString = ( dateString: string ): string => {
   }
 
   if ( !sections.length ) {
-    throw new Error( 'idk man' )
+    throw new Error( 'could not get the different sections of the event date' )
   }
 
-  // 0 is year
-  // 1 is month
-  // 2 is day
-  // 3 is hour
-
-  console.log( 'before', { sections })
+  logger( 'minimizeDateString | before', { sections })
 
   // we always at least have the year
   const remainingSections: string[] = [ (( isNegative ? '-' : '' ) + sections[0] ) ]
@@ -79,7 +74,7 @@ const minimizeDateString = ( dateString: string ): string => {
     remainingSections.push( sections[i] )
   }
 
-  console.log( 'remaining', { remainingSections })
+  logger( 'minimizeDateString | remaining', { remainingSections })
 
   return remainingSections.join( '-' )
 }

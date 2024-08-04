@@ -1,10 +1,10 @@
+import { sortAndRenderNestedEvents } from '.'
 import { AllNotesData, CardContainer, DivWithCalcFunc } from '../types'
 import {
   buildMinimizedDateString,
   buildTimelineDate,
   createInternalLinkOnNoteCard,
   handleColor,
-  // normalizeAndCleanDate
 } from '../utils'
 
 /**
@@ -34,7 +34,6 @@ export async function buildVerticalTimeline(
     const firstDate = firstNote.startDate
     const {
       readable: readableStartDate,
-      // cleaned: datedFrom,
       normalized: normalizedStartDate,
     } = buildMinimizedDateString( firstDate )
     const datedTo = [ readableStartDate + ( firstDate.era ? ` ${firstDate.era}` : '' )]
@@ -44,9 +43,7 @@ export async function buildVerticalTimeline(
       { cls: ['timeline-container', `timeline-${align}`] },
       ( div ) => {
         div.style.setProperty( '--timeline-indent', '0' )
-        div.setAttribute( 'timeline-date', normalizedStartDate ) // should this be the normalizedDate rather than the cleaned Date?
-        // div.setAttribute( 'timeline-date', datedFrom ) // should this be the normalizedDate rather than the cleaned Date?
-        // div.setAttribute( 'timeline-date', firstDate.startDate )
+        div.setAttribute( 'timeline-date', normalizedStartDate )
         div.setAttribute( 'collapsed', 'false' )
       }
     )
@@ -61,7 +58,6 @@ export async function buildVerticalTimeline(
     containerDiv.createEl( 'h2', {
       attr: { style: `text-align: ${align};` },
       text: readableStartDate
-      // text: firstDate
     })
 
     for ( const rawNote of timelineNotes[date] ) {
@@ -91,7 +87,6 @@ export async function buildVerticalTimeline(
 
       const {
         readable: readableEndDate,
-        // cleaned: cleanedEndDate,
         normalized: normalizedEndDate
       } = buildMinimizedDateString( end )
       const endDateFormatted = readableEndDate + ( era ? ` ${era}` : '' )
@@ -112,8 +107,6 @@ export async function buildVerticalTimeline(
         ( div ) => {
           div.style.setProperty( '--timeline-indent', '0' )
           div.setAttribute( 'timeline-date', normalizedEndDate )
-          // div.setAttribute( 'timeline-date', cleanedEndDate )
-          // div.setAttribute( 'timeline-date', end )
         }
       )
 
@@ -228,33 +221,9 @@ export async function buildVerticalTimeline(
       }
     }
 
-    /* If the previous note is of class 'timeline-tail' then there's a chance that the current node belongs nested within
-       the previous one. Here we iterate backwards for as long as elements of the class 'timeline-tail' are encountered.
-
-       Then we sort an array containing the start and ending date of the current event along with the ending date of the
-       previous event. If the index of the ending date of the previous event in the new array is greater than 0 then the
-       note(s) preceding it (either the note belonging to the start date or the notes belonging to both the start and end
-       dates of the current event) are placed before their predecessor. */
-    for ( let i = noteDivs.length - 2; i >= 0; i-- ) {
-      if ( noteDivs[i].classList.contains( 'timeline-tail' )) {
-        const t = noteDivs[i].getAttribute( 'timeline-date' )
-        const times = [t, ...noteDivs.map(( n ) => {
-          return n.getAttribute( 'timeline-date' ) 
-        })].sort()
-        const lastTIndex = times.lastIndexOf( t )
-
-        for ( let j = lastTIndex; j > 0; j = 0 ) {
-          noteDivs[i].before( ...noteDivs.slice( 0, j ))
-          const indent = +noteDivs[0].style.getPropertyValue( '--timeline-indent' ) + 1
-          noteDivs.forEach(( n ) => {
-            return n.style.setProperty( '--timeline-indent', `${indent}` ) 
-          })
-        }
-      }
-    }
+    sortAndRenderNestedEvents( noteDivs, timeline )
 
     eventCount++
-    console.log({ datedTo })
   }
 
   // Replace the selected tags with the timeline html
