@@ -1,5 +1,4 @@
 import type { TFile, MetadataCache, Vault } from 'obsidian'
-import { Notice } from 'obsidian'
 
 import { buildHorizontalTimeline, buildVerticalTimeline, showEmptyTimelineMessage } from './timelines'
 import {
@@ -197,7 +196,7 @@ export class TimelineBlockProcessor {
         }
 
         if ( !normalizedEndDate ) {
-          console.log( 'get fucked' )
+          console.warn( "parseFiles | Couldn't normalize the event's end date, setting it to empty." )
           normalizedEndDate = ''
         }
 
@@ -205,14 +204,12 @@ export class TimelineBlockProcessor {
         const cleanedEndDateObject   = cleanDate( normalizedEndDate )
 
         if ( !cleanedStartDateObject ) {
-          const message = 'get fucked, no start date object'
-          new Notice( message )
+          const message = 'no start date object'
           throw new Error( message )
         }
 
         if ( !cleanedEndDateObject ) {
-          const message = 'get fucked, no end date object'
-          new Notice( message )
+          const message = 'no end date object'
           throw new Error( message )
         }
 

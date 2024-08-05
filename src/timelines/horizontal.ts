@@ -30,8 +30,6 @@ export async function buildHorizontalTimeline(
   }: HorizontalTimelineInput
 ) {
   // Create a DataSet
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // const items = new DataSet<any>( [] )
   const items = new DataSet<CombinedTimelineEventData>( [] )
 
   if ( !timelineDates ) {
@@ -135,7 +133,6 @@ export async function buildHorizontalTimeline(
     const newClass = event.className + ' runtime-hover'
     document.documentElement.style.setProperty( '--hoverHighlightColor', event._event?.color ?? 'white' )
     const timelineItem = buildCombinedTimelineDataObject( event, { className: newClass })
-    // const timelineItem = convertEventItemToDataItem({ ...event, className: newClass })
     items.updateOnly( [timelineItem] )
 
     return () => {
@@ -147,7 +144,6 @@ export async function buildHorizontalTimeline(
     const event = items.get( props.item ) as unknown as EventItem
     const newClass = event.className.split( ' runtime-hover' )[0]
     const timelineItem = buildCombinedTimelineDataObject( event, { className: newClass })
-    // const timelineItem = convertEventItemToDataItem({ ...event, className: newClass })
     items.updateOnly( [timelineItem] )
 
     return () => {

@@ -2,17 +2,7 @@ import { DateTime } from 'luxon'
 
 import { logger } from './debug'
 import { DEFAULT_SETTINGS } from '../constants'
-import { CleanedDateResultObject } from '../types'
-
-interface MinimizedResult {
-  readable: string,
-  cleaned: string,
-  normalized: string,
-}
-
-interface NormalizeAndCleanDateOutput extends CleanedDateResultObject {
-  normalizedDate: string
-}
+import { CleanedDateResultObject, MinimizedResult, NormalizeAndCleanDateOutput } from '../types'
 
 export const buildMinimizedDateString = ( str: string ): MinimizedResult => {
   const normalizedAndCleaned = normalizeAndCleanDate( str )
@@ -67,6 +57,7 @@ const minimizeDateString = ( dateString: string ): string => {
     }
 
     // if we're looking at hour but day is not set, skip
+    // todo: if hour is not set, but day is, don't show it
     if ( i === 3 && parseInt( sections[i - 1] ) < 1 ) {
       continue
     }

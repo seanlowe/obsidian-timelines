@@ -37,7 +37,6 @@ export class TimelineCommandProcessor {
       // ensure the status bar item is removed
       if ( plugin.statusBarItem ) {
         plugin.statusBarItem.remove()
-        // plugin.statusBarItem = ''
       }
 
       return

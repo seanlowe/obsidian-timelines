@@ -101,6 +101,16 @@ export interface InternalTimelineArgs {
   zoomOutLimit: number,
 }
 
+export interface MinimizedResult {
+  readable: string,
+  cleaned: string,
+  normalized: string,
+}
+
+export interface NormalizeAndCleanDateOutput extends CleanedDateResultObject {
+  normalizedDate: string
+}
+
 export interface TimelinesSettings {
   eventElement: AcceptableEventElements,
   frontMatterKeys: FrontMatterKeys,
