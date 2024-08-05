@@ -1,5 +1,13 @@
 ## Changelog
 
+### v2.2.6
+
+Bug Fix for: `Custom attributes on timeline nodes` [#63](https://github.com/seanlowe/obsidian-timelines/issues/63)
+
+**Changes:**
+- added the correct changes to the `insert event` commands so that events inserted that way have all the applicable attributes.
+- added a new page in the docs for understanding how to add custom classes to your timeline events.
+
 ### v2.2.5
 
 Implement feature: Custom attributes on timeline nodes [#63](https://github.com/seanlowe/obsidian-timelines/issues/63)

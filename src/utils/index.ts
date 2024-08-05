@@ -32,12 +32,16 @@ export function filterMDFiles( file: TFile, tagList: string[], metadataCache: Me
     return true
   }
 
-  const rawTags = getAllTags( metadataCache.getFileCache( file ))
+  const cache = metadataCache.getFileCache( file )
+  if ( !cache ) {
+    throw new Error( "Failed to get the file's metadataCache" )
+  }
+  const rawTags = getAllTags( cache )
   logger( `filterMDFiles | rawTags from file: ${file.name}:`, rawTags )
 
-  const tags = rawTags.map(( e ) => {
+  const tags = rawTags?.map(( e ) => {
     return e.slice( 1 )
-  })
+  }) ?? []
   logger( `filterMDFiles | getAllTags from file: ${file.name}:`, tags )
 
   if ( !tags.length ) {
@@ -65,7 +69,7 @@ export function filterMDFiles( file: TFile, tagList: string[], metadataCache: Me
  */
 export function getImgUrl( vault: Vault, path: string ): string {
   if ( !path ) {
-    return null
+    return ''
   }
 
   if ( path.includes( 'https://' )) {
@@ -76,6 +80,8 @@ export function getImgUrl( vault: Vault, path: string ): string {
   if ( file instanceof TFile ) {
     return vault.getResourcePath( file )
   }
+
+  return ''
 }
 
 /**

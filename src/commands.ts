@@ -37,7 +37,6 @@ export class TimelineCommandProcessor {
       // ensure the status bar item is removed
       if ( plugin.statusBarItem ) {
         plugin.statusBarItem.remove()
-        plugin.statusBarItem = null
       }
 
       return
@@ -67,11 +66,11 @@ export class TimelineCommandProcessor {
    *
    * @param workspace
    */
-  getStatusBarText = async ( workspace: Workspace ): Promise<string | null> => {
+  getStatusBarText = async ( workspace: Workspace ): Promise<string> => {
     const file = workspace.getActiveViewOfType( MarkdownView )?.file
 
     if ( !file ) {
-      return null
+      return ''
     }
 
     const { totalEvents } = await getNumEventsInFile({ file, appVault: this.appVault, fileCache: this.metadataCache }, null )
@@ -88,6 +87,10 @@ export class TimelineCommandProcessor {
 
   updateStatusBarText = async ( plugin: TimelinesPlugin ) => {
     const text = await this.getStatusBarText( plugin.app.workspace )
+    if ( text === '' ) {
+      return
+    }
+
     plugin.statusBarItem.setText( text )
   }
 
@@ -180,6 +183,9 @@ export class TimelineCommandProcessor {
 
     const renderedString = `<div class="timeline-rendered">${new Date().toString()}</div>`
     const rendered = ( new DOMParser()).parseFromString( renderedString, 'text/html' ).body.firstChild
+    if ( !rendered ) {
+      throw new Error( 'Could not generate the statically rendered timeline' )
+    }
     div.appendChild( rendered )
 
     const firstCommentEndIndex = source.indexOf( '-->' )

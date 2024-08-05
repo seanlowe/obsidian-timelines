@@ -6,10 +6,10 @@ export function setDefaultArgs(): InternalTimelineArgs {
   return {
     tags: [] as string[],
     divHeight: 400,
-    startDate: buildTimelineDate( '-1000' ),
-    endDate: buildTimelineDate( '3000' ),
-    minDate: buildTimelineDate( '-3000' ),
-    maxDate: buildTimelineDate( '3000' ),
+    startDate: buildTimelineDate( '-1000' )!,
+    endDate: buildTimelineDate( '3000' )!,
+    minDate: buildTimelineDate( '-3000' )!,
+    maxDate: buildTimelineDate( '3000' )!,
     type: null,
 
     // have to put it to one more than the default max so that min actually works

@@ -99,7 +99,17 @@ export class TimelineBlockProcessor {
       const combinedEventsAndFrontMatter = await getEventsInFile( file, this.appVault, this.metadataCache )
       const { numEvents } = await getNumEventsInFile( null, combinedEventsAndFrontMatter )
 
+      if ( !combinedEventsAndFrontMatter ) {
+        // skip this loop
+        continue
+      }
+
       combinedEventsAndFrontMatter.forEach(( event ) => {
+        if ( !event ) {
+          // skip this loop
+          return
+        }
+
         let eventData: EventDataObject | null = null
 
         if ( !isHTMLElementType( event ) && Object.keys( event ).length < 3 ) {
@@ -177,8 +187,34 @@ export class TimelineBlockProcessor {
 
         const imgUrl = getImgUrl( this.appVault, eventImg )
 
-        const { cleanedDateString: cleanedStartDate } = cleanDate( normalizeDate( startDate ))
-        const { cleanedDateString:  cleanedEndDate  } = cleanDate( normalizeDate(  endDate  ))
+        // normalizedStartDate is the same as noteId
+        let normalizedEndDate   = normalizeDate(  endDate  )
+
+        if ( !noteId ) {
+          console.error( "Cannot normalize the event's start date! Skipping" ) 
+          return
+        }
+
+        if ( !normalizedEndDate ) {
+          console.warn( "parseFiles | Couldn't normalize the event's end date, setting it to empty." )
+          normalizedEndDate = ''
+        }
+
+        const cleanedStartDateObject = cleanDate( noteId )
+        const cleanedEndDateObject   = cleanDate( normalizedEndDate )
+
+        if ( !cleanedStartDateObject ) {
+          const message = 'no start date object'
+          throw new Error( message )
+        }
+
+        if ( !cleanedEndDateObject ) {
+          const message = 'no end date object'
+          throw new Error( message )
+        }
+
+        const { cleanedDateString: cleanedStartDate } = cleanedStartDateObject
+        const { cleanedDateString:  cleanedEndDate  } = cleanedEndDateObject
 
         const note: CardContainer = {
           id: noteId,
