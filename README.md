@@ -21,13 +21,13 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
-### v2.2.6
+### v2.2.7
 
-Bug Fix for: `Custom attributes on timeline nodes` [#63](https://github.com/seanlowe/obsidian-timelines/issues/63)
+Bug fix for issue: `"YYYY" Format` [#81](https://github.com/seanlowe/obsidian-timelines/issues/81)
 
 **Changes:**
-- added the correct changes to the `insert event` commands so that events inserted that way have all the applicable attributes.
-- added a new page in the docs for understanding how to add custom classes to your timeline events.
+- implemented some logic to determine what sections of the provided dates are missing originally and to not display a cleaned version of the normalized date but a "readable" date that should closer match what the user provides in the event.
+- tweaked some logic in the nesting / sorting functionality on the vertical timeline. Events now sort the start and end of time ranges correctly (so far as I can tell).
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
