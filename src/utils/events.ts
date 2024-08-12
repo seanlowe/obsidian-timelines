@@ -139,7 +139,10 @@ export const getEventData = (
     return null
   }
 
+  // defaults
   const defaultBody    = isHTMLElementType( eventObject ) ? eventObject.innerText : ''
+
+  // event parameters
   const classes        = retrieveEventValue( eventObject, 'classes', '' )
   const color          = retrieveEventValue( eventObject, 'color', '' )
   const endDate        = retrieveEventValue(
@@ -171,6 +174,7 @@ export const getEventData = (
     type
   }
 
+  logger( 'getEventData | full event:', { eventData })
   return eventData
 }
 

@@ -1,10 +1,13 @@
 import { isNaN } from 'lodash'
-import { InternalTimelineArgs } from '../types'
+import { InternalTimelineArgs, ParsedTagObject } from '../types'
 import { buildTimelineDate } from './dates'
 
 export function setDefaultArgs(): InternalTimelineArgs {
   return {
-    tags: [] as string[],
+    tags: {
+      tagList: [],
+      optionalTags: [],
+    },
     divHeight: 400,
     startDate: buildTimelineDate( '-1000' )!,
     endDate: buildTimelineDate( '3000' )!,
@@ -18,14 +21,28 @@ export function setDefaultArgs(): InternalTimelineArgs {
   }
 }
 
-export const createTagList = ( tagString: string, timelineTag: string ): string[] => {
-  const tagList: string[] = []
-  tagString.split( ';' ).forEach(( tag: string ) => {
-    return parseTag( tag, tagList )
-  })
-  tagList.push( timelineTag )
+export const createTagList = ( tagString: string, timelineTag: string ): ParsedTagObject => {
+  const parsedTags: ParsedTagObject = {
+    tagList: [],
+    optionalTags: []
+  }
 
-  return tagList
+  tagString.split( ';' ).forEach(( tag: string ) => {
+    if ( tag.includes( '|' )) {
+      return parseOrTags( tag, parsedTags.optionalTags )
+    }
+
+    return parseTag( tag, parsedTags.tagList )
+  })
+  parsedTags.tagList.push( timelineTag )
+
+  return parsedTags
+}
+
+const parseOrTags = ( tagString: string, optionalTags: string[] ): void => {
+  tagString.split( '|' ).forEach(( tag: string ) => {
+    return parseTag( tag, optionalTags )
+  })
 }
 
 /**
