@@ -33,7 +33,7 @@ See the changelog from the last major update to view any breaking changes [here]
 
 <br>
 
-![Vertical Example](/images/vertical_example.png)
+![Vertical Example](/images/vertical-time-spans.png)
 
 ### Next Steps
 

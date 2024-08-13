@@ -21,13 +21,13 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
-### v2.2.7
+### v2.3.0
 
-Bug fix for issue: `"YYYY" Format` [#81](https://github.com/seanlowe/obsidian-timelines/issues/81)
+Implement issue: `Multi-Type Timelines` [#43](https://github.com/seanlowe/obsidian-timelines/issues/43)
 
 **Changes:**
-- implemented some logic to determine what sections of the provided dates are missing originally and to not display a cleaned version of the normalized date but a "readable" date that should closer match what the user provides in the event.
-- tweaked some logic in the nesting / sorting functionality on the vertical timeline. Events now sort the start and end of time ranges correctly (so far as I can tell).
+- reworked logic for parsing tags to allow for AND/OR logic using "|" as a delimiter for optional tags
+- updated docs to have a new section on optional vs required tags, [here](https://seanlowe.github.io/obsidian-timelines/docs/03_arguments/02_optional_tags/)
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

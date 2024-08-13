@@ -29,7 +29,6 @@ export async function buildVerticalTimeline(
     }
 
     const align = eventCount % 2 === 0 ? 'left' : 'right'
-
     const firstNote = timelineNotes[date][0]
     const firstDate = firstNote.startDate
     const {
@@ -180,7 +179,7 @@ export async function buildVerticalTimeline(
       }
     })
 
-
+    // doesn't apply to vertical timelines?
     /*noteContainer[0].addEventListener( 'click', ( event ) => {
       event.preventDefault()
       const currentStyle = eventContainer.style

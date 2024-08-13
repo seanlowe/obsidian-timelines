@@ -26,9 +26,9 @@ export * from './frontmatter'
  * @param {MetadataCache} metadataCache - See Obsidian's {@link MetadataCache}
  * @returns {boolean} true if file contains all tags in tagList, false otherwise
  */
-export function filterMDFiles( file: TFile, tagList: string[], metadataCache: MetadataCache ): boolean {
+export function filterMdFiles( file: TFile, tags: string[], metadataCache: MetadataCache, parseOptional: boolean ): boolean {
   logger( 'filterMDFiles | -----------------' )
-  if ( !tagList || tagList.length === 0 ) {
+  if ( !tags || tags.length === 0 ) {
     return true
   }
 
@@ -39,24 +39,31 @@ export function filterMDFiles( file: TFile, tagList: string[], metadataCache: Me
   const rawTags = getAllTags( cache )
   logger( `filterMDFiles | rawTags from file: ${file.name}:`, rawTags )
 
-  const tags = rawTags?.map(( e ) => {
-    return e.slice( 1 )
+  const mappedTags = rawTags?.map(( e ) => {
+    return e.slice( 1 ) // removes the "#"
   }) ?? []
-  logger( `filterMDFiles | getAllTags from file: ${file.name}:`, tags )
 
-  if ( !tags.length ) {
+  logger( `filterMDFiles | getAllTags from file: ${file.name}:`, mappedTags )
+  if ( !mappedTags.length ) {
     return false
   }
 
   const fileTags: string[] = []
-  tags.forEach(( tag ) => {
+  mappedTags.forEach(( tag ) => {
     return parseTag( tag, fileTags )
   })
 
-  return tagList.every(( val ) => {
-    logger( `filterMDFiles | testing val: ${val}`, fileTags.includes( String( val )))
-    return fileTags.includes( String( val ))
-  })
+  if ( parseOptional ) {
+    return tags.some(( val ) => {
+      logger( `filterMDFiles | testing optional val: ${val}`, fileTags.includes( String( val )))
+      return fileTags.includes( String( val ))
+    })
+  } else {
+    return tags.every(( val ) => {
+      logger( `filterMDFiles | testing required val: ${val}`, fileTags.includes( String( val )))
+      return fileTags.includes( String( val ))
+    })
+  }
 }
 
 /**

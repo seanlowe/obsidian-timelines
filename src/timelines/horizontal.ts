@@ -59,19 +59,34 @@ export async function buildHorizontalTimeline(
       createInternalLinkOnNoteCard( event, noteCard )
       noteCard.createEl( 'p', { text: event.body })
 
+      let type: string = event.type
+      let typeOverride = false
+      let end: Date | null = null
       const start = buildTimelineDate( event.startDate, parseInt( settings.maxDigits ))
       if ( !start ) {
-        console.error( "Couldn't build the starting timeline date for the horizontal timeline" )
+        console.error( "buildHorizontalTimeline | Couldn't build the starting timeline date for the horizontal timeline" )
         return
       }
 
-      const end = buildTimelineDate( event.endDate, parseInt( settings.maxDigits ))
+      // end = buildTimelineDate( event.endDate, parseInt( settings.maxDigits ))
+      if ( event.endDate && event.endDate !== '' ) {
+        logger( 'buildHorizontalTimeline | there is an endDate for event:', event )
+        end = buildTimelineDate( event.endDate, parseInt( settings.maxDigits ))
+      } else {
+        // if there is no end date, we cannot render as anything other than 'point'
+        logger( 'buildHorizontalTimeline | NO endDate for event:', event )
+        type = 'point'
+        typeOverride = true
+      }
 
       if (
         start.toString() === 'Invalid Date' ||
           ( [ 'range', 'background' ].includes( event.type ) && end?.toString() === 'Invalid Date' )
       ) {
-        console.warn( 'Invalid start or end date - check for Month/Day values that are 0', { start, end, event })
+        console.warn(
+          'buildHorizontalTimeline | Invalid start or end date - check for Month/Day values that are 0',
+          { start, end, event }
+        )
 
         return
       }
@@ -83,7 +98,7 @@ export async function buildHorizontalTimeline(
         content: event.title ?? '',
         start: start,
         className: initialClassName + ' ' + event.classes,
-        type: event.type,
+        type: typeOverride ? type : event.type,
         end: end ?? undefined,
         path: event.path,
         _event: event,

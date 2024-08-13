@@ -31,6 +31,8 @@ tags=now;test
 ```
 ````
 
+> Read about optional vs. required tags [here](../../../03_arguments/02_optional_tags). 
+
 <br></br>
 
 The render block takes a single line which is the _list of tags_ (separated by semicolons) by which to filter timeline-tagged notes. For example, in the above example block, **<u>only notes with all</u>** three tags (`now`, `test` and `timeline`) will be rendered.
