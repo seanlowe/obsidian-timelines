@@ -64,30 +64,29 @@ export async function buildHorizontalTimeline(
       let end: Date | null = null
       const start = buildTimelineDate( event.startDate, parseInt( settings.maxDigits ))
       if ( !start ) {
-        console.error( "Couldn't build the starting timeline date for the horizontal timeline" )
+        console.error( "buildHorizontalTimeline | Couldn't build the starting timeline date for the horizontal timeline" )
         return
       }
 
       // end = buildTimelineDate( event.endDate, parseInt( settings.maxDigits ))
       if ( event.endDate && event.endDate !== '' ) {
-        console.log( 'there is an endDate for event:', event )
+        logger( 'buildHorizontalTimeline | there is an endDate for event:', event )
         end = buildTimelineDate( event.endDate, parseInt( settings.maxDigits ))
       } else {
         // if there is no end date, we cannot render as anything other than 'point'
-        console.log( '!! -- NO endDate for event:', event )
+        logger( 'buildHorizontalTimeline | NO endDate for event:', event )
         type = 'point'
         typeOverride = true
-      }
-
-      if ( event.type === '' ) {
-        console.log( 'yeehaw' )
       }
 
       if (
         start.toString() === 'Invalid Date' ||
           ( [ 'range', 'background' ].includes( event.type ) && end?.toString() === 'Invalid Date' )
       ) {
-        console.warn( 'Invalid start or end date - check for Month/Day values that are 0', { start, end, event })
+        console.warn(
+          'buildHorizontalTimeline | Invalid start or end date - check for Month/Day values that are 0',
+          { start, end, event }
+        )
 
         return
       }

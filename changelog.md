@@ -1,5 +1,13 @@
 ## Changelog
 
+### v2.2.7
+
+Bug fix for issue: `"YYYY" Format` [#81](https://github.com/seanlowe/obsidian-timelines/issues/81)
+
+**Changes:**
+- implemented some logic to determine what sections of the provided dates are missing originally and to not display a cleaned version of the normalized date but a "readable" date that should closer match what the user provides in the event.
+- tweaked some logic in the nesting / sorting functionality on the vertical timeline. Events now sort the start and end of time ranges correctly (so far as I can tell).
+
 ### v2.2.6
 
 Bug Fix for: `Custom attributes on timeline nodes` [#63](https://github.com/seanlowe/obsidian-timelines/issues/63)

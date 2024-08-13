@@ -18,7 +18,6 @@ export * from './debug'
 export * from './events'
 export * from './frontmatter'
 
-
 /**
  * Filter markdown files by tag
  *

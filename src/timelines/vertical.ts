@@ -131,7 +131,6 @@ export async function buildVerticalTimeline(
         const spanMin = containerDiv.querySelector( 'h2' )?.getBoundingClientRect().top ?? 0
         const spanMax = noteDiv.querySelector( 'h2' )?.getBoundingClientRect().top ?? 0
 
-
         containerDiv.style.setProperty( '--timeline-span-length', `${axisMax - axisMin}px` )
         noteDiv     .style.setProperty( '--timeline-span-length', `${spanMax - spanMin}px` )
       }
@@ -139,7 +138,6 @@ export async function buildVerticalTimeline(
 
     containerDiv.addEventListener( 'click', ( event ) => {
       event.preventDefault()
-      console.log( 'clicked on an event div' )
 
       const collapsed = !JSON.parse( containerDiv.getAttribute( 'collapsed' ) ?? '{}' )
       containerDiv.setAttribute( 'collapsed', String( collapsed ))
