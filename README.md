@@ -1,8 +1,6 @@
 ![Fork GitHub Release](https://img.shields.io/github/v/release/seanlowe/obsidian-timelines)
-<!-- ![Fork GitHub Downloads Count](https://img.shields.io/github/downloads/seanlowe/obsidian-timelines/total) -->
-
+![Fork GitHub Downloads Count](https://img.shields.io/github/downloads/seanlowe/obsidian-timelines/total)
 ![Legacy GitHub Release](https://img.shields.io/github/v/release/Darakah/obsidian-timelines?label=Last%20Legacy%20Release&color=red)
-![Legacy GitHub Downloads Count](https://img.shields.io/github/downloads/Darakah/obsidian-timelines/total?label=Legacy%20Downloads&color=blue)
 ![Legacy GitHub Issues Count](https://img.shields.io/github/issues/Darakah/obsidian-timelines?label=Legacy%20Issues)
 
 # Timelines (Revamped)
@@ -11,9 +9,9 @@ Generate a chronological timeline in which all "events" are notes that include a
 
 See the changelog from the last major update to view any breaking changes [here](./changelog.md#v200).
 
-Documentation has moved!
+> First time users may find this [video tutorial](https://www.youtube.com/watch?v=4SQWnjniQAE) helpful.
 
-I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at [https://seanlowe.github.io/obsidian-timelines](https://seanlowe.github.io/obsidian-timelines). Go check it out! If there are any problems, don't hesitate to create a new issue and point it out. Thanks!
+You can check out the docs for **Timelines (Revamped)** [here](https://seanlowe.github.io/obsidian-timelines). If there are any problems, don't hesitate to create a new issue and point it out. Thanks!
 
 ![new timespans in vertical timelines!](./docs/assets/images/vertical-time-spans.png)
 
@@ -21,13 +19,15 @@ I've written a brand new GitHub Pages docs site for **Timelines (Revamped)** at 
 
 ## Release Notes
 
-### v2.3.0
+### v2.3.1
 
-Implement issue: `Multi-Type Timelines` [#43](https://github.com/seanlowe/obsidian-timelines/issues/43)
+Small QoL changes
 
 **Changes:**
-- reworked logic for parsing tags to allow for AND/OR logic using "|" as a delimiter for optional tags
-- updated docs to have a new section on optional vs required tags, [here](https://seanlowe.github.io/obsidian-timelines/docs/03_arguments/02_optional_tags/)
+- update some logging across the render workflow
+- small change to validity check on start and end dates on horizontal timelines
+- rearrange some functions in `dates.ts`
+- small updates to the README and the docs
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
