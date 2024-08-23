@@ -1,5 +1,13 @@
 ## Changelog
 
+### v2.3.0
+
+Implement issue: `Multi-Type Timelines` [#43](https://github.com/seanlowe/obsidian-timelines/issues/43)
+
+**Changes:**
+- reworked logic for parsing tags to allow for AND/OR logic using "|" as a delimiter for optional tags
+- updated docs to have a new section on optional vs required tags, [here](https://seanlowe.github.io/obsidian-timelines/docs/03_arguments/02_optional_tags/)
+
 ### v2.2.7
 
 Bug fix for issue: `"YYYY" Format` [#81](https://github.com/seanlowe/obsidian-timelines/issues/81)

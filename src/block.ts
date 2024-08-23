@@ -112,18 +112,17 @@ export class TimelineBlockProcessor {
 
         let eventData: EventDataObject | null = null
 
-        if ( !isHTMLElementType( event ) && Object.keys( event ).length < 3 ) {
+        if ( !isHTMLElementType( event ) && !Object.keys( event ).includes( 'showOnTimeline' )) {
           console.warn(
-            'parseFiles | event has fewer than 3 keys. Required keys for Frontmatter events are:',
-            [ 'startDate', 'endDate', 'showOnTimeline' ]
-          )      
+            "parseFiles | frontmatter event does not contain 'showOnTimeline'. Skipping",
+          )
 
           return
         }
 
         eventData = getEventData( event, file, this.settings.frontMatterKeys )
         if ( !eventData ) {
-          console.warn( `malformed eventData, skipping event in file: ${file.name}`, { event, eventData })
+          console.warn( `parseFiles | malformed eventData, skipping event in file: ${file.name}`, { event, eventData })
           return
         }
 
@@ -131,7 +130,7 @@ export class TimelineBlockProcessor {
 
         if ( numEvents && !isHTMLElementType( event ) && eventData?.showOnTimeline !== true ) {
           console.warn(
-            `Both HTML and Frontmatter exist in file: ${file.name}.
+            `parseFiles | Both HTML and Frontmatter exist in file: ${file.name}.
             The key showOnTimeline is not true, skipping frontmatter event`
           )
           return

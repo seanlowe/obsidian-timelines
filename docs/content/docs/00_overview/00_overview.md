@@ -21,7 +21,7 @@ Also kudos to everyone who contributed to the original plugin, especially:
 
 For those coming from Darakah's original plugin, *things have diverged* and do not work the same way.
 
-Please take the time to read all the way through. Thanks!
+Please take the time to read all the way through, or take some time to watch this (admittedly basic) [video tutorial](https://www.youtube.com/watch?v=4SQWnjniQAE). Thanks!
 
 <br>
 

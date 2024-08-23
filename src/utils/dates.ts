@@ -4,24 +4,6 @@ import { logger } from './debug'
 import { DEFAULT_SETTINGS } from '../constants'
 import { CleanedDateResultObject, MinimizedResult, NormalizeAndCleanDateOutput } from '../types'
 
-export const buildMinimizedDateString = ( str: string ): MinimizedResult => {
-  const normalizedAndCleaned = normalizeAndCleanDate( str )
-  if ( !normalizedAndCleaned ) {
-    throw new Error( `Could not normalize and/or clean the date: ${str}` )
-  }
-
-  const { cleanedDateString: cleaned, normalizedDate: normalized } = normalizedAndCleaned
-  const readable = minimizeDateString( cleaned )
-
-  const result: MinimizedResult = {
-    readable,
-    cleaned,
-    normalized,
-  }
-
-  return result
-}
-
 /** 
  * @param dateString
  * 
@@ -68,6 +50,77 @@ const minimizeDateString = ( dateString: string ): string => {
   logger( 'minimizeDateString | remaining', { remainingSections })
 
   return remainingSections.join( '-' )
+}
+
+export const buildMinimizedDateString = ( str: string ): MinimizedResult => {
+  const normalizedAndCleaned = normalizeAndCleanDate( str )
+  if ( !normalizedAndCleaned ) {
+    throw new Error( `Could not normalize and/or clean the date: ${str}` )
+  }
+
+  const { cleanedDateString: cleaned, normalizedDate: normalized } = normalizedAndCleaned
+  const readable = minimizeDateString( cleaned )
+
+  const result: MinimizedResult = {
+    readable,
+    cleaned,
+    normalized,
+  }
+
+  return result
+}
+
+/**
+ * Takes a date string and normalizes it so there are always 4 sections, each the length specified by maxDigits
+ * If there are missing sections, they will be inserted with a value of 01 (except for hours, which will be 00)
+ *
+ * @param date - a date string of some nebulous format
+ * @param maxDigits - the number of digits to pad each section to
+ *
+ * @returns {string}
+ */
+export const normalizeDate = (
+  date: string | null,
+  maxDigits: number = parseInt( DEFAULT_SETTINGS.maxDigits )
+): string | null => {
+  if ( !date ) {
+    return null 
+  }
+
+  // todo: handle sections of arbitrary length
+  let isNegativeYear = false
+  if ( date[0] === '-' ) {
+    isNegativeYear = true
+    date = date.substring( 1 )
+  }
+
+  const sections = date.split( '-' )
+
+  // cases:
+  // 4 sections: YYYY-MM-DD-HH (perfect, send it off as is)
+  // 3 sections: YYYY-MM-DD (add 01 at the end)
+  // 2 sections: YYYY-MM (add 01-01 at the end)
+  // 1 section: YYYY (add 01-01-01 at the end)
+
+  switch ( sections.length ) {
+  case 1:
+    sections.push( '01' ) // MM
+  case 2:
+    sections.push( '01' ) // DD
+  case 3:
+    sections.push( '01' ) // HH
+    break
+  }
+
+  const paddedSections = sections.map(( section ) => {
+    return section.padStart( maxDigits, '0' )
+  })
+
+  if ( isNegativeYear ) {
+    paddedSections[0] = `-${paddedSections[0]}`
+  }
+
+  return paddedSections.join( '-' )
 }
 
 /**
@@ -127,59 +180,6 @@ export const normalizeAndCleanDate = (
 }
 
 /**
- * Takes a date string and normalizes it so there are always 4 sections, each the length specified by maxDigits
- * If there are missing sections, they will be inserted with a value of 01 (except for hours, which will be 00)
- *
- * @param date - a date string of some nebulous format
- * @param maxDigits - the number of digits to pad each section to
- *
- * @returns {string}
- */
-export const normalizeDate = (
-  date: string | null,
-  maxDigits: number = parseInt( DEFAULT_SETTINGS.maxDigits )
-): string | null => {
-  if ( !date ) {
-    return null 
-  }
-
-  // todo: handle sections of arbitrary length
-  let isNegativeYear = false
-  if ( date[0] === '-' ) {
-    isNegativeYear = true
-    date = date.substring( 1 )
-  }
-
-  const sections = date.split( '-' )
-
-  // cases:
-  // 4 sections: YYYY-MM-DD-HH (perfect, send it off as is)
-  // 3 sections: YYYY-MM-DD (add 01 at the end)
-  // 2 sections: YYYY-MM (add 01-01 at the end)
-  // 1 section: YYYY (add 01-01-01 at the end)
-
-  switch ( sections.length ) {
-  case 1:
-    sections.push( '01' ) // MM
-  case 2:
-    sections.push( '01' ) // DD
-  case 3:
-    sections.push( '01' ) // HH
-    break
-  }
-
-  const paddedSections = sections.map(( section ) => {
-    return section.padStart( maxDigits, '0' )
-  })
-
-  if ( isNegativeYear ) {
-    paddedSections[0] = `-${paddedSections[0]}`
-  }
-
-  return paddedSections.join( '-' )
-}
-
-/**
  * Format an event date for display
  *
  * @param {string} rawDate - string from of date in format "YYYY-MM-DD-HH"
@@ -210,7 +210,7 @@ export const buildTimelineDate = (
     luxonDateString = luxonDateTime.toISO()
 
     if ( !luxonDateString ) {
-      console.error( "Couldn't create a luxon date string!" )
+      console.error( "buildTimelineDate | Couldn't create a luxon date string!" )
       return null
     }
 
