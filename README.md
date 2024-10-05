@@ -19,15 +19,14 @@ You can check out the docs for **Timelines (Revamped)** [here](https://seanlowe.
 
 ## Release Notes
 
-### v2.3.1
+### v2.3.2
 
-Small QoL changes
+Bug Fix for: `[Bug - Vertical] Sections of the date are visible when not provided` [#86](https://github.com/seanlowe/obsidian-timelines/issues/86)
 
 **Changes:**
-- update some logging across the render workflow
-- small change to validity check on start and end dates on horizontal timelines
-- rearrange some functions in `dates.ts`
-- small updates to the README and the docs
+- revamped the date functionality so that users can pass date string sections as 0 or choose not pass them at all to keep them from rendering on the timeline
+- removed some unnecessary functions and types in cleanup
+- updated the docs on HTML event arguments to portray the new functionality
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

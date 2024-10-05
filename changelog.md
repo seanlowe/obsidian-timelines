@@ -1,5 +1,15 @@
 ## Changelog
 
+### v2.3.1
+
+Small QoL changes
+
+**Changes:**
+- update some logging across the render workflow
+- small change to validity check on start and end dates on horizontal timelines
+- rearrange some functions in `dates.ts`
+- small updates to the README and the docs
+
 ### v2.3.0
 
 Implement issue: `Multi-Type Timelines` [#43](https://github.com/seanlowe/obsidian-timelines/issues/43)
