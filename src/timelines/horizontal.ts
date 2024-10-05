@@ -62,7 +62,7 @@ export async function buildHorizontalTimeline(
       let type: string = event.type
       let typeOverride = false
       let end: Date | null = null
-      const start = buildTimelineDate( event.startDate, parseInt( settings.maxDigits ))
+      const start = buildTimelineDate( event.startDate.normalizedDateString, parseInt( settings.maxDigits ))
       if ( !start ) {
         console.warn(
           "buildHorizontalTimeline | Couldn't build the starting timeline date for the horizontal timeline",
@@ -72,9 +72,9 @@ export async function buildHorizontalTimeline(
         return
       }
 
-      if ( event.endDate && event.endDate !== '' ) {
+      if ( event.endDate.normalizedDateString && event.endDate.normalizedDateString !== '' ) {
         logger( 'buildHorizontalTimeline | there is an endDate for event:', event )
-        end = buildTimelineDate( event.endDate, parseInt( settings.maxDigits ))
+        end = buildTimelineDate( event.endDate.normalizedDateString, parseInt( settings.maxDigits ))
       } else {
         // if there is no end date, we cannot render as anything other than 'point'
         logger( 'buildHorizontalTimeline | NO endDate for event:', event )

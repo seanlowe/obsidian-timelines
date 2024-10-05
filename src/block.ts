@@ -21,7 +21,6 @@ import {
   getNumEventsInFile,
   isHTMLElementType,
   logger,
-  normalizeDate,
   setDefaultArgs,
   sortTimelineDates,
 } from './utils'
@@ -181,51 +180,33 @@ export class TimelineBlockProcessor {
           }
         }
 
-        // check if a valid date is specified
-        const noteId = normalizeDate( startDate, parseInt( this.settings.maxDigits ))
-        logger( 'parseFiles | noteId', noteId )
-
         const imgUrl = getImgUrl( this.appVault, eventImg )
+        const maxDigits = parseInt( this.settings.maxDigits )
+        const cleanedStartDateObject = cleanDate( startDate, maxDigits )
+        const cleanedEndDateObject   = cleanDate( endDate, maxDigits )
 
-        // normalizedStartDate is the same as noteId
-        let normalizedEndDate   = normalizeDate(  endDate  )
+        if ( !cleanedStartDateObject || !cleanedEndDateObject ) {
+          throw new Error( 'either the start or end date object is missing' )
+        }
 
+        const { normalizedDateString: noteId } = cleanedStartDateObject
         if ( !noteId ) {
           console.error( "Cannot normalize the event's start date! Skipping" ) 
           return
         }
 
-        if ( !normalizedEndDate ) {
-          console.warn( "parseFiles | Couldn't normalize the event's end date, setting it to empty." )
-          normalizedEndDate = ''
-        }
-
-        const cleanedStartDateObject = cleanDate( noteId )
-        const cleanedEndDateObject   = cleanDate( normalizedEndDate )
-
-        if ( !cleanedStartDateObject ) {
-          const message = 'no start date object'
-          throw new Error( message )
-        }
-
-        if ( !cleanedEndDateObject ) {
-          const message = 'no end date object'
-          throw new Error( message )
-        }
-
-        const { cleanedDateString: cleanedStartDate } = cleanedStartDateObject
-        const { cleanedDateString:  cleanedEndDate  } = cleanedEndDateObject
+        logger( 'parseFiles | noteId', noteId )
 
         const note: CardContainer = {
           id: noteId,
           classes,
           color,
-          endDate: cleanedEndDate,
+          endDate: cleanedEndDateObject,
           era,
           img: imgUrl,
           body: noteBody,
           path: notePath,
-          startDate: cleanedStartDate,
+          startDate: cleanedStartDateObject,
           title: noteTitle,
           type,
         }
