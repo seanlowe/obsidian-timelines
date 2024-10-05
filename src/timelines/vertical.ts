@@ -1,8 +1,6 @@
 import { sortAndRenderNestedEvents } from '.'
 import { AllNotesData, CardContainer, DivWithCalcFunc } from '../types'
 import {
-  buildMinimizedDateString,
-  buildTimelineDate,
   createInternalLinkOnNoteCard,
   handleColor,
 } from '../utils'
@@ -29,13 +27,19 @@ export async function buildVerticalTimeline(
     }
 
     const align = eventCount % 2 === 0 ? 'left' : 'right'
-    const firstNote = timelineNotes[date][0]
-    const firstDate = firstNote.startDate
+    const noteEvent: CardContainer = timelineNotes[date][0]
     const {
-      readable: readableStartDate,
-      normalized: normalizedStartDate,
-    } = buildMinimizedDateString( firstDate )
-    const datedTo = [ readableStartDate + ( firstDate.era ? ` ${firstDate.era}` : '' )]
+      era,
+      startDate: {
+        minimizedDateString: readableStartDate,
+        normalizedDateString: normalizedStartDate,
+      },
+    } = noteEvent
+
+    const datedTo: string[] = []
+
+    const startDateFormatted = readableStartDate + ( era ? ` ${era}` : '' )
+    datedTo.push( startDateFormatted )
 
     const noteDivs: HTMLDivElement[] = []
     const containerDiv = timeline.createDiv(
@@ -56,22 +60,35 @@ export async function buildVerticalTimeline(
 
     containerDiv.createEl( 'h2', {
       attr: { style: `text-align: ${align};` },
-      text: readableStartDate
+      text: startDateFormatted
     })
 
     for ( const rawNote of timelineNotes[date] ) {
       // for confirmation of types
       const note: CardContainer = rawNote
-      const { endDate: end, era, startDate: start, type } = note
-      const startDate: Date | null | string = buildTimelineDate( start )
-      let endDate: Date | null | string     = buildTimelineDate( end )
+      const {
+        endDate: endDateObject,
+        era,
+        startDate: startDateObject,
+        type,
+      } = note
 
-      if ( !startDate ) {
+      const normalizedStartDate = startDateObject.normalizedDateString
+      const {
+        originalDateString: end,
+        minimizedDateString: readableEndDate,
+        normalizedDateString: normalizedEndDate
+      } = endDateObject
+      
+      const startDate: string = normalizedStartDate
+      let endDate: string = normalizedEndDate
+
+      if ( !normalizedStartDate ) {
         console.error( "Couldn't build a start date for timeline on vertical timeline" )
         continue
       }
 
-      if ( !endDate ) {
+      if ( !end ) {
         endDate = ''
       }
 
@@ -84,19 +101,14 @@ export async function buildVerticalTimeline(
         containerDiv.classList.add( 'timeline-head' )
       }
 
-      const {
-        readable: readableEndDate,
-        normalized: normalizedEndDate
-      } = buildMinimizedDateString( end )
       const endDateFormatted = readableEndDate + ( era ? ` ${era}` : '' )
-
-
-      const lastTimelineDate = buildTimelineDate( noteDivs[noteDivs.length - 1].getAttribute( 'timeline-date' ))
-      if ( !lastTimelineDate ) {
+      const lastNormalizedDateOnTimeline = noteDivs[noteDivs.length - 1].getAttribute( 'timeline-date' )
+      if ( !lastNormalizedDateOnTimeline ) {
         console.error( "There's no last timeline date" )
         continue // change to break?
       }
 
+      const lastTimelineDate = timelineNotes[lastNormalizedDateOnTimeline]
       if ( !datedTo[1] || endDate > lastTimelineDate ) {
         datedTo[1] = `${datedTo[0]} to ${endDateFormatted}`
       }
@@ -113,18 +125,22 @@ export async function buildVerticalTimeline(
         attr: { style: `text-align: ${align};` },
         text: endDateFormatted
       })
+
       noteDivs.push( noteDiv )
 
       for ( let i = noteDivs.length - 2; i >= 0; i-- ) {
-        const timelineDate = buildTimelineDate( noteDivs[i].getAttribute( 'timeline-date' ))
+        const timelineDate = noteDivs[i].getAttribute( 'timeline-date' )
         if ( timelineDate && ( timelineDate > endDate )) {
           noteDivs[i].before( noteDiv )
         }
       }
 
-      /* The CSS 'timeline-timespan-length' determines both the length of the event timeline widget on the timeline,
-           and the length of the vertical segment that spans between the displayed dates. If this value is not recalculated
-           then these elements will not be responsive to layout changes. */
+      /* 
+       * The CSS 'timeline-timespan-length' determines both the length of the event 
+       * timeline widget on the timeline, and the length of the vertical segment that
+       * spans between the displayed dates. If this value is not recalculated then these
+       * elements will not be responsive to layout changes.
+       */
       ( noteDiv as DivWithCalcFunc ).calcLength = () => {
         const axisMin = containerDiv.getBoundingClientRect().top
         const axisMax = noteDiv.getBoundingClientRect().top
@@ -146,8 +162,11 @@ export async function buildVerticalTimeline(
         p.style.display = collapsed ? 'none' : 'block'
       })
 
-      /* If this event has a duration (and thus has an end note), we hide all elements between the start and end
-         note along with the end note itself */
+      /* 
+       * If this event has a duration (and thus has an end note),
+       * we hide all elements between the start and end
+       * note along with the end note itself
+       */
       if ( noteDivs.length > 1 ) {
         const h2 = containerDiv.querySelector( 'h2' )
         if ( !h2 ) {
@@ -165,9 +184,12 @@ export async function buildVerticalTimeline(
         })
       }
 
-      /* The CSS '--timeline-indent' variable allows for scaling down the event when contained within another event,
-         but in this case it also tells us how many time spanning events have had their length altered as a consequence
-         of this note's mutation. */
+      /* 
+       * The CSS '--timeline-indent' variable allows for scaling down the event
+       * when contained within another event, but in this case it also tells us
+       * how many time spanning events have had their length altered as a 
+       * consequence of this note's mutation.
+       */
       let nested = +containerDiv.style.getPropertyValue( '--timeline-indent' ) + noteDivs.length - 1
       let sibling = containerDiv.nextElementSibling
       while ( nested > 0 && sibling ) {
@@ -179,21 +201,23 @@ export async function buildVerticalTimeline(
       }
     })
 
-    // doesn't apply to vertical timelines?
-    /*noteContainer[0].addEventListener( 'click', ( event ) => {
-      event.preventDefault()
-      const currentStyle = eventContainer.style
-      if ( currentStyle.getPropertyValue( 'display' ) === 'none' ) {
-        currentStyle.setProperty( 'display', 'block' )
-        return
-      }
-
-      // note from https://github.com/Darakah/obsidian-timelines/pull/58
-      // TODO: Stop Propagation: don't close timeline-card when clicked.
-      // `vis-timeline-graph2d.js` contains a method called `_updateContents` that makes the display
-      // attribute disappear on click via line 7426: `element.innerHTML = '';`
-      currentStyle.setProperty( 'display', 'none' )
-    })*/
+    /* 
+     * doesn't apply to vertical timelines?
+     * noteContainer[0].addEventListener( 'click', ( event ) => {
+     *   event.preventDefault()
+     *   const currentStyle = eventContainer.style
+     *   if ( currentStyle.getPropertyValue( 'display' ) === 'none' ) {
+     *     currentStyle.setProperty( 'display', 'block' )
+     *     return
+     *   }
+     *
+     *   // note from https://github.com/Darakah/obsidian-timelines/pull/58
+     *   // TODO: Stop Propagation: don't close timeline-card when clicked.
+     *   // `vis-timeline-graph2d.js` contains a method called `_updateContents` that makes the display
+     *   // attribute disappear on click via line 7426: `element.innerHTML = '';`
+     *   currentStyle.setProperty( 'display', 'none' )
+     * })
+     */
 
     for ( const eventAtDate of timelineNotes[date] ) {
       const noteCard = eventsDiv.createDiv({ cls: 'timeline-card' })

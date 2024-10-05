@@ -27,7 +27,7 @@ Any included Month/Day sections of a date must be non-zero (for the time being) 
 
 For example: `2300-02-00-00` **should be passed as**: `2300-02` if you don't care about the day, or `2300-02-01` if you mean that it began at the beginning of the month. The last section of a date (the time), however, can be zero if you want. Any section that is not passed in will be added internally with the valid minimal value (`01`)
 
-> **NOTE:** Passing DAY and HOUR values as `0` will break your timeline. There's not much I can do about this on my end without a substantial rewrite of the dates systems. Perhaps one day I will tackle that.
+> **NOTE:** For values you don't want rendered, you can *either* pass those values as `0` or you can omit them from your event's date string. 
 
 Date normalization is handled according to the next section **Event Sorting**, so that dates -- even fantasy ones -- are sorted in the order specified. Although, there are some ... *intricacies*, when dealing with odd fantasy dates with the horizontal timeline simply due to the library used to generate the timeline. I'm looking into better solutions for this.
 

@@ -15,7 +15,13 @@ export enum AcceptableEventElements {
 /* ------------------------------ */
 
 export interface CleanedDateResultObject {
+  // full items
   cleanedDateString: string,
+  minimizedDateString: string,
+  normalizedDateString: string,
+  originalDateString: string,
+
+  // parts
   day: number,
   hour: number,
   month: number,
@@ -27,11 +33,11 @@ export interface CardContainer {
   body: string,
   classes: string,
   color: string,
-  endDate: string,
+  endDate: CleanedDateResultObject,
   era: string,
   img: string,
   path: string,
-  startDate: string,
+  startDate: CleanedDateResultObject,
   title: string,
   type: string,
 }
@@ -59,7 +65,7 @@ export interface EventItem {
   path: string,
   start: Date,
   type: string,
-  _event?: Partial<EventDataObject>,
+  _event?: Partial<CardContainer>,
 }
 
 export interface EventTypeNumbers {
@@ -99,16 +105,6 @@ export interface InternalTimelineArgs {
   type: string | null,
   zoomInLimit: number,
   zoomOutLimit: number,
-}
-
-export interface MinimizedResult {
-  readable: string,
-  cleaned: string,
-  normalized: string,
-}
-
-export interface NormalizeAndCleanDateOutput extends CleanedDateResultObject {
-  normalizedDate: string
 }
 
 export interface ParsedTagObject {
