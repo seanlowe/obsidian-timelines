@@ -19,14 +19,16 @@ You can check out the docs for **Timelines (Revamped)** [here](https://seanlowe.
 
 ## Release Notes
 
-### v2.3.2
+### v2.4.0
 
-Bug Fix for: `[Bug - Vertical] Sections of the date are visible when not provided` [#86](https://github.com/seanlowe/obsidian-timelines/issues/86)
+Implement Issues:
+- `[Feature - Vertical] Allow custom date formatting` [#87](https://github.com/seanlowe/obsidian-timelines/issues/87)
 
 **Changes:**
-- revamped the date functionality so that users can pass date string sections as 0 or choose not pass them at all to keep them from rendering on the timeline
-- removed some unnecessary functions and types in cleanup
-- updated the docs on HTML event arguments to portray the new functionality
+- custom date formatting:
+  - added a new setting to allow users to specify a custom date format for the vertical timeline
+  - wrote new function `formatDate` to handle the custom date format
+  - updated the docs to reflect the new functionality
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
