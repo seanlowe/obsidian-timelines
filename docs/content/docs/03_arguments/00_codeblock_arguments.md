@@ -14,6 +14,7 @@ Breaking down the filters:
 - `tags`: the tags you want displayed on your timeline
 - `startDate`: where you want your timeline to initially start displaying
 - `endDate`: where you initially want your timeline to end
+- `dateFormat`: a string with the format you want your dates to be displayed in. See below for acceptable values
 - `divHeight`: how tall you would like the timeline to be
 - `minDate`: minimum end-cap to prevent scrolling or viewing before this date
 - `maxDate`: maximum end-cap to prevent scrolling or viewing after this date
@@ -22,6 +23,23 @@ Breaking down the filters:
 - `type`: horizontal-specific key. Pass `flat` in order to render a horizontal timeline
 
 Acceptable values for filters:
+- `dateFormat`:
+  - defaults to `YYYY-MM-DD-HH`
+  - years:
+    - `YYYY`: **unfiltered**, display as however you pass it
+    - `YY`: last 2 digits of year, display as `YY`
+  - months:
+    - `MM`: **unfiltered**, display as however you pass it
+    - `M`: abbr month, display as `Jan`
+    - `MMM`: full month, display as `January`
+  - days:
+    - `DD`: **unfiltered**, display as however you pass it
+    - `D`: 1st, 2nd, 3rd, etc., display as `1`
+    - `DDD`: Sun, Mon, Tue, etc., display as `Sun`
+    - `DDDD`: Sunday, Monday, Tuesday, etc., display as `Sunday`
+  - hours:
+    - `HH`: **unfiltered**, display as however you pass it
+    - `H`: hours, display as `00`
 - `startDate`, `endDate`, `minDate`, `maxDate`: use the same format (`YYYY-MM-DD-HH`) as event date parameters
 - `zoomInLimit`:
   - You can either use the built-in timescales, or you can provide a value (in milliseconds) manually. Acceptable values are `day`, `week`, `month-detail`, `month-vague`, and `year`. Do not include to have no restrictions on zooming in (default behaviour).

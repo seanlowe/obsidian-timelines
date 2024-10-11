@@ -31,14 +31,14 @@ export async function buildVerticalTimeline(
     const {
       era,
       startDate: {
-        minimizedDateString: readableStartDate,
+        readableDateString,
         normalizedDateString: normalizedStartDate,
       },
     } = noteEvent
 
     const datedTo: string[] = []
 
-    const startDateFormatted = readableStartDate + ( era ? ` ${era}` : '' )
+    const startDateFormatted = readableDateString + ( era ? ` ${era}` : '' )
     datedTo.push( startDateFormatted )
 
     const noteDivs: HTMLDivElement[] = []
@@ -75,9 +75,9 @@ export async function buildVerticalTimeline(
 
       const normalizedStartDate = startDateObject.normalizedDateString
       const {
+        readableDateString,
+        normalizedDateString: normalizedEndDate,
         originalDateString: end,
-        minimizedDateString: readableEndDate,
-        normalizedDateString: normalizedEndDate
       } = endDateObject
       
       const startDate: string = normalizedStartDate
@@ -101,7 +101,7 @@ export async function buildVerticalTimeline(
         containerDiv.classList.add( 'timeline-head' )
       }
 
-      const endDateFormatted = readableEndDate + ( era ? ` ${era}` : '' )
+      const endDateFormatted = readableDateString + ( era ? ` ${era}` : '' )
       const lastNormalizedDateOnTimeline = noteDivs[noteDivs.length - 1].getAttribute( 'timeline-date' )
       if ( !lastNormalizedDateOnTimeline ) {
         console.error( "There's no last timeline date" )

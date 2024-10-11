@@ -1,18 +1,33 @@
 import { isNaN } from 'lodash'
-import { InternalTimelineArgs, ParsedTagObject } from '../types'
-import { buildTimelineDate } from './dates'
 
-export function setDefaultArgs(): InternalTimelineArgs {
+import { buildTimelineDate } from './dates'
+import { logger } from './debug'
+import { InternalTimelineArgs, ParsedTagObject, TimelinesSettings } from '../types'
+import { DEFAULT_SETTINGS } from '../constants'
+
+export function setDefaultArgs( settings: TimelinesSettings ): InternalTimelineArgs {
+  const { verticalTimelineDateDisplayFormat: defaultVerticalDateFormat } = DEFAULT_SETTINGS
+  const { verticalTimelineDateDisplayFormat: dateFormatFromSettings } = settings
+
+  logger( 'setDefaultArgs |', { dateFormatFromSettings, defaultVerticalDateFormat })
+
+  let useNewDefaultFormat = false
+  if ( dateFormatFromSettings !== defaultVerticalDateFormat ) {
+    logger( 'setDefaultArgs | using new default format' )
+    useNewDefaultFormat = true
+  }
+
   return {
     tags: {
       tagList: [],
       optionalTags: [],
     },
+    dateFormat: useNewDefaultFormat ? dateFormatFromSettings : defaultVerticalDateFormat,
     divHeight: 400,
-    startDate: buildTimelineDate( '-1000' )!,
-    endDate: buildTimelineDate( '3000' )!,
-    minDate: buildTimelineDate( '-3000' )!,
-    maxDate: buildTimelineDate( '3000' )!,
+    startDate: buildTimelineDate( '-1000-1-1-1' )!,
+    endDate: buildTimelineDate( '3000-1-1-1' )!,
+    minDate: buildTimelineDate( '-3000-1-1-1' )!,
+    maxDate: buildTimelineDate( '3000-1-1-1' )!,
     type: null,
 
     // have to put it to one more than the default max so that min actually works
