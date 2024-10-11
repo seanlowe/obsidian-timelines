@@ -115,6 +115,7 @@ export class TimelineCommandProcessor {
     newEventElement.setAttribute( 'data-era', '' )
     newEventElement.setAttribute( 'data-path', '' )
     newEventElement.setAttribute( 'data-tags', '' )
+    newEventElement.setAttribute( 'data-points-to', '' )
     newEventElement.setText( 'New Event' )
 
     // add a newline and a tab after each data attribute
@@ -146,6 +147,7 @@ export class TimelineCommandProcessor {
       era: '',
       path: '',
       tags: [],
+      pointsTo: '',
       showOnTimeline: true
     }
 

@@ -59,12 +59,12 @@ const buildBaseDataItem = (): Omit<DataItem, 'id'> & { id: IdType } => {
     id:      '', // will be overwritten by the event id
     start:   '', // will be overwritten by the event start
 
-    editable:  false,
-    group: undefined,
-    limitSize: false,
+    editable:   false,
+    group:      1,
+    limitSize:  false,
     selectable: true,
-    style: undefined,
-    title: undefined,
+    style:      undefined,
+    title:      undefined,
   }
 
   return baseDataItem
@@ -155,6 +155,7 @@ export const getEventData = (
   const noteTitle      = retrieveEventValue(
     eventObject, 'title', file.name.replace( '.md', '' ), frontMatterKeys?.titleKey
   )
+  const pointsTo       = retrieveEventValue( eventObject, 'pointsTo', '' )
   const tags           = retrieveEventValue( eventObject, 'tags', '' ) ?? ''
   const type           = retrieveEventValue( eventObject, 'type', 'box' )
   const showOnTimeline = retrieveEventValue( eventObject, 'showOnTimeline', 'false' )
@@ -168,6 +169,7 @@ export const getEventData = (
     noteBody,
     notePath,
     noteTitle,
+    pointsTo,
     showOnTimeline: !!showOnTimeline,
     startDate,
     tags,

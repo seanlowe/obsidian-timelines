@@ -1,3 +1,8 @@
+import { Timeline } from 'vis-timeline/esnext'
+import { DataSet } from 'vis-data'
+import Arrow from 'timeline-arrows'
+
+import { makeArrowsArray } from '.'
 import { CardContainer, CombinedTimelineEventData, EventItem, HorizontalTimelineInput } from '../types'
 import {
   buildCombinedTimelineDataObject,
@@ -6,10 +11,6 @@ import {
   handleColor,
   logger
 } from '../utils'
-
-// Horizontal (Vis-Timeline) specific imports
-import { Timeline } from 'vis-timeline/esnext'
-import { DataSet } from 'vis-data'
 
 /**
    * Build a horizontal timeline
@@ -111,6 +112,13 @@ export async function buildHorizontalTimeline(
     })
   })
 
+  const groups = [
+    {
+      id: 1,
+      content: '',
+    }
+  ]
+
   // Configuration for the Timeline
   const options = {
     start: args.startDate,
@@ -136,7 +144,12 @@ export async function buildHorizontalTimeline(
   }
 
   timelineDiv.setAttribute( 'class', 'timeline-vis' )
-  const timeline = new Timeline( timelineDiv, items, options )
+  const timeline = new Timeline( timelineDiv, items, groups, options )
+
+  const arrows = makeArrowsArray( items )
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const myArrows = new Arrow( timeline, arrows )
 
   // these are probably non-performant but it works so ¯\_(ツ)_/¯
   // dynamically add and remove a "special" class on hover
