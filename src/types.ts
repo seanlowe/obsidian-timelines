@@ -17,9 +17,9 @@ export enum AcceptableEventElements {
 export interface CleanedDateResultObject {
   // full items
   cleanedDateString: string,
-  minimizedDateString: string,
   normalizedDateString: string,
   originalDateString: string,
+  readableDateString: string,
 
   // parts
   day: number,
@@ -96,6 +96,7 @@ export interface HorizontalTimelineInput {
 }
 
 export interface InternalTimelineArgs {
+  dateFormat: string,
   divHeight: number,
   endDate: Date,
   maxDate: Date,

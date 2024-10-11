@@ -182,8 +182,8 @@ export class TimelineBlockProcessor {
 
         const imgUrl = getImgUrl( this.appVault, eventImg )
         const maxDigits = parseInt( this.settings.maxDigits )
-        const cleanedStartDateObject = cleanDate( startDate, maxDigits )
-        const cleanedEndDateObject   = cleanDate( endDate, maxDigits )
+        const cleanedStartDateObject = cleanDate( startDate, maxDigits, this.args.dateFormat )
+        const cleanedEndDateObject   = cleanDate( endDate, maxDigits, this.args.dateFormat )
 
         if ( !cleanedStartDateObject || !cleanedEndDateObject ) {
           throw new Error( 'either the start or end date object is missing' )

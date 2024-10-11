@@ -24,10 +24,10 @@ export function setDefaultArgs( settings: TimelinesSettings ): InternalTimelineA
     },
     dateFormat: useNewDefaultFormat ? dateFormatFromSettings : defaultVerticalDateFormat,
     divHeight: 400,
-    startDate: buildTimelineDate( '-1000' )!,
-    endDate: buildTimelineDate( '3000' )!,
-    minDate: buildTimelineDate( '-3000' )!,
-    maxDate: buildTimelineDate( '3000' )!,
+    startDate: buildTimelineDate( '-1000-1-1-1' )!,
+    endDate: buildTimelineDate( '3000-1-1-1' )!,
+    minDate: buildTimelineDate( '-3000-1-1-1' )!,
+    maxDate: buildTimelineDate( '3000-1-1-1' )!,
     type: null,
 
     // have to put it to one more than the default max so that min actually works
