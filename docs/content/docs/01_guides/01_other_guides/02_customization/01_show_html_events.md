@@ -9,7 +9,7 @@ toc: false
 
 <br></br>
 
-Timeline span and div entries (.ob-timelines class) are hidden in preview by default, however, if you wish to display content, try a snippet like this: 
+Timeline span and div entries (.ob-timelines class) are hidden in preview by default, however, if you wish to display content, try adding (in your Obsidian settings) a CSS snippet like this: 
 
 ```css
 /* Render the ob-timelines span or div elements as inline blocks that use an italic font */
