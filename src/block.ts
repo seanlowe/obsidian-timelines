@@ -41,7 +41,7 @@ export class TimelineBlockProcessor {
   }
 
   setup() {
-    this.args = setDefaultArgs()
+    this.args = setDefaultArgs( this.settings )
     this.files = this.appVault.getMarkdownFiles()
   }
 

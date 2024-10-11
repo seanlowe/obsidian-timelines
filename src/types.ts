@@ -120,6 +120,7 @@ export interface TimelinesSettings {
   sortDirection: boolean,
   timelineTag: string,
   maxDigits: string,
+  verticalTimelineDateDisplayFormat: string,
 }
 
 /* ------------------------------ */
