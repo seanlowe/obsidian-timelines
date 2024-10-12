@@ -34,6 +34,7 @@ Implement Issues:
   - added a new event property `pointsTo` to allow users to specify a target event to link to
   - wrote new function `makeArrowsArray` to handle finding links and creating the array of arrows to attach to the timeline
   - updated Insert commands to add the new property
+  - updated the docs to reflect the new functionality
 
 See the [changelog](./changelog.md) for more details on previous releases.
 
