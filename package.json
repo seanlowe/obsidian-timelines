@@ -39,6 +39,7 @@
     "lodash": "^4.17.21",
     "luxon": "^3.4.4",
     "node": "22.2.0",
+    "timeline-arrows": "^4.6.0",
     "vis-timeline": "^7.7.3"
   }
 }

@@ -14,6 +14,13 @@ export enum AcceptableEventElements {
 /*           Interfaces           */
 /* ------------------------------ */
 
+export interface ArrowObject {
+  id: number,
+  id_item_1: number,
+  id_item_2: number,
+  title?: string,
+}
+
 export interface CleanedDateResultObject {
   // full items
   cleanedDateString: string,
@@ -37,6 +44,7 @@ export interface CardContainer {
   era: string,
   img: string,
   path: string,
+  pointsTo: string,
   startDate: CleanedDateResultObject,
   title: string,
   type: string,
@@ -51,6 +59,7 @@ export interface EventDataObject {
   noteBody: string,
   notePath: string,
   noteTitle: string,
+  pointsTo: string,
   showOnTimeline: boolean | null,
   startDate: string,
   tags: string,

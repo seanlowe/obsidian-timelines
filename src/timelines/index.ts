@@ -1,5 +1,57 @@
+import { DataSet } from 'vis-data'
+
+import { ArrowObject, CombinedTimelineEventData } from '../types'
+import { logger } from '../utils'
+
 export * from './horizontal'
 export * from './vertical'
+
+const createArrow = ( currentId: number, targetId: number, title?: string ): ArrowObject => {
+  let arrow: ArrowObject = {
+    id: targetId,
+    id_item_1: currentId,
+    id_item_2: targetId,
+  }
+
+  if ( title ) {
+    arrow = {
+      ...arrow,
+      title,
+    }
+  }
+
+  return arrow
+}
+
+export function makeArrowsArray( items: DataSet<CombinedTimelineEventData, 'id'> ): ArrowObject[] {
+  const allItems = items.get()
+  logger( 'makeArrowsArray | all items', { allItems })
+
+  // loop over the items array and check if any have the 'pointsTo' property
+  // take the value of that property, normalize it, and then find the item with that id
+  // if it exists, then add an arrow to the timeline
+  const arrows: ArrowObject[] = []
+  for ( const item of allItems ) {
+    const { _event: eventItem } = item
+    if ( eventItem?.pointsTo ) {
+      const pointsTo = eventItem.pointsTo
+
+      // points to is the original start date of the event
+      // this can be found on event.startDate.originalDateString
+      const targetItem = allItems.find(( item ) => {
+        return item._event?.startDate?.originalDateString === pointsTo
+      })
+      if ( targetItem ) {
+        const arrowObject = createArrow( item.id, targetItem.id )
+        arrows.push( arrowObject )
+      }
+    }
+  }
+
+  logger( 'makeArrowsArray | arrows ', { arrows })
+
+  return arrows
+}
 
 export async function showEmptyTimelineMessage( el: HTMLElement, tagList: string[] ) {
   const timelineDiv = document.createElement( 'div' )
