@@ -71,6 +71,14 @@ Note: Currently only assets specified via `http` or `absolute local path` will r
   - Adds this text to the date span in the timeline as an era designation. Useful for fictional calendars.
   - Applied after the date is formatted. So `2300` with the era set to `AB` would display `2300 AB`.
 
+## Group (`data-group`)
+  - Optional
+  - Allows users to specify a group for the event. This is useful for grouping events together in the timeline.
+
+If a group is not specified, the timeline will be set to a default group that will display without a title. If there are **no groups** specified, the timeline will render the same as before.
+
+Groups are sorted in the order they appear on events in the timeline. This may mean that groups could appear in a different order than originally intended. Click and drag the group title to reorder the groups in the timeline.
+
 ## Node Color (`data-color`)
   - Optional
   - Tells the timeline to color that entry in the color provided.
