@@ -141,6 +141,7 @@ export class TimelineBlockProcessor {
           endDate: initialEndDate,
           era,
           eventImg,
+          group,
           noteBody,
           notePath,
           noteTitle,
@@ -192,7 +193,7 @@ export class TimelineBlockProcessor {
 
         const { normalizedDateString: noteId } = cleanedStartDateObject
         if ( !noteId ) {
-          console.error( "Cannot normalize the event's start date! Skipping" ) 
+          console.error( "Cannot normalize the event's start date! Skipping" )
           return
         }
 
@@ -204,6 +205,7 @@ export class TimelineBlockProcessor {
           color,
           endDate: cleanedEndDateObject,
           era,
+          group,
           img: imgUrl,
           body: noteBody,
           path: notePath,
@@ -243,14 +245,14 @@ export class TimelineBlockProcessor {
       return filterMdFiles( file, this.args.tags.optionalTags, this.metadataCache, true )
     })
 
-    // filter through the files with the correct optional tags 
+    // filter through the files with the correct optional tags
     // to those that also have the required tags
     const filesWithRequiredTags = filesWithOptionalTags.filter(( file ) => {
       return filterMdFiles( file, this.args.tags.tagList, this.metadataCache, false )
     })
-    
+
     this.currentFileList = filesWithRequiredTags
-    
+
     logger( 'run | tagged file objects', {
       filesWithOptionalTags,
       filesWithRequiredTags,

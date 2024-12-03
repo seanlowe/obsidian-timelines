@@ -31,16 +31,19 @@ In our note, we should see something like this:
 
 ```html
 <div class="ob-timelines"
-	data-title=""
-	data-description=""
-	data-color=""
-	data-type=""
-	data-start-date=""
-	data-end-date=""
-	data-era=""
-	data-path=""
-	data-tags="">
-	New Event
+  data-title=""
+  data-description=""
+  data-start-date=""
+  data-end-date=""
+  data-classes=""
+  data-color=""
+  data-era=""
+  data-group=""
+  data-path=""
+  data-points-to=""
+  data-type=""
+  data-tags="">
+  New Event
 </div>
 ```
 
@@ -55,7 +58,7 @@ We'll keep it simple. Update your event to hold the following data:
 </div>
 ```
 
-If you click off, don't be alarmed. By default, HTML elements with the `ob-timelines` class are hidden in Reading and Live Preview modes. It's still there, you just can't see it. We'll go over how to show a small indicator in a different note.
+If you click off, don't be alarmed. By default, HTML elements with the `ob-timelines` class are hidden in Reading and Live Preview modes. It's still there, you just can't see it. We'll go over how to show a small indicator in a different note. For now, you can switch back to Source mode to see the event.
 
 You've just created your first event.
 

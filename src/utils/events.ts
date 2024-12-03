@@ -56,11 +56,11 @@ const buildBaseDataItem = (): Omit<DataItem, 'id'> & { id: IdType } => {
     // end: eventItem.end ?? '',
 
     content: '', // will be overwritten by the event content
+    group:    1, // can be overwritten by the event group
     id:      '', // will be overwritten by the event id
     start:   '', // will be overwritten by the event start
 
     editable:   false,
-    group:      1,
     limitSize:  false,
     selectable: true,
     style:      undefined,
@@ -150,6 +150,7 @@ export const getEventData = (
   )
   const era            = retrieveEventValue( eventObject, 'era', '' )
   const eventImg       = retrieveEventValue( eventObject, 'img', '' )
+  const group          = retrieveEventValue( eventObject, 'group', '' )
   const noteBody       = retrieveEventValue( eventObject, 'description', defaultBody )
   const notePath       = retrieveEventValue( eventObject, 'path', '/' + normalizePath( file.path ))
   const noteTitle      = retrieveEventValue(
@@ -166,6 +167,7 @@ export const getEventData = (
     endDate,
     era,
     eventImg,
+    group,
     noteBody,
     notePath,
     noteTitle,

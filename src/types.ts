@@ -42,6 +42,7 @@ export interface CardContainer {
   color: string,
   endDate: CleanedDateResultObject,
   era: string,
+  group: string,
   img: string,
   path: string,
   pointsTo: string,
@@ -56,6 +57,7 @@ export interface EventDataObject {
   endDate: string,
   era: string,
   eventImg: string,
+  group: string,
   noteBody: string,
   notePath: string,
   noteTitle: string,
@@ -71,6 +73,7 @@ export interface EventItem {
   className: string,
   content: string,
   end: Date | undefined,
+  group: number,
   path: string,
   start: Date,
   type: string,
@@ -115,6 +118,12 @@ export interface InternalTimelineArgs {
   type: string | null,
   zoomInLimit: number,
   zoomOutLimit: number,
+}
+
+export interface MinimalGroup {
+  content: string,
+  id: number,
+  value: number,
 }
 
 export interface ParsedTagObject {
