@@ -14,7 +14,7 @@ export const DEFAULT_SETTINGS: TimelinesSettings = {
   sortDirection: true,
   timelineTag: 'timeline',
   maxDigits: '5',
-  verticalTimelineDateDisplayFormat: 'YYYY-MM-DD-HH',
+  verticalTimelineDateDisplayFormat: '',
 }
 
 export const DEVELOPER_SETTINGS = {

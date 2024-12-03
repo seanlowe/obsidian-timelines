@@ -398,7 +398,6 @@ function cascadeDeleteBasedOnMissingPredecessor( dateParts: Record<string, strin
  * 
  * @returns {string}
  */
-
 export function formatDate( dateString: string, formatString: string ): string {
   const dateRegex = /^(-?\d+)(?:-(-?\d+)(?:-(-?\d+)(?:-(-?\d+))?)?)?$/
   const match = dateString.match( dateRegex )
