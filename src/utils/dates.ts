@@ -84,6 +84,7 @@ export const cleanDate = (
   maxDigits: number = parseInt( DEFAULT_SETTINGS.maxDigits ),
   formatString: string = DEFAULT_SETTINGS.verticalTimelineDateDisplayFormat
 ): CleanedDateResultObject | null => {
+  logger( 'cleanDate | rawDate:', { rawDate, formatString })
   const normalizedDateString = normalizeDate( rawDate, maxDigits )
   if ( normalizedDateString === null ) {
     return null
@@ -91,14 +92,19 @@ export const cleanDate = (
 
   const isNegative = normalizedDateString[0] === '-'
   const normalizedParts = buildNumPartsArray( normalizedDateString, isNegative )
-  const originalParts = buildNumPartsArray( rawDate, isNegative )
   
   const fullCleanedDateString = ( isNegative ? '-' : '' ) + normalizedParts.join( '-' )
-  const cleanedDateStringFromOriginalParts = ( isNegative ? '-' : '' ) + originalParts.join( '-' )
+  let minimizedDateString = minimizeDateString( fullCleanedDateString )
+  let formattedDateString = formatDate( minimizedDateString, formatString )
 
   const useUserFormattedString = formatString !== DEFAULT_SETTINGS.verticalTimelineDateDisplayFormat
-  const minimizedDateString = minimizeDateString( cleanedDateStringFromOriginalParts )
-  const formattedDateString = formatDate( minimizedDateString, formatString )
+  if ( useUserFormattedString ) {
+    const originalParts = buildNumPartsArray( rawDate, isNegative )
+    const cleanedDateStringFromOriginalParts = ( isNegative ? '-' : '' ) + originalParts.join( '-' )
+
+    minimizedDateString = minimizeDateString( cleanedDateStringFromOriginalParts )
+    formattedDateString = formatDate( minimizedDateString, formatString )
+  }
 
   const year  = normalizedParts[0] * ( isNegative ? -1 : 1 )
   const month = ( normalizedParts[1] ?? 1 ) - ( normalizedParts[0] !== 0 ? 1 : 0 )
@@ -116,7 +122,13 @@ export const cleanDate = (
     hour
   }
 
-  logger( 'cleanDate | resultObject', resultObject )
+  logger( 'cleanDate | resultObject', {
+    ...resultObject,
+    formatString,
+    useUserFormattedString,
+    formattedDateString,
+    minimizedDateString,
+  })
   
   return resultObject
 }

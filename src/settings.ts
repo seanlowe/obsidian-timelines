@@ -105,7 +105,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
       )
       .addText(( text ) => {
         return text
-          .setPlaceholder( this.plugin.settings.verticalTimelineDateDisplayFormat )
+          .setPlaceholder( '' )
           .onChange( async ( value ) => {
             this.plugin.settings.verticalTimelineDateDisplayFormat = value
             await this.plugin.saveSettings()
