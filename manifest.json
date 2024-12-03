@@ -1,7 +1,7 @@
 {
   "id": "timelines-revamped",
   "name": "Timelines (Revamped)",
-  "version": "2.3.2",
+  "version": "2.4.0",
   "minAppVersion": "0.10.11",
   "description": "Successor to darakah's Timelines plugin: Generate a chronological timeline in which all 'events' are notes that include a specific tag or set of tags.",
   "author": "seanlowe",
