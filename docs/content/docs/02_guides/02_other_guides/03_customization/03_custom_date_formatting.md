@@ -23,7 +23,7 @@ Some examples, with values year (`2024`), month (`1`), day (`10`), and hour (`12
 - `dateFormat=DD/MM/YY @ H` would display `10/01/24 @ 12:00`
 - `dateFormat=The D day of MMM in the year YYYY` would display `The 10th day of January in the year 2024`
 
-> Note: For users who do not set a `dateFormat` argument, the value specified in the settings tab will be used. You can change this setting to be, realistically, anything you want. Leaving the default value empty will persist existing functionality of being able to pass date sections in as 0 or omit them to keep them from rendering on the timeline.
+> Note: For users who do not set a `dateFormat` argument, the value specified in the settings tab (by default an empty string `""`) will be used. You can change this setting to be, realistically, anything you want. Leaving the default value empty will persist existing functionality of being able to pass date sections in as 0.
 
 Please note, it is difficult to do validation on missing sections of a date format. If the section is supplied in the date format string but not supplied in the event date, it will usually throw an error and quit but can sometimes still display a malformed date on the timeline.
 

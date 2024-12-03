@@ -23,11 +23,9 @@ Rightmost-segments containing only zeros will be omitted when the timeline is ge
 - `2300-02-00-00` will display as `2300-02`
 - `2300-00-00-00` will display as `2300`
 
-Any included Month/Day sections of a date must be non-zero (for the time being) in order for the date to properly parse and be included on the timeline. 
+Any included Month/Day sections of a date must be non-zero (for the time being) in order for the date to properly parse and be included on the timeline. Any section that is not passed in will internally be added with the first valid value, usually `01`.
 
-For example: `2300-02-00-00` **should be passed as**: `2300-02` if you don't care about the day, or `2300-02-01` if you mean that it began at the beginning of the month. The last section of a date (the time), however, can be zero if you want. Any section that is not passed in will be added internally with the valid minimal value (`01`)
-
-> **NOTE:** When using the **default date format (YYYY-MM-DD-HH)**, for values you don't want rendered, you can *either* pass those values as `0` or you can omit them from your event's date string. 
+> **NOTE:** The above point about segments that contain only zeroes will be emitted is valid only when not using a custom **date format**.
 
 Date normalization is handled according to the next section **Event Sorting**, so that dates -- even fantasy ones -- are sorted in the order specified. Although, there are some ... *intricacies*, when dealing with odd fantasy dates with the horizontal timeline simply due to the library used to generate the timeline. I'm looking into better solutions for this.
 
