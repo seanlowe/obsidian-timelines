@@ -24,17 +24,17 @@ Breaking down the filters:
 
 Acceptable values for filters:
 - `dateFormat`:
-  - defaults to `YYYY-MM-DD-HH`
+  - set to an empty string `""` by default
   - years:
     - `YYYY`: **unfiltered**, display as however you pass it
-    - `YY`: last 2 digits of year, display as `YY`
+    - `YY`: last 2 digits of year, example, pass in 2019 and it will display as `19`
   - months:
     - `MM`: **unfiltered**, display as however you pass it
     - `M`: abbr month, display as `Jan`
     - `MMM`: full month, display as `January`
   - days:
     - `DD`: **unfiltered**, display as however you pass it
-    - `D`: 1st, 2nd, 3rd, etc., display as `1`
+    - `D`: 1st, 2nd, 3rd, etc., display as `1st`
     - `DDD`: Sun, Mon, Tue, etc., display as `Sun`
     - `DDDD`: Sunday, Monday, Tuesday, etc., display as `Sunday`
   - hours:

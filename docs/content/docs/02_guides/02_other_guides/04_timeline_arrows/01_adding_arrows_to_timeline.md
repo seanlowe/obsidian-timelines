@@ -10,7 +10,7 @@ draft: false
 
 If you ever wanted to add some kind of continuity or flow to your timeline, you can do so by adding arrows to your timeline. This is accomplished by using the [Timeline Arrows](https://github.com/javdome/timeline-arrows) package by [javdome](https://github.com/javdome/).
 
-The works via a new HTML argument on events: `data-points-to`. This argument takes the same string value as the `data-start-date` argument on the item you wish the arrow to point to.
+The works via a new argument on events: `data-points-to` (for HTML), `pointsTo` (for frontmatter). This argument takes the same string value as the `data-start-date` argument on the item you wish the arrow to point to.
 
 You can read more about the `data-points-to` argument [here](../../../04_arguments/02_html_arguments#points-to-data-points-to).
 
