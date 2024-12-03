@@ -41,7 +41,7 @@ export class TimelineBlockProcessor {
   }
 
   setup() {
-    this.args = setDefaultArgs()
+    this.args = setDefaultArgs( this.settings )
     this.files = this.appVault.getMarkdownFiles()
   }
 
@@ -141,9 +141,11 @@ export class TimelineBlockProcessor {
           endDate: initialEndDate,
           era,
           eventImg,
+          group,
           noteBody,
           notePath,
           noteTitle,
+          pointsTo,
           startDate,
           tags,
           type,
@@ -182,8 +184,8 @@ export class TimelineBlockProcessor {
 
         const imgUrl = getImgUrl( this.appVault, eventImg )
         const maxDigits = parseInt( this.settings.maxDigits )
-        const cleanedStartDateObject = cleanDate( startDate, maxDigits )
-        const cleanedEndDateObject   = cleanDate( endDate, maxDigits )
+        const cleanedStartDateObject = cleanDate( startDate, maxDigits, this.args.dateFormat )
+        const cleanedEndDateObject   = cleanDate( endDate, maxDigits, this.args.dateFormat )
 
         if ( !cleanedStartDateObject || !cleanedEndDateObject ) {
           throw new Error( 'either the start or end date object is missing' )
@@ -191,7 +193,7 @@ export class TimelineBlockProcessor {
 
         const { normalizedDateString: noteId } = cleanedStartDateObject
         if ( !noteId ) {
-          console.error( "Cannot normalize the event's start date! Skipping" ) 
+          console.error( "Cannot normalize the event's start date! Skipping" )
           return
         }
 
@@ -203,9 +205,11 @@ export class TimelineBlockProcessor {
           color,
           endDate: cleanedEndDateObject,
           era,
+          group,
           img: imgUrl,
           body: noteBody,
           path: notePath,
+          pointsTo,
           startDate: cleanedStartDateObject,
           title: noteTitle,
           type,
@@ -241,14 +245,14 @@ export class TimelineBlockProcessor {
       return filterMdFiles( file, this.args.tags.optionalTags, this.metadataCache, true )
     })
 
-    // filter through the files with the correct optional tags 
+    // filter through the files with the correct optional tags
     // to those that also have the required tags
     const filesWithRequiredTags = filesWithOptionalTags.filter(( file ) => {
       return filterMdFiles( file, this.args.tags.tagList, this.metadataCache, false )
     })
-    
+
     this.currentFileList = filesWithRequiredTags
-    
+
     logger( 'run | tagged file objects', {
       filesWithOptionalTags,
       filesWithRequiredTags,

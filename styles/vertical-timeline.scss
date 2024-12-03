@@ -123,7 +123,9 @@ $event-widget-border-width: 4px;
 
     & > h2 {
       padding-top: $gap;
+      display: flex;
     }
+
     & > h2::before {
       content: "";
       display: block;
@@ -135,6 +137,7 @@ $event-widget-border-width: 4px;
       border-bottom: $border-width solid var(--background-primary);
       z-index: 1;
     }
+
     &.timeline-left > h2::before {
       left: -$border-width;
       margin-left: $timeline-note-padding;
@@ -160,6 +163,7 @@ $event-widget-border-width: 4px;
       border-top-right-radius: $note-segment-width;
       z-index: 0;
     }
+
     &.timeline-left > h2::after {
       left: 0;
       margin-left: $timeline-note-padding;

@@ -1,5 +1,14 @@
 ## Changelog
 
+### v2.3.2
+
+Bug Fix for: `[Bug - Vertical] Sections of the date are visible when not provided` [#86](https://github.com/seanlowe/obsidian-timelines/issues/86)
+
+**Changes:**
+- revamped the date functionality so that users can pass date string sections as 0 or choose not pass them at all to keep them from rendering on the timeline
+- removed some unnecessary functions and types in cleanup
+- updated the docs on HTML event arguments to portray the new functionality
+
 ### v2.3.1
 
 Small QoL changes

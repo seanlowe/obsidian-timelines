@@ -19,14 +19,29 @@ You can check out the docs for **Timelines (Revamped)** [here](https://seanlowe.
 
 ## Release Notes
 
-### v2.3.2
+### v2.4.0
 
-Bug Fix for: `[Bug - Vertical] Sections of the date are visible when not provided` [#86](https://github.com/seanlowe/obsidian-timelines/issues/86)
+Implement Issues:
+- `[Feature - Vertical] Allow custom date formatting` [#87](https://github.com/seanlowe/obsidian-timelines/issues/87)
+- `[Feature - Horizontal] Implement Timeline-arrow as a way of connecting events` [#44](https://github.com/seanlowe/obsidian-timelines/issues/44)
+- `[Feature - Horizontal] Implement timeline groups / subgroups` [#62](https://github.com/seanlowe/obsidian-timelines/issues/62)
 
 **Changes:**
-- revamped the date functionality so that users can pass date string sections as 0 or choose not pass them at all to keep them from rendering on the timeline
-- removed some unnecessary functions and types in cleanup
-- updated the docs on HTML event arguments to portray the new functionality
+- custom date formatting:
+  - added a new setting to allow users to specify a custom date format for the vertical timeline
+  - wrote new function `formatDate` to handle the custom date format
+  - updated the docs to reflect the new functionality
+- timeline-arrow integration:
+  - added a new event property `pointsTo` (`data-points-to`) to allow users to specify a target event to link to
+  - wrote new function `makeArrowsArray` to handle finding links and creating the array of arrows to attach to the timeline
+  - updated Insert commands to add the new property
+  - updated the docs to reflect the new functionality
+- Timeline groups / subgroups:
+  - added a new event property `group` (`data-group`) to allow users to specify a group for the event ([docs](https://seanlowe.github.io/obsidian-timelines/docs/04_arguments/02_html_arguments/#group-data-group))
+  - added functionality to allow users to reorder groups
+  - edited logic to handle the new event property
+  - updated Insert commands to add the new property
+  - updated the docs to reflect the new functionality
 
 See the [changelog](./changelog.md) for more details on previous releases.
 

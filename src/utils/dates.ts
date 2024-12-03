@@ -61,6 +61,15 @@ export const buildTimelineDate = (
   return returnDate
 }
 
+const buildNumPartsArray = ( dateString: string, isNegative: boolean ): number[] => {
+  const parts = isNegative ? dateString.slice( 1 ).split( '-' ) : dateString.toString().split( '-' )
+  const numParts: number[] = parts.map(( part ) => {
+    return parseInt( part, 10 )
+  })
+
+  return numParts
+}
+
 /**
  * Take a raw date, normalize it, and clean it of leading zeros, the return all the various
  * parts needed for buildTimelineDate
@@ -70,29 +79,32 @@ export const buildTimelineDate = (
  * 
  * @returns {CleanedDateResultObject}
  */
-export const cleanDate = ( rawDate: string, maxDigits?: number ): CleanedDateResultObject | null => {
+export const cleanDate = (
+  rawDate: string,
+  maxDigits: number = parseInt( DEFAULT_SETTINGS.maxDigits ),
+  formatString: string = DEFAULT_SETTINGS.verticalTimelineDateDisplayFormat
+): CleanedDateResultObject | null => {
+  logger( 'cleanDate | rawDate:', { rawDate, formatString })
   const normalizedDateString = normalizeDate( rawDate, maxDigits )
   if ( normalizedDateString === null ) {
     return null
   }
 
   const isNegative = normalizedDateString[0] === '-'
-  const buildNumPartsArray = ( dateString: string ) => {
-    const parts = isNegative ? dateString.slice( 1 ).split( '-' ) : dateString.toString().split( '-' )
-    const numParts: number[] = parts.map(( part ) => {
-      return parseInt( part, 10 )
-    })
-
-    return numParts
-  }
-  
-  const normalizedParts = buildNumPartsArray( normalizedDateString )
-  const originalParts = buildNumPartsArray( rawDate )
+  const normalizedParts = buildNumPartsArray( normalizedDateString, isNegative )
   
   const fullCleanedDateString = ( isNegative ? '-' : '' ) + normalizedParts.join( '-' )
-  const cleanedDateStringFromOriginalParts = ( isNegative ? '-' : '' ) + originalParts.join( '-' )
+  let minimizedDateString = minimizeDateString( fullCleanedDateString )
+  let formattedDateString = formatDate( minimizedDateString, formatString )
 
-  const minimizedDateString = minimizeDateString( cleanedDateStringFromOriginalParts )
+  const useUserFormattedString = formatString !== DEFAULT_SETTINGS.verticalTimelineDateDisplayFormat
+  if ( useUserFormattedString ) {
+    const originalParts = buildNumPartsArray( rawDate, isNegative )
+    const cleanedDateStringFromOriginalParts = ( isNegative ? '-' : '' ) + originalParts.join( '-' )
+
+    minimizedDateString = minimizeDateString( cleanedDateStringFromOriginalParts )
+    formattedDateString = formatDate( minimizedDateString, formatString )
+  }
 
   const year  = normalizedParts[0] * ( isNegative ? -1 : 1 )
   const month = ( normalizedParts[1] ?? 1 ) - ( normalizedParts[0] !== 0 ? 1 : 0 )
@@ -101,16 +113,22 @@ export const cleanDate = ( rawDate: string, maxDigits?: number ): CleanedDateRes
 
   const resultObject: CleanedDateResultObject = {
     cleanedDateString: fullCleanedDateString,
-    minimizedDateString,
     normalizedDateString,
     originalDateString: rawDate,
+    readableDateString: useUserFormattedString ? formattedDateString : minimizedDateString,
     year,
     month,
     day,
     hour
   }
 
-  logger( 'cleanDate | resultObject', resultObject )
+  logger( 'cleanDate | resultObject', {
+    ...resultObject,
+    formatString,
+    useUserFormattedString,
+    formattedDateString,
+    minimizedDateString,
+  })
   
   return resultObject
 }
@@ -256,4 +274,181 @@ export const sortTimelineDates = ( timelineDates: string[], sortDirection: boole
   }
   
   return sortedTimelineDates
+}
+
+function mapMonthValueToName( month: string, abbreviate: boolean = false ): string {
+  let name = month
+  switch ( month ) {
+  case '1':
+    name = 'January'
+    break
+  case '2':
+    name = 'February'
+    break
+  case '3':
+    name = 'March'
+    break
+  case '4':
+    name = 'April'
+    break
+  case '5':
+    name = 'May'
+    break
+  case '6':
+    name = 'June'
+    break
+  case '7':
+    name = 'July'
+    break
+  case '8':
+    name = 'August'
+    break
+  case '9':
+    name = 'September'
+    break
+  case '10':
+    name = 'October'
+    break
+  case '11':
+    name = 'November'
+    break
+  case '12':
+    name = 'December'
+    break
+  default:
+    break
+  }
+
+  return abbreviate ? name.slice( 0, 3 ) : name
+}
+
+function mapDayToWeekdayName( year: string, month: string, day: string, abbreviate: boolean = false ): string {
+  const date = new Date( parseInt( year ), parseInt( month ) - 1, parseInt( day ))
+  const dayOfWeek = mapDayOfWeekToName( date.getDay() + 1 )
+
+  return abbreviate ? dayOfWeek.slice( 0, 3 ) : dayOfWeek
+}
+
+function mapDayOfWeekToName( dayOfWeek: number ): string {
+  switch ( `${dayOfWeek}` ) {
+  case '1':
+    return 'Sunday'
+  case '2':
+    return 'Monday'
+  case '3':
+    return 'Tuesday'
+  case '4':
+    return 'Wednesday'
+  case '5':
+    return 'Thursday'
+  case '6':
+    return 'Friday'
+  case '7':
+    return 'Saturday'
+  default:
+    return `the ${mapDayToDecoratedNum( dayOfWeek.toString())} day of the week`
+  }
+}
+
+function mapDayToDecoratedNum( day: string ): string {
+  let modifier = 'th'
+  switch ( day ) {
+  case '1':
+  case '21':
+  case '31':
+    modifier = 'st'
+    break
+  case '2':
+  case '22':
+    modifier = 'nd'
+    break
+  case '3':
+  case '23':
+    modifier = 'rd'
+    break
+  default:
+    break
+  }
+
+  return `${day}${modifier}`
+}
+
+function cascadeDeleteBasedOnMissingPredecessor( dateParts: Record<string, string | undefined> ) {
+  const yearVariants = ['YY']
+  const monthVariants = ['MM', 'MMM']
+  const dayVariants = ['DD', 'DDD', 'DDDD']
+  const hourVariants = ['HH']
+
+  const toDelete: string[] = []
+  if ( !dateParts.YYYY ) {
+    // if missing years, add everything except years to the delete array
+    toDelete.push( ...yearVariants, 'M', ...monthVariants, 'D', ...dayVariants, 'H', ...hourVariants )
+  } else  if ( !dateParts.M ) {
+    // if missing months, add all potential month variants and day and hour parts to the delete array
+    toDelete.push( ...monthVariants, 'D', ...dayVariants, 'H', ...hourVariants )
+  } else if ( !dateParts.D ) {
+    // if missing days, add all potential day variants and hour parts to the delete array
+    toDelete.push( ...dayVariants, 'H', ...hourVariants )
+  } else if ( !dateParts.H ) {
+    // if missing hours, add all potential hour variants to the delete array
+    toDelete.push( ...hourVariants )
+  }
+
+  // loop through dateParts and delete any keys that are in the delete array
+  for ( const key in dateParts ) {
+    if ( toDelete.includes( key )) {
+      delete dateParts[key]
+    }
+  }
+}
+
+/**
+ * Take a minified date string and format it according to the settings supplied
+ * 
+ * @param {string} dateString - the date to format
+ * @param {string} formatString - the string format to use for the date
+ * 
+ * @returns {string}
+ */
+export function formatDate( dateString: string, formatString: string ): string {
+  const dateRegex = /^(-?\d+)(?:-(-?\d+)(?:-(-?\d+)(?:-(-?\d+))?)?)?$/
+  const match = dateString.match( dateRegex )
+
+  if ( !match ) {
+    throw new Error( 'Invalid date format. Expected format: YYYY or YYYY-MM or YYYY-MM-DD or YYYY-MM-DD-HH' )
+  }
+
+  const [, year, month, day, hour] = match
+  const dateParts: Record<string, string | undefined> = {
+    YYYY: year, // unfiltered
+    MM: month,  // unfiltered
+    DD: day,    // unfiltered
+    HH: hour,   // unfiltered
+
+    YY:   year  ? year.slice( -2 )                              : undefined, // last 2 digits of year
+    M:    month ? mapMonthValueToName( month, true )            : undefined, // abbr month
+    MMM:  month ? mapMonthValueToName( month )                  : undefined, // full month
+    D:    day   ? mapDayToDecoratedNum( day )                   : undefined, // 1st, 2nd, 3rd, etc.
+    DDD:  day   ? mapDayToWeekdayName( year, month, day, true ) : undefined, // Sun, Mon, Tue, etc.
+    DDDD: day   ? mapDayToWeekdayName( year, month, day )       : undefined, // Sunday, Monday, Tuesday, etc.
+    H:    hour  ? hour + ':00'                                  : undefined,
+  }
+
+  logger( 'formatDate | dateparts before cascade delete', dateParts )
+  cascadeDeleteBasedOnMissingPredecessor( dateParts )
+  logger( 'formatDate | dateparts after cascade delete', dateParts )
+
+  // Validate that all tokens in formatString exist in dateParts
+  const requiredTokens = formatString.match( /\b(H|D{1,4}|M{1,3}|Y{2,4})\b/g ) || []
+  for ( const token of requiredTokens ) {
+    if ( !( token in dateParts )) {
+      throw new Error( `Invalid format: ${token} is missing in the date string.` )
+    }
+  }
+
+  // Replace each token in the format string by calling its associated function
+  return formatString.replace( /\b(H{1,2}|D{1,4}|M{1,3}|Y{2,4})\b/g, ( token ) => {
+    logger( `formatDate | replacing token: ${token}` )
+    return dateParts[token] ?? '' // Replace with formatted part or empty string
+  })
 }

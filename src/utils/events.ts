@@ -56,15 +56,15 @@ const buildBaseDataItem = (): Omit<DataItem, 'id'> & { id: IdType } => {
     // end: eventItem.end ?? '',
 
     content: '', // will be overwritten by the event content
+    group:    1, // can be overwritten by the event group
     id:      '', // will be overwritten by the event id
     start:   '', // will be overwritten by the event start
 
-    editable:  false,
-    group: undefined,
-    limitSize: false,
+    editable:   false,
+    limitSize:  false,
     selectable: true,
-    style: undefined,
-    title: undefined,
+    style:      undefined,
+    title:      undefined,
   }
 
   return baseDataItem
@@ -150,11 +150,13 @@ export const getEventData = (
   )
   const era            = retrieveEventValue( eventObject, 'era', '' )
   const eventImg       = retrieveEventValue( eventObject, 'img', '' )
+  const group          = retrieveEventValue( eventObject, 'group', '' )
   const noteBody       = retrieveEventValue( eventObject, 'description', defaultBody )
   const notePath       = retrieveEventValue( eventObject, 'path', '/' + normalizePath( file.path ))
   const noteTitle      = retrieveEventValue(
     eventObject, 'title', file.name.replace( '.md', '' ), frontMatterKeys?.titleKey
   )
+  const pointsTo       = retrieveEventValue( eventObject, 'pointsTo', '' )
   const tags           = retrieveEventValue( eventObject, 'tags', '' ) ?? ''
   const type           = retrieveEventValue( eventObject, 'type', 'box' )
   const showOnTimeline = retrieveEventValue( eventObject, 'showOnTimeline', 'false' )
@@ -165,9 +167,11 @@ export const getEventData = (
     endDate,
     era,
     eventImg,
+    group,
     noteBody,
     notePath,
     noteTitle,
+    pointsTo,
     showOnTimeline: !!showOnTimeline,
     startDate,
     tags,

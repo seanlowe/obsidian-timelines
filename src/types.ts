@@ -14,12 +14,19 @@ export enum AcceptableEventElements {
 /*           Interfaces           */
 /* ------------------------------ */
 
+export interface ArrowObject {
+  id: number,
+  id_item_1: number,
+  id_item_2: number,
+  title?: string,
+}
+
 export interface CleanedDateResultObject {
   // full items
   cleanedDateString: string,
-  minimizedDateString: string,
   normalizedDateString: string,
   originalDateString: string,
+  readableDateString: string,
 
   // parts
   day: number,
@@ -35,8 +42,10 @@ export interface CardContainer {
   color: string,
   endDate: CleanedDateResultObject,
   era: string,
+  group: string,
   img: string,
   path: string,
+  pointsTo: string,
   startDate: CleanedDateResultObject,
   title: string,
   type: string,
@@ -48,9 +57,11 @@ export interface EventDataObject {
   endDate: string,
   era: string,
   eventImg: string,
+  group: string,
   noteBody: string,
   notePath: string,
   noteTitle: string,
+  pointsTo: string,
   showOnTimeline: boolean | null,
   startDate: string,
   tags: string,
@@ -62,6 +73,7 @@ export interface EventItem {
   className: string,
   content: string,
   end: Date | undefined,
+  group: number,
   path: string,
   start: Date,
   type: string,
@@ -96,6 +108,7 @@ export interface HorizontalTimelineInput {
 }
 
 export interface InternalTimelineArgs {
+  dateFormat: string,
   divHeight: number,
   endDate: Date,
   maxDate: Date,
@@ -105,6 +118,12 @@ export interface InternalTimelineArgs {
   type: string | null,
   zoomInLimit: number,
   zoomOutLimit: number,
+}
+
+export interface MinimalGroup {
+  content: string,
+  id: number,
+  value: number,
 }
 
 export interface ParsedTagObject {
@@ -120,6 +139,7 @@ export interface TimelinesSettings {
   sortDirection: boolean,
   timelineTag: string,
   maxDigits: string,
+  verticalTimelineDateDisplayFormat: string,
 }
 
 /* ------------------------------ */

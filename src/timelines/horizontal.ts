@@ -1,15 +1,22 @@
-import { CardContainer, CombinedTimelineEventData, EventItem, HorizontalTimelineInput } from '../types'
+import Arrow from 'timeline-arrows'
+import { DataInterface, DataSet } from 'vis-data'
+import { DataGroup, Timeline, TimelineGroupEditableOption, TimelineOptionsGroupHeightModeType } from 'vis-timeline/esnext'
+
+import { makeArrowsArray } from '.'
+import {
+  CardContainer,
+  CombinedTimelineEventData,
+  EventItem,
+  HorizontalTimelineInput,
+  MinimalGroup
+} from '../types'
 import {
   buildCombinedTimelineDataObject,
   buildTimelineDate,
   createInternalLinkOnNoteCard,
   handleColor,
-  logger
+  logger,
 } from '../utils'
-
-// Horizontal (Vis-Timeline) specific imports
-import { Timeline } from 'vis-timeline/esnext'
-import { DataSet } from 'vis-data'
 
 /**
    * Build a horizontal timeline
@@ -37,11 +44,24 @@ export async function buildHorizontalTimeline(
     return
   }
 
+  const groups: MinimalGroup[] = [
+    {
+      // default group
+      content: '',
+      id: 1,
+      value: 1,
+    },
+  ]
+
   timelineDates.forEach(( date ) => {
     // add all events at this date
     Object.values( timelineNotes[date] ).forEach(( event: CardContainer ) => {
       const noteCard = document.createElement( 'div' )
       noteCard.className = 'timeline-card ' + event.classes
+      let colorIsClass = false
+      let end: Date | null = null
+      let type: string = event.type
+      let typeOverride = false
 
       // add an image only if available
       if ( event.img ) {
@@ -51,17 +71,13 @@ export async function buildHorizontalTimeline(
         })
       }
 
-      let colorIsClass = false
       if ( event.color ) {
         colorIsClass = handleColor( event.color, noteCard, event.id )
       }
 
       createInternalLinkOnNoteCard( event, noteCard )
       noteCard.createEl( 'p', { text: event.body })
-
-      let type: string = event.type
-      let typeOverride = false
-      let end: Date | null = null
+      
       const start = buildTimelineDate( event.startDate.normalizedDateString, parseInt( settings.maxDigits ))
       if ( !start ) {
         console.warn(
@@ -92,16 +108,30 @@ export async function buildHorizontalTimeline(
       }
 
       const initialClassName = colorIsClass ? event.color ?? 'gray' : `nid-${event.id}`
+      const defaultGroup = groups[0]
+      let foundGroup = groups.find(( group ) => {
+        return group.content === event.group 
+      })
+      if ( !foundGroup && event.group ) {
+        const newGroup: MinimalGroup = {
+          content: event.group,
+          id: groups.length + 1,
+          value: groups.length + 1,
+        }
+        groups.push( newGroup )
+        foundGroup = newGroup
+      }
 
       const eventItem: EventItem = {
-        id: items.length + 1,
-        content: event.title ?? '',
-        start: start,
+        id:        items.length + 1,
+        content:   event.title ?? '',
         className: initialClassName + ' ' + event.classes,
-        type: typeOverride ? type : event.type,
-        end: end ?? undefined,
-        path: event.path,
-        _event: event,
+        end:       end ?? undefined,
+        group:     foundGroup?.id ?? defaultGroup.id,
+        path:      event.path,
+        start:     start,
+        type:      typeOverride ? type : event.type,
+        _event:    event,
       }
 
       const timelineItem: CombinedTimelineEventData = buildCombinedTimelineDataObject( eventItem )
@@ -113,15 +143,30 @@ export async function buildHorizontalTimeline(
 
   // Configuration for the Timeline
   const options = {
-    start: args.startDate,
     end: args.endDate,
     min: args.minDate,
-    max: args.maxDate,
     minHeight: args.divHeight,
+    max: args.maxDate,
+    start: args.startDate,
+    zoomMax: args.zoomOutLimit,
+    zoomMin: args.zoomInLimit,
+
+    // non-argument options
     showCurrentTime: false,
     showTooltips: false,
-    zoomMin: args.zoomInLimit,
-    zoomMax: args.zoomOutLimit,
+    groupEditable: {
+      order: true,
+    } as TimelineGroupEditableOption,
+    groupHeightMode: 'fitItems' as TimelineOptionsGroupHeightModeType,
+    groupOrder: ( a: MinimalGroup, b: MinimalGroup ): number => {
+      return a.value - b.value
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    groupOrderSwap: ( a: MinimalGroup, b: MinimalGroup, groups: DataInterface<DataGroup, 'id'> ): void => {
+      const temp = a.value
+      a.value = b.value
+      b.value = temp
+    },
     template: ( item: EventItem ) => {
       const eventContainer = document.createElement( settings.notePreviewOnHover ? 'a' : 'div' )
       if ( 'href' in eventContainer ) {
@@ -136,7 +181,12 @@ export async function buildHorizontalTimeline(
   }
 
   timelineDiv.setAttribute( 'class', 'timeline-vis' )
-  const timeline = new Timeline( timelineDiv, items, options )
+  const timeline = new Timeline( timelineDiv, items, groups, options )
+
+  const arrows = makeArrowsArray( items )
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const myArrows = new Arrow( timeline, arrows )
 
   // these are probably non-performant but it works so ¯\_(ツ)_/¯
   // dynamically add and remove a "special" class on hover

@@ -107,13 +107,15 @@ export class TimelineCommandProcessor {
     newEventElement.setAttribute( 'class', 'ob-timelines' )
     newEventElement.setAttribute( 'data-title', '' )
     newEventElement.setAttribute( 'data-description', '' )
-    newEventElement.setAttribute( 'data-classes', '' )
-    newEventElement.setAttribute( 'data-color', '' )
-    newEventElement.setAttribute( 'data-type', '' )
     newEventElement.setAttribute( 'data-start-date', '' )
     newEventElement.setAttribute( 'data-end-date', '' )
+    newEventElement.setAttribute( 'data-classes', '' )
+    newEventElement.setAttribute( 'data-color', '' )
     newEventElement.setAttribute( 'data-era', '' )
+    newEventElement.setAttribute( 'data-group', '' )
     newEventElement.setAttribute( 'data-path', '' )
+    newEventElement.setAttribute( 'data-points-to', '' )
+    newEventElement.setAttribute( 'data-type', '' )
     newEventElement.setAttribute( 'data-tags', '' )
     newEventElement.setText( 'New Event' )
 
@@ -138,13 +140,15 @@ export class TimelineCommandProcessor {
     const frontmatterJson = {
       title: '',
       description: '',
-      classes: '',
-      color: '',
-      type: '',
       startDate: '',
       endDate: '',
+      classes: '',
+      color: '',
       era: '',
+      group: '',
       path: '',
+      pointsTo: '',
+      type: '',
       tags: [],
       showOnTimeline: true
     }

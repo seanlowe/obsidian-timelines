@@ -97,6 +97,21 @@ export class TimelinesSettingTab extends PluginSettingTab {
         })
       })
 
+    new Setting( containerEl )
+      .setName( 'Vertical Timeline Date Display Format' )
+      .setDesc( 
+        `Specify the format for the date displayed in the vertical timeline. Check the docs
+        for information on acceptable formatting tokens.`
+      )
+      .addText(( text ) => {
+        return text
+          .setPlaceholder( '' )
+          .onChange( async ( value ) => {
+            this.plugin.settings.verticalTimelineDateDisplayFormat = value
+            await this.plugin.saveSettings()
+          })
+      })
+
     containerEl.createEl( 'h6', { text: 'Customize frontmatter keys' }).appendChild(
       createEl( 'p', {
         text: `Specify the front matter keys used to extract start dates, end dates,
