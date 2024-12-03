@@ -101,7 +101,7 @@ export class TimelinesSettingTab extends PluginSettingTab {
       .setName( 'Vertical Timeline Date Display Format' )
       .setDesc( 
         `Specify the format for the date displayed in the vertical timeline. Check the docs
-        for information on acceptable formatting tokens. Defaults to "YYYY-MM-DD-HH".`
+        for information on acceptable formatting tokens.`
       )
       .addText(( text ) => {
         return text
