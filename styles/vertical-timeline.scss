@@ -123,6 +123,7 @@ $event-widget-border-width: 4px;
 
     & > h2 {
       padding-top: $gap;
+      display: flex;
     }
 
     & > h2::before {
