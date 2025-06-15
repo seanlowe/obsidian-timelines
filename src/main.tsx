@@ -2,11 +2,10 @@ import type { TimelinesSettings } from './types'
 
 import { TimelineBlockProcessor } from './block'
 import { DEFAULT_SETTINGS } from './constants'
-import { Plugin, MarkdownView, WorkspaceLeaf } from 'obsidian'
+import { Plugin, MarkdownView } from 'obsidian'
 import { TimelinesSettingTab } from './settings'
 import { TimelineCommandProcessor } from './commands'
 import { logger } from './utils'
-import { ExampleView, VIEW_TYPE_EXAMPLE } from './example-view'
 
 export default class TimelinesPlugin extends Plugin {
   pluginName: string = this.manifest.name
@@ -31,20 +30,6 @@ export default class TimelinesPlugin extends Plugin {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     this.registerMarkdownCodeBlockProcessor( 'ob-timeline', async ( source, el, ctx ) => {
       await this.blocks.run( source, el )
-    })
-
-    // This creates an icon in the left ribbon.
-    this.addRibbonIcon( 'lamp-desk', 'Create new desk', async () => {
-      // Called when the user clicks the icon.
-      await this.activateView()
-    })
-
-    this.addCommand({
-      id: 'testing-create-desk',
-      name: 'show the test react view',
-      callback: async () => {
-        await this.activateView() 
-      }
     })
 
     this.addCommand({
@@ -122,11 +107,6 @@ export default class TimelinesPlugin extends Plugin {
     if ( this.settings.showEventCounter ) {
       this.commands.createStatusBar( this )
     }
-
-    // react testing
-    this.registerView( VIEW_TYPE_EXAMPLE, ( leaf ) => {
-      return new ExampleView( leaf )
-    })
   }
 
   onFileOpen = async () => {
@@ -148,24 +128,4 @@ export default class TimelinesPlugin extends Plugin {
 
     await this.saveData( this.settings )
   }
-
-  async activateView() {
-    let leaf: WorkspaceLeaf | undefined = undefined
-    console.log( ' in here!!!! ! ! !!!11!' )
-
-    const leavesOfType = this.app.workspace.getLeavesOfType( VIEW_TYPE_EXAMPLE )
-
-    if ( leavesOfType.length === 0 ) {
-      leaf = this.app.workspace.getLeaf( true )
-      leaf.setViewState({
-        type: VIEW_TYPE_EXAMPLE,
-        active: true,
-      })
-    } else {
-      leaf = leavesOfType[0]
-    }
-
-    this.app.workspace.revealLeaf( leaf )
-  }
-  
 }
