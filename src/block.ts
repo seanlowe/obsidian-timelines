@@ -296,7 +296,7 @@ export class TimelineBlockProcessor {
       return
     }
     case 'react': {
-      buildReactTimeline( el )
+      buildReactTimeline( timelineDiv, timelineNotes, el )
       return
     }
     default:

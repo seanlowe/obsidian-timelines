@@ -1,11 +1,14 @@
-import { renderToStaticMarkup } from 'react-dom/server'
-import { ExampleTimelineV4 } from './final'
+import { createRoot } from 'react-dom/client'
+import { Timeline } from './final/timeline'
+import { AllNotesData } from 'src/types'
 
-export const buildReactTimeline = ( el: HTMLElement ) => {
-  const timelineDiv = document.createElement( 'div' )
-  timelineDiv.setAttribute( 'class', 'timeline-react' )
-
-  timelineDiv.innerHTML = renderToStaticMarkup( ExampleTimelineV4())
-
-  el.appendChild( timelineDiv )
+export const buildReactTimeline = (
+  timeline: HTMLElement,
+  timelineNotes: AllNotesData,
+  el: HTMLElement
+) => {
+  el.appendChild( timeline )
+  const e = Array.from( Object.values( timelineNotes ).flat())
+  const root = createRoot( timeline )
+  root.render( <Timeline events={e} /> )
 }
