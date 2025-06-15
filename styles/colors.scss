@@ -8,7 +8,7 @@
 }
 
 @mixin add-color($color, $starting-element, $addon: '', $alpha: .3) {
-  @at-root #{$starting-element}.#{$color}#{$addon} {
+  @at-root #{$starting-element}.#{inspect($color)}#{$addon} {
     filter: none;
     background-color: lighten-background($color, $alpha: $alpha);
     border-color: $color;
