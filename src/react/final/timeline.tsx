@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-nested-ternary */
 import { CardContainer, ReactCardContainer } from 'src/types'
 import { TimelineContainer } from './timeline-container'
 import { TimelineCard } from './timeline-card'
 import { TimelineHeader } from './timeline-header'
-import { FC, Fragment, ReactNode } from 'react'
+import { FC, ReactNode } from 'react'
 import { logger } from 'src/utils'
 
 interface TimelineProps {
@@ -31,7 +32,12 @@ const TimelineInner: FC<TimelineProps> = ({
   nestingLevel = 0,
   sideStart = 'left',
 }) => {
-  const renderEvents = ( eventsToRender: CardContainer[], depth: number, renderedIds: Set<string> ) => {
+  const renderEvents = (
+    eventsToRender: CardContainer[],
+    depth: number,
+    renderedIds: Set<string>,
+    parentEndDate?: string,
+  ) => {
     const output: ReactNode[] = []
     if ( !eventsToRender.length ) {
       return <></>
@@ -40,8 +46,11 @@ const TimelineInner: FC<TimelineProps> = ({
     logger( 'renderEvents | eventsToRender', eventsToRender )
     
     eventsToRender.forEach(( event, index ) => {
-      // skip if we've already rendered this event
-      if ( renderedIds.has( event.id )) {
+      // skip if we've already rendered this event or if the start date is after the parent end date
+      const eventHasAlreadyBeenRendered = renderedIds.has( event.id )
+      const eventStartsAfterParentEnds = parentEndDate && event.startDate.normalizedDateString > parentEndDate    
+      if ( eventHasAlreadyBeenRendered || eventStartsAfterParentEnds ) {
+        console.log( 'skipping' )
         return
       }
 
@@ -50,7 +59,9 @@ const TimelineInner: FC<TimelineProps> = ({
       const side = ( index + depth ) % 2 === 0 ? sideStart : sideStart === 'left' ? 'right' : 'left'
 
       output.push(
-        <Fragment key={event.id}>
+        <div key={event.id} onClick={() => {
+          return console.log( 'clicked' ) 
+        }}>
           <TimelineContainer
             key={`head-${event.id}`}
             date={event.startDate.normalizedDateString}
@@ -63,7 +74,12 @@ const TimelineInner: FC<TimelineProps> = ({
             <TimelineHeader date={event.startDate.readableDateString} />
           </TimelineContainer>
 
-          { renderEvents( eventsToRender.slice( index + 1 ), depth + 1, renderedIds ) }
+          { renderEvents(
+            eventsToRender.slice( index + 1 ),
+            depth + 1,
+            renderedIds,
+            event.endDate.normalizedDateString,
+          )}
 
           {event.type === 'range' && (
             <TimelineContainer
@@ -75,7 +91,7 @@ const TimelineInner: FC<TimelineProps> = ({
               <TimelineHeader date={event.endDate.readableDateString} />
             </TimelineContainer>
           )}
-        </Fragment>
+        </div>
 
       )
     })
