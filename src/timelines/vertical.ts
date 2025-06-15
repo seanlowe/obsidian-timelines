@@ -13,7 +13,7 @@ import {
    * @param timelineDates - dates we parsed from event data
    * @param el - the element to append the timeline to
    */
-export async function buildVerticalTimeline(
+export function buildVerticalTimeline(
   timeline: HTMLElement,
   timelineNotes: AllNotesData,
   timelineDates: string[],

@@ -24,6 +24,7 @@ import {
   setDefaultArgs,
   sortTimelineDates,
 } from './utils'
+import { buildReactTimeline } from './react'
 
 export class TimelineBlockProcessor {
   appVault: Vault
@@ -269,6 +270,9 @@ export class TimelineBlockProcessor {
     const timelineNotes: AllNotesData = []
     const timelineDates: string[] = []
 
+    console.log( 'run | timelineNotes', timelineNotes )
+    console.log( 'run | timelineDates', timelineDates )
+
     await this.parseFiles( timelineNotes, timelineDates )
 
     // Sort events based on setting
@@ -291,8 +295,12 @@ export class TimelineBlockProcessor {
       await buildHorizontalTimeline( requiredData )
       return
     }
+    case 'react': {
+      buildReactTimeline( el )
+      return
+    }
     default:
-      await buildVerticalTimeline( timelineDiv, timelineNotes, sortedTimelineDates, el )
+      buildVerticalTimeline( timelineDiv, timelineNotes, sortedTimelineDates, el )
       return
     }
   }

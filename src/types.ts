@@ -51,6 +51,10 @@ export interface CardContainer {
   type: string,
 }
 
+export interface ReactCardContainer extends CardContainer {
+  children?: CardContainer[],
+}
+
 export interface EventDataObject {
   classes: string,
   color: string,
