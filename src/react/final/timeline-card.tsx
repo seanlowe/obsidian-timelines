@@ -1,10 +1,11 @@
-import { ReactCardContainer } from 'src/types'
+import { FC } from 'react'
+import { CardContainer } from 'src/types'
 
 interface TimelineCardProps {
-  event: ReactCardContainer;
+  event: CardContainer;
 }
 
-export const TimelineCard: React.FC<TimelineCardProps> = ({ event }) => {
+export const TimelineCard: FC<TimelineCardProps> = ({ event }) => {
   return (
     <div className="timeline-event-list" style={{ display: 'block' }}>
       <div className="timeline-card">

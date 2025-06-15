@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-nested-ternary */
-import { CardContainer, ReactCardContainer } from 'src/types'
+import { CardContainer } from 'src/types'
 import { TimelineContainer } from './timeline-container'
 import { TimelineCard } from './timeline-card'
 import { TimelineHeader } from './timeline-header'
@@ -8,12 +8,12 @@ import { FC, ReactNode } from 'react'
 import { logger } from 'src/utils'
 
 interface TimelineProps {
-  events: ReactCardContainer[];
+  events: CardContainer[];
   nestingLevel?: number;
   sideStart?: 'left' | 'right';
 }
 
-export const Timeline: React.FC<TimelineProps> = ({
+export const Timeline: FC<TimelineProps> = ({
   events,
   nestingLevel = 0,
   sideStart = 'left',
@@ -84,9 +84,10 @@ const TimelineInner: FC<TimelineProps> = ({
           {event.type === 'range' && (
             <TimelineContainer
               date={event.endDate.normalizedDateString}
-              tail
+              side={side}
               indent={depth}
-              side={side} head={false}
+              head={false}
+              tail
             >
               <TimelineHeader date={event.endDate.readableDateString} />
             </TimelineContainer>

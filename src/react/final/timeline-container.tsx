@@ -1,13 +1,15 @@
+import { FC, ReactNode } from 'react'
+
 interface TimelineContainerProps {
   date: string;
   side: 'left' | 'right';
   indent: number;
   head: boolean;
   tail: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-export const TimelineContainer: React.FC<TimelineContainerProps> = ({
+export const TimelineContainer: FC<TimelineContainerProps> = ({
   date,
   side,
   indent,
