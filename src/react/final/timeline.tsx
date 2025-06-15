@@ -1,8 +1,8 @@
 /* eslint-disable no-nested-ternary */
 import { CardContainer, ReactCardContainer } from 'src/types'
-import { TimelineContainer } from '../v3/timeline-container'
-import { TimelineCard } from '../v3/timeline-card'
-import { TimelineHeader } from '../v1/timeline-header'
+import { TimelineContainer } from './timeline-container'
+import { TimelineCard } from './timeline-card'
+import { TimelineHeader } from './timeline-header'
 import { FC, Fragment, ReactNode } from 'react'
 import { logger } from 'src/utils'
 
