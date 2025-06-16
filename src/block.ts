@@ -270,8 +270,8 @@ export class TimelineBlockProcessor {
     const timelineNotes: AllNotesData = []
     const timelineDates: string[] = []
 
-    console.log( 'run | timelineNotes', timelineNotes )
-    console.log( 'run | timelineDates', timelineDates )
+    logger( 'run | timelineNotes', timelineNotes )
+    logger( 'run | timelineDates', timelineDates )
 
     await this.parseFiles( timelineNotes, timelineDates )
 

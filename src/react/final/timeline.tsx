@@ -1,16 +1,69 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-nested-ternary */
-import { CardContainer } from 'src/types'
-import { TimelineContainer } from './timeline-container'
-import { TimelineCard } from './timeline-card'
-import { TimelineHeader } from './timeline-header'
-import { FC, ReactNode } from 'react'
-import { logger } from 'src/utils'
+import { CardContainer, CleanedDateResultObject } from 'src/types'
+import { FC } from 'react'
+import { TimelineInner } from './timeline-inner'
 
-interface TimelineProps {
+// import { TimelineInner1, TimelineInner2, TimelineInner3 } from '../archive/timeline-inner'
+
+export interface TimelineProps {
   events: CardContainer[];
   nestingLevel?: number;
   sideStart?: 'left' | 'right';
+}
+
+export interface InnerTimelineProps {
+  events: CardContainerWithChildren[];
+  nestingLevel?: number;
+  sideStart?: 'left' | 'right';
+}
+
+export interface CardContainerWithChildren extends CardContainer {
+  children: CardContainerWithChildren[]
+}
+
+const isDateInRange = ( date: CleanedDateResultObject, start: CleanedDateResultObject, end: CleanedDateResultObject ) => {
+  return (
+    date.normalizedDateString >= start.normalizedDateString &&
+    date.normalizedDateString <= end.normalizedDateString
+  )
+}
+
+// iterate through the list of events and nest events under the child tag of events which would contain them
+// do this recursively until there are no more children
+const nestEvents = (
+  events: CardContainer[]
+): CardContainerWithChildren[] => {
+  const sortedEvents = [...events].sort(( a, b ) => {
+    return a.startDate.normalizedDateString.localeCompare( b.startDate.normalizedDateString ) 
+  })
+
+  const rootEvents: CardContainerWithChildren[] = []
+  const stack: CardContainerWithChildren[] = []
+
+  for ( const event of sortedEvents ) {
+    const eventWithChildren = { ...event, children: [] }
+
+    // Clean up the stack if event doesn't belong to top range
+    while (
+      stack.length > 0 &&
+      !isDateInRange( event.startDate, stack[stack.length - 1].startDate, stack[stack.length - 1].endDate )
+    ) {
+      stack.pop()
+    }
+
+    // If there's a parent on the stack, add to its children
+    if ( stack.length > 0 ) {
+      stack[stack.length - 1].children.push( eventWithChildren )
+    } else {
+      rootEvents.push( eventWithChildren )
+    }
+
+    // If this is a range, it can have children — push to stack
+    if ( event.type === 'range' ) {
+      stack.push( eventWithChildren )
+    }
+  }
+
+  return rootEvents
 }
 
 export const Timeline: FC<TimelineProps> = ({
@@ -19,92 +72,23 @@ export const Timeline: FC<TimelineProps> = ({
   sideStart = 'left',
 }) => {
   const sortedEvents = [...events].sort(( a, b ) => {
-    return a.startDate.normalizedDateString.localeCompare( b.startDate.normalizedDateString ) 
+    return a.startDate.normalizedDateString.localeCompare( b.startDate.normalizedDateString )
   })
 
+  const nestedEvents = nestEvents( sortedEvents )
+  // console.log( 'nestedEvents', nestedEvents )
+
+  // v1
+  // return <TimelineInner1 events={sortedEvents} nestingLevel={nestingLevel} sideStart={sideStart} />
+
+  // v2
+  // return <TimelineInner2 events={sortedEvents} nestingLevel={nestingLevel} sideStart={sideStart} />
+
+  // v3
+  // return <TimelineInner3 events={nestedEvents} nestingLevel={nestingLevel} sideStart={sideStart} />
+
+  // v4
   return (
-    <TimelineInner events={sortedEvents} nestingLevel={nestingLevel} sideStart={sideStart} />
-  )
-}
-
-const TimelineInner: FC<TimelineProps> = ({
-  events, // already sorted
-  nestingLevel = 0,
-  sideStart = 'left',
-}) => {
-  const renderEvents = (
-    eventsToRender: CardContainer[],
-    depth: number,
-    renderedIds: Set<string>,
-    parentEndDate?: string,
-  ) => {
-    const output: ReactNode[] = []
-    if ( !eventsToRender.length ) {
-      return <></>
-    }
-    
-    logger( 'renderEvents | eventsToRender', eventsToRender )
-    
-    eventsToRender.forEach(( event, index ) => {
-      // skip if we've already rendered this event or if the start date is after the parent end date
-      const eventHasAlreadyBeenRendered = renderedIds.has( event.id )
-      const eventStartsAfterParentEnds = parentEndDate && event.startDate.normalizedDateString > parentEndDate    
-      if ( eventHasAlreadyBeenRendered || eventStartsAfterParentEnds ) {
-        console.log( 'skipping' )
-        return
-      }
-
-      renderedIds.add( event.id )
-
-      const side = ( index + depth ) % 2 === 0 ? sideStart : sideStart === 'left' ? 'right' : 'left'
-
-      output.push(
-        <div key={event.id} onClick={() => {
-          return console.log( 'clicked' ) 
-        }}>
-          <TimelineContainer
-            key={`head-${event.id}`}
-            date={event.startDate.normalizedDateString}
-            side={side}
-            indent={depth}
-            head={event.type === 'range'}
-            tail={false}
-          >
-            <TimelineCard event={event} />
-            <TimelineHeader date={event.startDate.readableDateString} />
-          </TimelineContainer>
-
-          { renderEvents(
-            eventsToRender.slice( index + 1 ),
-            depth + 1,
-            renderedIds,
-            event.endDate.normalizedDateString,
-          )}
-
-          {event.type === 'range' && (
-            <TimelineContainer
-              date={event.endDate.normalizedDateString}
-              side={side}
-              indent={depth}
-              head={false}
-              tail
-            >
-              <TimelineHeader date={event.endDate.readableDateString} />
-            </TimelineContainer>
-          )}
-        </div>
-
-      )
-    })
-
-    logger( 'renderEvents | output', output )
-
-    return output
-  }
-
-  return (
-    <div className="timeline">
-      {renderEvents( events, nestingLevel, new Set())}
-    </div>
+    <TimelineInner events={nestedEvents} nestingLevel={nestingLevel} sideStart={sideStart} />
   )
 }
