@@ -86,14 +86,6 @@ $event-widget-border-width: 4px;
 
   /* Arrow pointing from note to widget */
   & {
-    &.timeline-left > h2 {
-      margin-left: $timeline-indent-gap;
-    }
-
-    &.timeline-right > h2 {
-      margin-right: $timeline-indent-gap;
-    }
-
     &::before {
       content: " ";
       width: 0;
@@ -145,38 +137,29 @@ $event-widget-border-width: 4px;
   }
 
   /* The elongated circle widget for time spanning events on the timeline */
-  &.timeline-head {
-    &::after {
-      content: '';
-      position: absolute;
-      width:            $range-event-widget-width;
-      // need some way to figure out how many nested ranges there are and 
-      // then update the width for ecah of the parent containers
-      // this makes teh children ranges larger than the parent ones
-      // width:            calc(calc(var(--timeline-indent) * 5px) + $range-event-widget-width);
-      min-height:       $range-event-widget-width;
-      
-      
-      height:           calc(100% + $range-event-widget-width);
+  // &.timeline-head {
+  //   &::after {
+  //     content: '';
+  //     position: absolute;
+  //     width:            $range-event-widget-width;
+  //     min-height:       $range-event-widget-width;
+  //     height:           calc(var(--timeline-span-length) + $range-event-widget-width);
+  //     background-color: var(--background-secondary);
+  //     filter: hue-rotate(180deg);
+  //     border: $event-widget-border-width solid var(--text-accent); // old color: #00DB00 (green)
+  //     top: $timeline-widget-inset - $range-event-widget-width * 0.5;
+  //     border-radius: $range-event-widget-width;
+  //     z-index: 1;
+  //   }
 
-      // original
-      // height:           calc(var(--timeline-span-length) + $range-event-widget-width);
-      background-color: var(--background-secondary);
-      filter: hue-rotate(180deg);
-      border: $event-widget-border-width solid var(--text-accent); // old color: #00DB00 (green)
-      top: $timeline-widget-inset - $range-event-widget-width * 0.5;
-      border-radius: $range-event-widget-width;
-      z-index: 1;
-    }
+  //   &.timeline-left::after {
+  //     right: - $range-event-widget-width * 0.5 - $event-widget-border-width;
+  //   }
 
-    &.timeline-left::after {
-      right: - $range-event-widget-width * 0.5 - $event-widget-border-width;
-    }
-
-    &.timeline-right::after {
-      left: - $range-event-widget-width * 0.5 - $event-widget-border-width;
-    }
-  }
+  //   &.timeline-right::after {
+  //     left: - $range-event-widget-width * 0.5 - $event-widget-border-width;
+  //   }
+  // }
 
   /* The line segment joining dates for time spanning events */
   &.timeline-tail {
@@ -185,7 +168,6 @@ $event-widget-border-width: 4px;
 
     & > h2 {
       padding-top: $gap;
-      // display: flex;
       margin-top: unset;
     }
   }

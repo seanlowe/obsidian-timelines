@@ -11,6 +11,7 @@ export const TimelineRangeHead: FC<TimelineRangeHeadProps>  = ({
   isCollapsed,
   dateLabel,
   toggleRangeCollapse,
+  isFirst,
 }) => {
   return (
     <TimelineContainer
@@ -24,6 +25,7 @@ export const TimelineRangeHead: FC<TimelineRangeHeadProps>  = ({
         return toggleRangeCollapse( event.id ) 
       }}
       eventId={event.id}
+      isFirst={isFirst}
     >
       <TimelineCard event={event} />
       <TimelineHeader side={side} date={isCollapsed ? dateLabel : event.startDate.readableDateString} />

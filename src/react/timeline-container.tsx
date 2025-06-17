@@ -10,6 +10,7 @@ export const TimelineContainer: FC<TimelineContainerProps> = ({
   children,
   onClick,
   eventId,
+  isFirst
 }) => {
   const classes = [
     'timeline-container',
@@ -22,6 +23,7 @@ export const TimelineContainer: FC<TimelineContainerProps> = ({
 
   return (
     <>
+      {/* initial card arrow pointing at the timeline --- handle later */}
       {/* <div style={{
         border: '1px solid red',
         position: 'absolute',
@@ -39,6 +41,7 @@ export const TimelineContainer: FC<TimelineContainerProps> = ({
           ['--timeline-indent' as string]: indent,
         }}
         data-id={head ? eventId : undefined}
+        data-is-first={isFirst}
       >
         {children}
       </div>

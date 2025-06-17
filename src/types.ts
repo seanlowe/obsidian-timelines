@@ -158,23 +158,23 @@ export type EventCountData = ( HTMLElement | FrontMatterCache | null )[]
 /* ------------------------------ */
 
 export interface TimelineProps {
-  events: CardContainer[];
-  nestingLevel?: number;
-  sideStart?: 'left' | 'right';
+  events: CardContainer[],
+  nestingLevel?: number,
+  sideStart?: 'left' | 'right',
 }
 
 export interface InnerTimelineProps {
-  events: CardContainerWithChildren[];
-  nestingLevel?: number;
-  sideStart?: 'left' | 'right';
+  events: CardContainerWithChildren[],
+  nestingLevel?: number,
+  sideStart?: 'left' | 'right',
 }
 
 export interface CardContainerWithChildren extends CardContainer {
-  children: CardContainerWithChildren[]
+  children: CardContainerWithChildren[],
 }
 
 export interface TimelineCardProps {
-  event: CardContainer;
+  event: CardContainer,
 }
 
 export interface TimelineContainerProps {
@@ -186,12 +186,13 @@ export interface TimelineContainerProps {
   children: ReactNode,
   onClick?: () => void,
   eventId?: string,
+  isFirst?: boolean,
 }
 
 export interface TimelineEventProps {
-  event: CardContainer;
-  side: 'left' | 'right';
-  depth: number;
+  event: CardContainer,
+  side: 'left' | 'right',
+  depth: number,
 }
 
 export interface TimelineHeaderProps {
@@ -200,21 +201,23 @@ export interface TimelineHeaderProps {
 }
 
 export interface TimelineRangeHeadProps {
-  event: CardContainerWithChildren;
-  side: 'left' | 'right';
-  depth: number;
-  isCollapsed: boolean;
-  dateLabel: string;
-  toggleRangeCollapse: ( rangeId: string ) => void;
+  event: CardContainerWithChildren,
+  side: 'left' | 'right',
+  depth: number,
+  isCollapsed: boolean,
+  dateLabel: string,
+  toggleRangeCollapse: ( rangeId: string ) => void,
+  isFirst?: boolean,
 }
 
 export interface TimelineTailLineProps {
-  eventId: string;
-  side: 'left' | 'right';
+  eventId: string,
+  side: 'left' | 'right',
 }
 
 export interface TimelineRangeTailProps {
   event: CardContainerWithChildren;
-  side: 'left' | 'right';
-  depth: number;
+  side: 'left' | 'right',
+  depth: number,
+  firstDate: string,
 }

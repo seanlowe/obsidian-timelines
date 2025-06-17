@@ -3,6 +3,7 @@ import { TimelineRangeHead } from './timeline-range-head'
 import { TimelineRangeTail } from './timeline-range-tail'
 import { TimelineEvent } from './timeline-event'
 import { InnerTimelineProps, CardContainerWithChildren } from '../types'
+import { TimelineHeadDot } from './timeline-dot'
 
 // has collapsible ranges (hides nested events and tails when collapsed)
 // updates title of head when collapsed
@@ -20,6 +21,7 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
   sideStart = 'left',
 }) => {
   const [collapsedRanges, setCollapsedRanges] = useState<Set<string>>( new Set())
+  const firstDate = useState<string>( events[0].startDate.normalizedDateString )[0]
 
   const toggleRangeCollapse = ( rangeId: string ) => {
     setCollapsedRanges(( prev ) => {
@@ -57,16 +59,21 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
       if ( ['range', 'background'].includes( event.type )) {
         const isCollapsed = collapsedRanges.has( event.id )
         const dateLabel = `${event.startDate.readableDateString} to ${event.endDate.readableDateString}`
+        const isFirst = event.startDate.normalizedDateString === firstDate
 
         output.push(
-          <TimelineRangeHead
-            event={event}
-            side={side}
-            depth={depth}
-            isCollapsed={isCollapsed}
-            dateLabel={dateLabel}
-            toggleRangeCollapse={toggleRangeCollapse}
-          />
+          <>
+            <TimelineRangeHead
+              event={event}
+              side={side}
+              depth={depth}
+              isCollapsed={isCollapsed}
+              dateLabel={dateLabel}
+              toggleRangeCollapse={toggleRangeCollapse}
+              isFirst={isFirst}
+            />
+            <TimelineHeadDot side={side} eventId={event.id} />
+          </>
         )
 
         if ( !isCollapsed && event.children && event.children.length > 0 ) {
@@ -78,7 +85,7 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
         }
 
         if ( !collapsedRanges.has( event.id )) {
-          output.push( <TimelineRangeTail event={event} side={side} depth={depth} /> )
+          output.push( <TimelineRangeTail firstDate={firstDate} event={event} side={side} depth={depth} /> )
         }
       } else {
         output.push( <TimelineEvent event={event} side={side} depth={depth} /> )
