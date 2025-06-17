@@ -4,6 +4,17 @@ import { logger } from './debug'
 import { DEFAULT_SETTINGS } from '../constants'
 import { CleanedDateResultObject } from '../types'
 
+export const isDateInRange = (
+  date: CleanedDateResultObject,
+  start: CleanedDateResultObject,
+  end: CleanedDateResultObject,
+) => {
+  return (
+    date.normalizedDateString >= start.normalizedDateString &&
+    date.normalizedDateString <= end.normalizedDateString
+  )
+}
+
 /**
  * Create a Datetime Object for sorting or for use as an argument to the vis-timeline constructor
  *
