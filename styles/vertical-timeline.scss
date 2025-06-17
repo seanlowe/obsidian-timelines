@@ -2,7 +2,7 @@
 
 $note-segment-width: 10px;
 $timeline-line-width: 10px;
-$timeline-indent-gap: 20px;
+$timeline-indent-gap: 30px;
 $timeline-arrow-width: 10px;
 $timeline-arrow-margin: 30px;
 $timeline-note-padding: 40px;
@@ -26,6 +26,55 @@ $event-widget-border-width: 4px;
     bottom: 0;
     left: calc(50% - $timeline-line-width / 2);
   }
+}
+
+.timeline-tail-line-left,
+.timeline-tail-line-right {
+  position: absolute;
+  width: 10px;
+  background-color: var(--background-secondary);
+  z-index: 0;
+  border-radius: 10px;
+
+  // both of these need to be dynamically set
+  // depending on side and indentation level
+  // left: ?px;
+  // height: ?px;
+}
+
+.timeline-tail-line-left-flat,
+.timeline-tail-line-right-flat {
+  background-color: var(--background-secondary);
+
+  &::before {
+    content: " ";
+    width: 0;
+    height: 0;
+    position: absolute;
+    top: -5px;
+    z-index: 2;
+    border: medium solid var(--background-secondary);
+  }
+}
+
+// arrow on the tail for left side range events
+.timeline-tail-line-left-flat::before {
+  right: -5px;
+  border-width: $timeline-arrow-width 0 $timeline-arrow-width $timeline-arrow-width;
+  border-color: transparent transparent transparent var(--background-secondary);
+
+  // for testing
+  // border-color: transparent transparent transparent aliceblue;
+}
+
+// arrow on the tail for right side range events
+.timeline-tail-line-right-flat::before {
+  left: -10px;
+  border-width: $timeline-arrow-width $timeline-arrow-width $timeline-arrow-width 0;
+  border-color: transparent var(--background-secondary) transparent transparent;
+
+  // for testing
+  // border-color: transparent pink transparent transparent;
 }
 
 /* Container around content */
@@ -53,6 +102,10 @@ $event-widget-border-width: 4px;
       top: $timeline-widget-inset - $timeline-arrow-width * 0.5;
       z-index: 2;
       border: medium solid var(--background-secondary);
+    }
+
+    &::before:not(.timeline-tail) {
+      content: unset;
     }
 
     &.timeline-left::before {
@@ -132,89 +185,35 @@ $event-widget-border-width: 4px;
 
     & > h2 {
       padding-top: $gap;
-      display: flex;
-    }
-
-    & > h2::before {
-      content: "";
-      display: block;
-      width: calc(100% - $timeline-note-padding - $timeline-arrow-width - $timeline-arrow-margin + $border-width);
-      height: $note-segment-width;
-      background-color: var(--background-secondary);
-      position: absolute;
-      top: $timeline-widget-inset;
-      border-bottom: $border-width solid var(--background-primary);
-      z-index: 1;
-    }
-
-    &.timeline-left > h2::before {
-      left: -$border-width;
-      margin-left: $timeline-note-padding;
-      border-left: $border-width solid var(--background-primary);
-      border-bottom-left-radius: $note-segment-width * 2;
-    }
-
-    &.timeline-right > h2::before {
-      right: -$border-width;
-      margin-right: $timeline-note-padding;
-      border-right: $border-width solid var(--background-primary);
-      border-bottom-right-radius: $note-segment-width * 2;
-    }
-
-    & > h2::after {
-      content: "";
-      position: absolute;
-      transform: translateY(calc(-100% - $gap));
-      width: $note-segment-width;
-      height: calc(100% - 20px);
-
-      // original - used with same rule on line 110
-      // height: calc(var(--timeline-span-length));
-      background-color: var(--background-secondary);
-      border-top-left-radius: $note-segment-width;
-      border-top-right-radius: $note-segment-width;
-      z-index: 0;
-    }
-
-    &.timeline-left > h2::after {
-      left: 0;
-      margin-left: $timeline-note-padding;
-    }
-
-    &.timeline-right > h2::after {
-      right: 0;
-      margin-right: $timeline-note-padding;
+      // display: flex;
+      margin-top: unset;
     }
   }
 }
 
 /* Place the container to the left */
 .timeline-left {
-    left: calc($timeline-indent-gap * var(--timeline-indent));
+  left: calc($timeline-indent-gap * var(--timeline-indent));
 }
 
 /* Place the container to the right */
 .timeline-right {
-    left: 50%;
-
-    &.timeline-timespan-end::after {
-      right: 10px;
-    }
+  left: 50%;
 }
 
 /* The actual content */
 .timeline-content {
-    padding: 10px 15px;
-    background-color: var(--background-accent);
-    position: relative;
-    border-radius: 6px;
+  padding: 10px 15px;
+  background-color: var(--background-accent);
+  position: relative;
+  border-radius: 6px;
 }
 
 .timeline-rendered {
-    color: var(--text-faint);
-    font-size: smaller;
+  color: var(--text-faint);
+  font-size: smaller;
 
-    &::before {
-        content: "Updated: ";
-    }
+  &::before {
+    content: "Updated: ";
+  }
 }

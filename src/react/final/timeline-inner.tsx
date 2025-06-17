@@ -1,15 +1,18 @@
 import { FC, useState, ReactNode, Fragment } from 'react'
 import { InnerTimelineProps, CardContainerWithChildren } from './timeline'
-import { TimelineCard } from './timeline-card'
-import { TimelineContainer } from './timeline-container'
-import { TimelineHeader } from './timeline-header'
+import { TimelineRangeHead } from './timeline-range-head'
+import { TimelineRangeTail } from './timeline-range-tail'
+import { TimelineEvent } from './timeline-event'
 
 // has collapsible ranges (hides nested events and tails when collapsed)
 // updates title of head when collapsed
-// indentation is working (could be more obvious though)
+
+// indentation is kind of working (could be more obvious though)
 
 // line / arrow to the tail element is not correct (too short)
 // circle / ovals on line aren't quite right either
+
+// does not handle events that start in a nested range but end outside of it
 
 export const TimelineInner: FC<InnerTimelineProps> = ({
   events,
@@ -42,25 +45,19 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
       })
       if ( isNestedInCollapsed ) return
 
-      if ( event.type === 'range' ) {
+      if ( ['range', 'background'].includes( event.type )) {
         const isCollapsed = collapsedRanges.has( event.id )
         const dateLabel = `${event.startDate.readableDateString} to ${event.endDate.readableDateString}`
 
         output.push(
-          <TimelineContainer
-            key={`head-${event.id}`}
-            date={event.startDate.normalizedDateString}
+          <TimelineRangeHead
+            event={event}
             side={side}
-            indent={depth + 1}
-            head
-            tail={false}
-            onClick={() => {
-              return toggleRangeCollapse( event.id ) 
-            }}
-          >
-            <TimelineCard event={event} />
-            <TimelineHeader date={isCollapsed ? dateLabel : event.startDate.readableDateString} />
-          </TimelineContainer>
+            depth={depth}
+            isCollapsed={isCollapsed}
+            dateLabel={dateLabel}
+            toggleRangeCollapse={toggleRangeCollapse}
+          />
         )
 
         if ( !isCollapsed && event.children && event.children.length > 0 ) {
@@ -72,38 +69,15 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
         }
 
         if ( !collapsedRanges.has( event.id )) {
-          output.push(
-            <TimelineContainer
-              key={`tail-${event.id}`}
-              date={event.endDate.normalizedDateString}
-              side={side}
-              indent={depth + 1}
-              head={false}
-              tail
-            >
-              <TimelineHeader date={event.endDate.readableDateString} />
-            </TimelineContainer>
-          )
+          output.push( <TimelineRangeTail event={event} side={side} depth={depth} /> )
         }
       } else {
-        output.push(
-          <TimelineContainer
-            key={`box-${event.id}`}
-            date={event.startDate.normalizedDateString}
-            side={side}
-            indent={depth + 1}
-            head={false}
-            tail={false}
-          >
-            <TimelineCard event={event} />
-            <TimelineHeader date={event.startDate.readableDateString} />
-          </TimelineContainer>
-        )
+        output.push( <TimelineEvent event={event} side={side} depth={depth} /> )
       }
     })
 
     return output
   }
 
-  return <>{renderEvents( events, nestingLevel )}</>
+  return <> { renderEvents( events, nestingLevel ) } </>
 }

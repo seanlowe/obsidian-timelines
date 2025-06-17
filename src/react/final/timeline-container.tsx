@@ -8,6 +8,7 @@ interface TimelineContainerProps {
   tail: boolean,
   children: ReactNode,
   onClick?: () => void,
+  eventId?: string,
 }
 
 export const TimelineContainer: FC<TimelineContainerProps> = ({
@@ -18,6 +19,7 @@ export const TimelineContainer: FC<TimelineContainerProps> = ({
   tail,
   children,
   onClick,
+  eventId,
 }) => {
   const classes = [
     'timeline-container',
@@ -29,15 +31,27 @@ export const TimelineContainer: FC<TimelineContainerProps> = ({
     .join( ' ' )
 
   return (
-    <div
-      className={classes}
-      timeline-date={date}
-      onClick={onClick}
-      style={{
-        ['--timeline-indent' as string]: indent,
-      }}
-    >
-      {children}
-    </div>
+    <>
+      {/* <div style={{
+        border: '1px solid red',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 1,
+      }}/> */}
+      <div
+        className={classes}
+        timeline-date={date}
+        onClick={onClick}
+        style={{
+          ['--timeline-indent' as string]: indent,
+        }}
+        data-id={head ? eventId : undefined}
+      >
+        {children}
+      </div>
+    </>
   )
 }
