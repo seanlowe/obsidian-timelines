@@ -1,4 +1,5 @@
 import { FrontMatterCache, MetadataCache, TFile, Vault } from 'obsidian'
+import { ReactNode } from 'react'
 import { DataItem } from 'vis-timeline'
 
 /* ------------------------------ */
@@ -150,3 +151,70 @@ export type AllNotesData = ( CardContainer[] )[]
 export type CombinedTimelineEventData = EventItem & DataItem
 export type DivWithCalcFunc = HTMLDivElement & { calcLength?: () => void }
 export type EventCountData = ( HTMLElement | FrontMatterCache | null )[]
+
+/* ------------------------------ */
+/*           React Types          */
+/*     (clean these up later)     */
+/* ------------------------------ */
+
+export interface TimelineProps {
+  events: CardContainer[];
+  nestingLevel?: number;
+  sideStart?: 'left' | 'right';
+}
+
+export interface InnerTimelineProps {
+  events: CardContainerWithChildren[];
+  nestingLevel?: number;
+  sideStart?: 'left' | 'right';
+}
+
+export interface CardContainerWithChildren extends CardContainer {
+  children: CardContainerWithChildren[]
+}
+
+export interface TimelineCardProps {
+  event: CardContainer;
+}
+
+export interface TimelineContainerProps {
+  date: string,
+  side: 'left' | 'right',
+  indent: number,
+  head: boolean,
+  tail: boolean,
+  children: ReactNode,
+  onClick?: () => void,
+  eventId?: string,
+}
+
+export interface TimelineEventProps {
+  event: CardContainer;
+  side: 'left' | 'right';
+  depth: number;
+}
+
+export interface TimelineHeaderProps {
+  date: string,
+  side: 'left' | 'right',
+}
+
+export interface TimelineRangeHeadProps {
+  event: CardContainerWithChildren;
+  side: 'left' | 'right';
+  depth: number;
+  isCollapsed: boolean;
+  dateLabel: string;
+  toggleRangeCollapse: ( rangeId: string ) => void;
+}
+
+export interface TimelineTailLineProps {
+  eventId: string;
+  side: 'left' | 'right';
+}
+
+export interface TimelineRangeTailProps {
+  event: CardContainerWithChildren;
+  side: 'left' | 'right';
+  depth: number;
+}

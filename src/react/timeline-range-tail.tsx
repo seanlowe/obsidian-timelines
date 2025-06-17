@@ -1,14 +1,8 @@
 import { FC } from 'react'
 import { TimelineContainer } from './timeline-container'
-import { CardContainerWithChildren } from './timeline'
 import { TimelineHeader } from './timeline-header'
 import { TimelineTailLine } from './timeline-range-line'
-
-interface TimelineRangeTailProps {
-  event: CardContainerWithChildren;
-  side: 'left' | 'right';
-  depth: number;
-}
+import { TimelineRangeTailProps } from '../types'
 
 export const TimelineRangeTail: FC<TimelineRangeTailProps> = ({ event, side, depth }) => {
   const {

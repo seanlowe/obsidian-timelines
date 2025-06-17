@@ -1,13 +1,18 @@
 import type { MetadataCache, TFile, Vault } from 'obsidian'
 
-import { buildHorizontalTimeline, buildVerticalTimeline, showEmptyTimelineMessage } from './timelines'
+import {
+  buildHorizontalTimeline,
+  buildReactTimeline,
+  buildVerticalTimeline,
+  showEmptyTimelineMessage,
+} from './timelines'
 import {
   AllNotesData,
   CardContainer,
   EventDataObject,
   HorizontalTimelineInput,
   InternalTimelineArgs,
-  TimelinesSettings
+  TimelinesSettings,
 } from './types'
 import {
   buildTimelineDate,
@@ -24,7 +29,6 @@ import {
   setDefaultArgs,
   sortTimelineDates,
 } from './utils'
-import { buildReactTimeline } from './react'
 
 export class TimelineBlockProcessor {
   appVault: Vault

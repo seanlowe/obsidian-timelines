@@ -1,8 +1,8 @@
 import { FC, useState, ReactNode, Fragment } from 'react'
-import { InnerTimelineProps, CardContainerWithChildren } from './timeline'
 import { TimelineRangeHead } from './timeline-range-head'
 import { TimelineRangeTail } from './timeline-range-tail'
 import { TimelineEvent } from './timeline-event'
+import { InnerTimelineProps, CardContainerWithChildren } from '../types'
 
 // has collapsible ranges (hides nested events and tails when collapsed)
 // updates title of head when collapsed
@@ -37,8 +37,17 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
     const output: ReactNode[] = []
 
     eventsToRender.forEach(( event, index ) => {
-      // eslint-disable-next-line no-nested-ternary
-      const side = ( index + depth ) % 2 === 0 ? sideStart : sideStart === 'left' ? 'right' : 'left'
+      let side: 'left' | 'right'
+
+      if (( index + depth ) % 2 === 0 ) {
+        side = sideStart
+      } else {
+        if ( sideStart === 'left' ) {
+          side = 'right'
+        } else {
+          side = 'left'
+        }
+      }
 
       const isNestedInCollapsed = activeRanges.some(( rid ) => {
         return collapsedRanges.has( rid ) 

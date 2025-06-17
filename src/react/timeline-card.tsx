@@ -1,9 +1,5 @@
 import { FC } from 'react'
-import { CardContainer } from 'src/types'
-
-interface TimelineCardProps {
-  event: CardContainer;
-}
+import { TimelineCardProps } from '../types'
 
 export const TimelineCard: FC<TimelineCardProps> = ({ event }) => {
   return (

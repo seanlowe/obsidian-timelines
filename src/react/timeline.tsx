@@ -1,24 +1,6 @@
-import { CardContainer, CleanedDateResultObject } from 'src/types'
+import { CardContainer, CardContainerWithChildren, CleanedDateResultObject, TimelineProps } from '../types'
 import { FC } from 'react'
 import { TimelineInner } from './timeline-inner'
-
-// import { TimelineInner1, TimelineInner2, TimelineInner3 } from '../archive/timeline-inner'
-
-export interface TimelineProps {
-  events: CardContainer[];
-  nestingLevel?: number;
-  sideStart?: 'left' | 'right';
-}
-
-export interface InnerTimelineProps {
-  events: CardContainerWithChildren[];
-  nestingLevel?: number;
-  sideStart?: 'left' | 'right';
-}
-
-export interface CardContainerWithChildren extends CardContainer {
-  children: CardContainerWithChildren[]
-}
 
 const isDateInRange = ( date: CleanedDateResultObject, start: CleanedDateResultObject, end: CleanedDateResultObject ) => {
   return (
@@ -27,8 +9,15 @@ const isDateInRange = ( date: CleanedDateResultObject, start: CleanedDateResultO
   )
 }
 
-// iterate through the list of events and nest events under the child tag of events which would contain them
-// do this recursively until there are no more children
+/**
+ * Iterate through the list of events and nest events under the child
+ * tag of events which would contain them. Do this recursively until
+ * there are no more child events.
+ * 
+ * @param {CardContainer[]} events - the list of events to nest
+ * 
+ * @returns {CardContainerWithChildren[]}
+ */
 const nestEvents = (
   events: CardContainer[]
 ): CardContainerWithChildren[] => {
@@ -76,18 +65,7 @@ export const Timeline: FC<TimelineProps> = ({
   })
 
   const nestedEvents = nestEvents( sortedEvents )
-  // console.log( 'nestedEvents', nestedEvents )
 
-  // v1
-  // return <TimelineInner1 events={sortedEvents} nestingLevel={nestingLevel} sideStart={sideStart} />
-
-  // v2
-  // return <TimelineInner2 events={sortedEvents} nestingLevel={nestingLevel} sideStart={sideStart} />
-
-  // v3
-  // return <TimelineInner3 events={nestedEvents} nestingLevel={nestingLevel} sideStart={sideStart} />
-
-  // v4
   return (
     <TimelineInner events={nestedEvents} nestingLevel={nestingLevel} sideStart={sideStart} />
   )

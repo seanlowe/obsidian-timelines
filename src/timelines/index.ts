@@ -5,6 +5,7 @@ import { logger } from '../utils'
 
 export * from './horizontal'
 export * from './vertical'
+export * from './react'
 
 const createArrow = ( currentId: number, targetId: number, title?: string ): ArrowObject => {
   let arrow: ArrowObject = {

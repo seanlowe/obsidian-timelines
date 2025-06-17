@@ -2,16 +2,7 @@ import { FC } from 'react'
 import { TimelineContainer } from './timeline-container'
 import { TimelineCard } from './timeline-card'
 import { TimelineHeader } from './timeline-header'
-import { CardContainerWithChildren } from './timeline'
-
-interface TimelineRangeHeadProps {
-  event: CardContainerWithChildren;
-  side: 'left' | 'right';
-  depth: number;
-  isCollapsed: boolean;
-  dateLabel: string;
-  toggleRangeCollapse: ( rangeId: string ) => void;
-}
+import { TimelineRangeHeadProps } from '../types'
 
 export const TimelineRangeHead: FC<TimelineRangeHeadProps>  = ({
   event,

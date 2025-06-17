@@ -1,9 +1,5 @@
 import { FC } from 'react'
-
-interface TimelineHeaderProps {
-  date: string,
-  side: 'left' | 'right',
-}
+import { TimelineHeaderProps } from '../types'
 
 export const TimelineHeader: FC<TimelineHeaderProps> = ({ date, side }) => {
   return <h2 style={{ textAlign: side }}>{date}</h2>

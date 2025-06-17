@@ -2,13 +2,7 @@ import { FC } from 'react'
 import { TimelineCard } from './timeline-card'
 import { TimelineContainer } from './timeline-container'
 import { TimelineHeader } from './timeline-header'
-import { CardContainer } from 'src/types'
-
-interface TimelineEventProps {
-  event: CardContainer;
-  side: 'left' | 'right';
-  depth: number;
-}
+import { TimelineEventProps } from '../types'
 
 export const TimelineEvent: FC<TimelineEventProps> = ({ event, side, depth }) => {
   return (

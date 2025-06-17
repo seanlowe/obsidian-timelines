@@ -1,15 +1,5 @@
-import { FC, ReactNode } from 'react'
-
-interface TimelineContainerProps {
-  date: string,
-  side: 'left' | 'right',
-  indent: number,
-  head: boolean,
-  tail: boolean,
-  children: ReactNode,
-  onClick?: () => void,
-  eventId?: string,
-}
+import { FC } from 'react'
+import { TimelineContainerProps } from '../types'
 
 export const TimelineContainer: FC<TimelineContainerProps> = ({
   date,

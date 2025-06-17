@@ -1,9 +1,5 @@
 import { useRef, useState, useLayoutEffect, FC } from 'react'
-
-interface TimelineTailLineProps {
-  eventId: string;
-  side: 'left' | 'right';
-}
+import { TimelineTailLineProps } from '../types'
 
 export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) => {
   const tailRef = useRef<HTMLDivElement>( null )
