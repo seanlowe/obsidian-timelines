@@ -1,5 +1,4 @@
-import { useRef, useState, useEffect, FC } from 'react'
-// import { useRef, useState, useEffect, useLayoutEffect, FC } from 'react'
+import { useRef, useState, useLayoutEffect, FC } from 'react'
 import { TimelineTailLineProps } from '../types'
 
 export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) => {
@@ -7,8 +6,9 @@ export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) =
   const [lineHeight, setLineHeight] = useState( 0 )
   const [flatLength, setFlatLength] = useState( 0 )
 
-  // does using useEffect make any difference from using useLayoutEffect?
-  useEffect(() => {
+  console.log({ isHidden: tailRef.current?.hidden, tail: tailRef.current })
+
+  useLayoutEffect(() => {
     const tailEl = tailRef.current
     const headEl = document.querySelector( `.timeline-head[data-id='${eventId}']` ) as HTMLDivElement | null
 
@@ -35,8 +35,6 @@ export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) =
         // if first event is the current event, set the top to 8.5px
         currentDotEl.style.setProperty( 'top', '8.5px' )
       } else if ( firstEventEl && currentDotEl ) {
-        // something fucked up here, second event is being set to 17 rather than 230-something
-
         // set the top position to the 8.5 + abs(first dot's top - current dot's top)
         const topOfFirstDot = firstEventEl.getBoundingClientRect().top
         const topOfCurrentDot = currentDotEl.getBoundingClientRect().top
