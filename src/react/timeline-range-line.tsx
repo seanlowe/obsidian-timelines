@@ -24,7 +24,6 @@ export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) =
       // update the timeline dot height
       const headHeight = headRect.height
       const firstEventEl = document.querySelector( "[data-is-first='true']" ) as HTMLDivElement | null
-
       const currentDotEl = document.querySelector( `.timeline-head-dot[data-id='${eventId}']` ) as HTMLDivElement | null
       if ( !currentDotEl ) {
         return
@@ -32,17 +31,21 @@ export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) =
 
       // either way, we need to set the height of the current dot
       currentDotEl.style.setProperty( 'height', `${height + headHeight}px` )
-
       if ( firstEventEl && firstEventEl === headEl ) {
         // if first event is the current event, set the top to 8.5px
-        firstEventEl.style.setProperty( 'top', '8.5px' )
+        currentDotEl.style.setProperty( 'top', '8.5px' )
       } else if ( firstEventEl && currentDotEl ) {
         // something fucked up here, second event is being set to 17 rather than 230-something
 
         // set the top position to the 8.5 + abs(first dot's top - current dot's top)
         const topOfFirstDot = firstEventEl.getBoundingClientRect().top
         const topOfCurrentDot = currentDotEl.getBoundingClientRect().top
-        const top = 8.5 + Math.abs( topOfFirstDot - topOfCurrentDot )
+        const topOfAssociatedEvent =
+          ( document.querySelector( `.timeline-head[data-id='${eventId}']` ) as HTMLDivElement | null )
+            ?.getBoundingClientRect().top ?? topOfCurrentDot
+
+
+        const top = 8.5 + Math.abs( topOfFirstDot - topOfAssociatedEvent )
         currentDotEl.style.setProperty( 'top', `${top}px` )
       }
     }
