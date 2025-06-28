@@ -10,7 +10,6 @@ export const TimelineRangeHead: FC<TimelineRangeHeadProps>  = ({
   depth,
   isCollapsed,
   dateLabel,
-  toggleRangeCollapse,
   isFirst,
 }) => {
   return (
@@ -22,7 +21,7 @@ export const TimelineRangeHead: FC<TimelineRangeHeadProps>  = ({
       head
       tail={false}
       onClick={() => {
-        return toggleRangeCollapse( event.id ) 
+        console.log( 'clicked' )
       }}
       eventId={event.id}
       isFirst={isFirst}

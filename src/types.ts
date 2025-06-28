@@ -159,13 +159,11 @@ export type EventCountData = ( HTMLElement | FrontMatterCache | null )[]
 
 export interface TimelineProps {
   events: CardContainer[],
-  nestingLevel?: number,
   sideStart?: 'left' | 'right',
 }
 
 export interface InnerTimelineProps {
-  events: CardContainerWithChildren[],
-  nestingLevel?: number,
+  renderActions: TimelineAction[],
   sideStart?: 'left' | 'right',
 }
 
@@ -201,7 +199,7 @@ export interface TimelineHeaderProps {
 }
 
 export interface TimelineRangeHeadProps {
-  event: CardContainerWithChildren,
+  event: CardContainer,
   side: 'left' | 'right',
   depth: number,
   isCollapsed: boolean,
@@ -216,7 +214,7 @@ export interface TimelineTailLineProps {
 }
 
 export interface TimelineRangeTailProps {
-  event: CardContainerWithChildren;
+  event: CardContainer;
   side: 'left' | 'right',
   depth: number,
   firstDate: string,
