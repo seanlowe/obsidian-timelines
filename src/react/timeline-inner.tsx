@@ -11,22 +11,32 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
 }) => {
   const [firstDate, ] = useState<string>( renderActions[0].event.startDate.normalizedDateString )
 
+  const oppositeSide = ( s: 'left' | 'right' ) => {
+    return ( s === 'left' ? 'right' : 'left' )
+  }
+
   const renderEvents = () => {
     const output: ReactNode[] = []
-    let side: 'left' | 'right'
-    
-    renderActions.forEach(( action, index ) => {
-      const { kind, event, indent } = action
+    const headSides = new Map<string, 'left' | 'right'>()
 
-      if (( index + indent ) % 2 === 0 ) {
-        side = sideStart
+    let actualEventIndex = 0
+    renderActions.forEach(( action ) => {
+      const { kind, event, indent } = action
+      let side: 'left' | 'right'
+
+      if ( kind === 'TAIL' ) {
+        // TAIL should render on same side as its accompanying HEAD
+        side = headSides.get( event.id ) ?? sideStart
       } else {
-        if ( sideStart === 'left' ) {
-          side = 'right'
-        } else {
-          side = 'left'
+        side = actualEventIndex % 2 === 0 ? sideStart : oppositeSide( sideStart )
+        
+        if ( kind === 'HEAD' ) {
+          // make sure I save what side the HEAD is on
+          headSides.set( event.id, side )
         }
       }
+
+      // console.log({ index, indent, sideStart, isEven: actualEventIndex % 2 === 0, side })
 
       switch ( kind ) {
       case 'HEAD': {
@@ -47,6 +57,7 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
         </>
 
         output.push( toRender )
+        actualEventIndex++
         break
       }
       case 'TAIL':
@@ -54,6 +65,7 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
         break
       case 'EVENT':
         output.push( <TimelineEvent event={event} side={side} depth={indent} /> )
+        actualEventIndex++
         break
       }
     })
