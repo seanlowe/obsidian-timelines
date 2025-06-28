@@ -6,7 +6,7 @@ export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) =
   const [lineHeight, setLineHeight] = useState( 0 )
   const [flatLength, setFlatLength] = useState( 0 )
 
-  console.log({ isHidden: tailRef.current?.hidden, tail: tailRef.current })
+  // console.log({ isHidden: tailRef.current?.hidden, tail: tailRef.current })
 
   useLayoutEffect(() => {
     const tailEl = tailRef.current

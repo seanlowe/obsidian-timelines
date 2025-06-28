@@ -63,7 +63,6 @@ $event-widget-border-width: 4px;
   position: relative;
   background-color: inherit;
   width: calc(50% - (var(--react-timeline-indent) * $timeline-indent-gap));
-  // width: calc(50% - (var(--timeline-indent) * $timeline-indent-gap));
 
   /* Arrow pointing from note to widget */
   .react-timeline-card {
@@ -130,7 +129,6 @@ $event-widget-border-width: 4px;
 /* Place the container to the left */
 .react-timeline-left {
   left: calc($timeline-indent-gap * var(--react-timeline-indent));
-  // left: calc($timeline-indent-gap * var(--timeline-indent));
 }
 
 /* Place the container to the right */

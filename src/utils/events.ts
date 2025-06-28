@@ -276,3 +276,104 @@ const retrieveFrontMatterValue = (
 
   return result
 }
+
+// --------------------------------------------------------
+
+type TimelineAction =
+  | { kind: 'HEAD',  event: CardContainer, indent: number }
+  | { kind: 'TAIL',  event: CardContainer, indent: number }
+  | { kind: 'EVENT', event: CardContainer, indent: number }
+
+
+/**
+ * Check if an event date (start or finish) is after or equal to the end date of the latest unpaired tail
+ *
+ * @param {string} eventDateToCheck 
+ * @param {TimelineAction[]} unpairedTails
+ *
+ * @returns {boolean}
+ */
+const checkAgainstLatestTail = ( eventDateToCheck: string, unpairedTails: TimelineAction[] ): boolean => {
+  if ( unpairedTails.length === 0 ) {
+    console.log( 'no unpaired tails' )
+    return false
+  }
+
+  if ( unpairedTails.length !== 0 ) {
+    const latestTail = unpairedTails[unpairedTails.length - 1]
+    if ( eventDateToCheck >= latestTail.event.endDate.normalizedDateString ) {
+      return true
+    }
+  }
+
+  return false
+}
+
+export const createTimelineActions = ( events: CardContainer[] ): TimelineAction[] => {
+  // events should already be sorted by startDate
+  const actions: TimelineAction[] = []
+  const unpairedTails: TimelineAction[] = []
+  let currentIndent = 0
+
+  for ( const event of events ) {
+    const currentActions: TimelineAction[] = []
+
+    // if there are any unpaired tails, check if the current event starts before or after the latest unpaired tail
+    // if it starts before the first tail's end date, do not push the tail to actions array (the range hasn't ended yet)
+    // if it starts after the first tail's end date, push the tail to actions array
+    if ( checkAgainstLatestTail( event.startDate.normalizedDateString, unpairedTails )) {
+      actions.push( unpairedTails.pop()! )
+      currentIndent--
+    }
+
+    // check what type the event is
+    // if event is type range or background, create a head and tail element
+    // if the event is anything else, create an event
+    if ( event.type === 'range' || event.type === 'background' ) {
+      currentActions.push({ kind: 'HEAD', event, indent: currentIndent })
+      currentActions.push({ kind: 'TAIL', event, indent: currentIndent })
+    } else {
+      currentActions.push({ kind: 'EVENT', event, indent: currentIndent })
+    }
+
+    console.log({ c: [...currentActions] })
+
+    // will be either the head or the event
+    const firstAction = currentActions.shift()
+    if ( !firstAction ) {
+      console.log( 'firstAction is null' )
+      continue
+    } else {
+      console.log({ firstAction })
+    }
+
+    actions.push( firstAction )
+
+    // if there are any more actions, increase the indent
+    // and add the tail to the unpairedTails array
+    if ( currentActions.length !== 0 ) {
+      currentIndent += 1
+      const tailAction = currentActions.shift()
+      if ( !tailAction ) {
+        console.log( 'tailAction is null' )
+        continue
+      }
+
+      // check if the end date (tail) of the current event is before or after the end date (tail) of the latest unpaired tail
+      // if it is current tail ends AFTER the latest unpaired tail, 
+      if ( checkAgainstLatestTail( event.endDate.normalizedDateString, unpairedTails )) {
+        actions.push( unpairedTails.pop()! )
+        currentIndent--
+      }
+
+      unpairedTails.push( tailAction )
+    }
+  }
+
+  // if there are any additional unpaired tails, push them to the actions array end to beginning order
+  while ( unpairedTails.length > 0 ) {
+    actions.push( unpairedTails.pop()! )
+  }
+
+  return actions
+}
