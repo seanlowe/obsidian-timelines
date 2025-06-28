@@ -10,7 +10,7 @@ export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) =
 
   useLayoutEffect(() => {
     const tailEl = tailRef.current
-    const headEl = document.querySelector( `.timeline-head[data-id='${eventId}']` ) as HTMLDivElement | null
+    const headEl = document.querySelector( `.react-timeline-head[data-id='${eventId}']` ) as HTMLDivElement | null
 
     if ( tailEl && headEl ) {
       const headRect = headEl.getBoundingClientRect()
@@ -24,7 +24,9 @@ export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) =
       // update the timeline dot height
       const headHeight = headRect.height
       const firstEventEl = document.querySelector( "[data-is-first='true']" ) as HTMLDivElement | null
-      const currentDotEl = document.querySelector( `.timeline-head-dot[data-id='${eventId}']` ) as HTMLDivElement | null
+      const currentDotEl = document.querySelector(
+        `.react-timeline-head-dot[data-id='${eventId}']`
+      ) as HTMLDivElement | null
       if ( !currentDotEl ) {
         return
       }
@@ -39,7 +41,7 @@ export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) =
         const topOfFirstDot = firstEventEl.getBoundingClientRect().top
         const topOfCurrentDot = currentDotEl.getBoundingClientRect().top
         const topOfAssociatedEvent =
-          ( document.querySelector( `.timeline-head[data-id='${eventId}']` ) as HTMLDivElement | null )
+          ( document.querySelector( `.react-timeline-head[data-id='${eventId}']` ) as HTMLDivElement | null )
             ?.getBoundingClientRect().top ?? topOfCurrentDot
 
 
@@ -55,11 +57,12 @@ export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) =
     <>
       <div
         ref={tailRef}
-        className={`timeline-tail-line-${side}`}
+        className={`react-timeline-tail-line-${side}`}
         style={{
           height: `${lineHeight + 10}px`,
           top: `${lineHeight * -1}px`,
-          left: side === 'right' ? 'calc(100% - var(--timeline-indent)* 30px + 5px)' : '',
+          left: side === 'right' ? 'calc(100% - var(--react-timeline-indent)* 30px + 5px)' : '',
+          // left: side === 'right' ? 'calc(100% - var(--timeline-indent)* 30px + 5px)' : '',
 
           // for testing
           // backgroundColor: 'blue',
@@ -68,7 +71,7 @@ export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) =
       />
       <div
         ref={tailRef}
-        className={`timeline-tail-line-${side}-flat`}
+        className={`react-timeline-tail-line-${side}-flat`}
         style={{
           position: 'absolute',
           top: 0,

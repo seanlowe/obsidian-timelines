@@ -13,10 +13,10 @@ export const TimelineContainer: FC<TimelineContainerProps> = ({
   isFirst
 }) => {
   const classes = [
-    'timeline-container',
-    `timeline-${side}`,
-    head ? 'timeline-head' : '',
-    tail ? 'timeline-tail' : '',
+    'react-timeline-container',
+    `react-timeline-${side}`,
+    head ? 'react-timeline-head' : '',
+    tail ? 'react-timeline-tail' : '',
   ]
     .filter( Boolean )
     .join( ' ' )
@@ -38,7 +38,7 @@ export const TimelineContainer: FC<TimelineContainerProps> = ({
         timeline-date={date}
         onClick={onClick}
         style={{
-          ['--timeline-indent' as string]: indent,
+          ['--react-timeline-indent' as string]: indent,
         }}
         data-id={head ? eventId : undefined}
         data-is-first={isFirst}

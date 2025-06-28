@@ -1,5 +1,7 @@
 @use './vertical-timeline.scss';
 @use './horizontal-timeline.scss';
+@use './react-timeline.scss';
+
 @use '../node_modules/vis-timeline/styles/vis-timeline-graph2d.css';
 
 .ob-timelines {
@@ -10,6 +12,7 @@
   color: red;
 }
 
+.react-timeline-card,
 .timeline-card {
   grid-auto-rows: min-content;
   color: #d1c077;

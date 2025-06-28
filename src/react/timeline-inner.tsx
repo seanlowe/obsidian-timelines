@@ -51,8 +51,8 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
         }
       }
 
-      const isNestedInCollapsed = activeRanges.some(( rid ) => {
-        return collapsedRanges.has( rid ) 
+      const isNestedInCollapsed = activeRanges.some(( rangeId ) => {
+        return collapsedRanges.has( rangeId ) 
       })
       if ( isNestedInCollapsed ) return
 

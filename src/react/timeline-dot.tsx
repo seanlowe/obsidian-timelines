@@ -20,5 +20,5 @@ export const TimelineHeadDot: React.FC<TimelineHeadDotProps> = ({ eventId, side 
     // height: `${spanLength + 33}px`,
   }
 
-  return <div className="timeline-head-dot" data-id={eventId} style={style} />
+  return <div className="react-timeline-head-dot" data-id={eventId} style={style} />
 }

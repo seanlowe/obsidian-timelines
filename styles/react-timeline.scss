@@ -11,39 +11,25 @@ $point-event-widget-width: 25px;
 $range-event-widget-width: 33px;
 $event-widget-border-width: 4px;
 
-/* The actual timeline (the vertical ruler) */
-.timeline {
-  position: relative;
-  max-width: 1200px;
-  margin: 0 auto;
+// do I need this?
+// .react-timeline-event-list {
+//   display: block;
+// }
 
-  &::after {
-    content: '';
-    position: absolute;
-    width: $timeline-line-width;
-    background-color: var(--background-secondary);
-    top: 0;
-    bottom: 0;
-    left: calc(50% - $timeline-line-width / 2);
-  }
-}
+// exists in the code but not in this file
+// .react-timeline-head-dot {}
 
-.timeline-tail-line-left,
-.timeline-tail-line-right {
+.react-timeline-tail-line-left,
+.react-timeline-tail-line-right {
   position: absolute;
   width: 10px;
   background-color: var(--background-secondary);
   z-index: 0;
   border-radius: 10px;
-
-  // both of these need to be dynamically set
-  // depending on side and indentation level
-  // left: ?px;
-  // height: ?px;
 }
 
-.timeline-tail-line-left-flat,
-.timeline-tail-line-right-flat {
+.react-timeline-tail-line-left-flat,
+.react-timeline-tail-line-right-flat {
   background-color: var(--background-secondary);
 
   &::before {
@@ -58,34 +44,29 @@ $event-widget-border-width: 4px;
 }
 
 // arrow on the tail for left side range events
-.timeline-tail-line-left-flat::before {
+.react-timeline-tail-line-left-flat::before {
   right: -5px;
   border-width: $timeline-arrow-width 0 $timeline-arrow-width $timeline-arrow-width;
   border-color: transparent transparent transparent var(--background-secondary);
-
-  // for testing
-  // border-color: transparent transparent transparent aliceblue;
 }
 
 // arrow on the tail for right side range events
-.timeline-tail-line-right-flat::before {
+.react-timeline-tail-line-right-flat::before {
   left: -10px;
   border-width: $timeline-arrow-width $timeline-arrow-width $timeline-arrow-width 0;
   border-color: transparent var(--background-secondary) transparent transparent;
-
-  // for testing
-  // border-color: transparent pink transparent transparent;
 }
 
 /* Container around content */
-.timeline-container {
+.react-timeline-container {
   padding: 10px $timeline-note-padding;
   position: relative;
   background-color: inherit;
-  width: calc(50% - (var(--timeline-indent) * $timeline-indent-gap));
+  width: calc(50% - (var(--react-timeline-indent) * $timeline-indent-gap));
+  // width: calc(50% - (var(--timeline-indent) * $timeline-indent-gap));
 
   /* Arrow pointing from note to widget */
-  .timeline-card {
+  .react-timeline-card {
     &::before {
       content: " ";
       width: 0;
@@ -98,21 +79,21 @@ $event-widget-border-width: 4px;
   }
 
   /* Arrow pointing from note to widget for events on the left */
-  &.timeline-left .timeline-card::before {
+  &.react-timeline-left .react-timeline-card::before {
     right: -10px;
     border-width: $timeline-arrow-width 0 $timeline-arrow-width $timeline-arrow-width;
     border-color: transparent transparent transparent var(--background-secondary);
   }
 
   /* Arrow pointing from note to widget for events on the right */
-  &.timeline-right .timeline-card::before {
+  &.react-timeline-right .react-timeline-card::before {
     left: -10px;
     border-width: $timeline-arrow-width $timeline-arrow-width $timeline-arrow-width 0;
     border-color: transparent var(--background-secondary) transparent transparent;
   }
 
   /* The normal circle widget for events on the timeline */
-  &:not(.timeline-head):not(.timeline-tail) {
+  &:not(.react-timeline-head):not(.react-timeline-tail) {
     &::after {
       content: '';
       position: absolute;
@@ -125,42 +106,17 @@ $event-widget-border-width: 4px;
       z-index: 1;
     }
 
-    &.timeline-left::after {
+    &.react-timeline-left::after {
       right: - $point-event-widget-width * 0.5 - $event-widget-border-width;
     }
 
-    &.timeline-right::after {
+    &.react-timeline-right::after {
       left: - $point-event-widget-width * 0.5 - $event-widget-border-width;
     }
   }
 
-  /* The elongated circle widget for time spanning events on the timeline */
-  // &.timeline-head {
-  //   &::after {
-  //     content: '';
-  //     position: absolute;
-  //     width:            $range-event-widget-width;
-  //     min-height:       $range-event-widget-width;
-  //     height:           calc(var(--timeline-span-length) + $range-event-widget-width);
-  //     background-color: var(--background-secondary);
-  //     filter: hue-rotate(180deg);
-  //     border: $event-widget-border-width solid var(--text-accent); // old color: #00DB00 (green)
-  //     top: $timeline-widget-inset - $range-event-widget-width * 0.5;
-  //     border-radius: $range-event-widget-width;
-  //     z-index: 1;
-  //   }
-
-  //   &.timeline-left::after {
-  //     right: - $range-event-widget-width * 0.5 - $event-widget-border-width;
-  //   }
-
-  //   &.timeline-right::after {
-  //     left: - $range-event-widget-width * 0.5 - $event-widget-border-width;
-  //   }
-  // }
-
   /* The line segment joining dates for time spanning events */
-  &.timeline-tail {
+  &.react-timeline-tail {
     $border-width: 5px;
     $gap: 20px;
 
@@ -172,28 +128,12 @@ $event-widget-border-width: 4px;
 }
 
 /* Place the container to the left */
-.timeline-left {
-  left: calc($timeline-indent-gap * var(--timeline-indent));
+.react-timeline-left {
+  left: calc($timeline-indent-gap * var(--react-timeline-indent));
+  // left: calc($timeline-indent-gap * var(--timeline-indent));
 }
 
 /* Place the container to the right */
-.timeline-right {
+.react-timeline-right {
   left: 50%;
-}
-
-/* The actual content */
-.timeline-content {
-  padding: 10px 15px;
-  background-color: var(--background-accent);
-  position: relative;
-  border-radius: 6px;
-}
-
-.timeline-rendered {
-  color: var(--text-faint);
-  font-size: smaller;
-
-  &::before {
-    content: "Updated: ";
-  }
 }

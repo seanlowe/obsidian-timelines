@@ -3,8 +3,8 @@ import { TimelineCardProps } from '../types'
 
 export const TimelineCard: FC<TimelineCardProps> = ({ event }) => {
   return (
-    <div className="timeline-event-list" style={{ display: 'block' }}>
-      <div className="timeline-card">
+    <div className="react-timeline-event-list" style={{ display: 'block' }}>
+      <div className="react-timeline-card">
         <article>
           <h3>
             <a className="internal-link" href={event.path}>
