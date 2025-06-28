@@ -9,7 +9,8 @@ import {
   EventItem,
   EventTypeNumbers,
   FrontMatterKeys,
-  GetFileDataInput
+  GetFileDataInput,
+  TimelineAction
 } from '../types'
 import { findMatchingFrontMatterKey } from './frontmatter'
 import { logger } from './debug'
@@ -278,12 +279,6 @@ const retrieveFrontMatterValue = (
 }
 
 // --------------------------------------------------------
-
-type TimelineAction =
-  | { kind: 'HEAD',  event: CardContainer, indent: number }
-  | { kind: 'TAIL',  event: CardContainer, indent: number }
-  | { kind: 'EVENT', event: CardContainer, indent: number }
-
 
 /**
  * Check if an event date (start or finish) is after or equal to the end date of the latest unpaired tail

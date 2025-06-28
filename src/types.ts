@@ -221,3 +221,8 @@ export interface TimelineRangeTailProps {
   depth: number,
   firstDate: string,
 }
+
+export type TimelineAction =
+  | { kind: 'HEAD',  event: CardContainer, indent: number }
+  | { kind: 'TAIL',  event: CardContainer, indent: number }
+  | { kind: 'EVENT', event: CardContainer, indent: number }
