@@ -2,7 +2,7 @@
 
 $note-segment-width: 10px;
 $timeline-line-width: 10px;
-$timeline-indent-gap: 30px;
+$timeline-indent-gap: 20px;
 $timeline-arrow-width: 10px;
 $timeline-arrow-margin: 30px;
 $timeline-note-padding: 40px;
@@ -28,55 +28,6 @@ $event-widget-border-width: 4px;
   }
 }
 
-.timeline-tail-line-left,
-.timeline-tail-line-right {
-  position: absolute;
-  width: 10px;
-  background-color: var(--background-secondary);
-  z-index: 0;
-  border-radius: 10px;
-
-  // both of these need to be dynamically set
-  // depending on side and indentation level
-  // left: ?px;
-  // height: ?px;
-}
-
-.timeline-tail-line-left-flat,
-.timeline-tail-line-right-flat {
-  background-color: var(--background-secondary);
-
-  &::before {
-    content: " ";
-    width: 0;
-    height: 0;
-    position: absolute;
-    top: -5px;
-    z-index: 2;
-    border: medium solid var(--background-secondary);
-  }
-}
-
-// arrow on the tail for left side range events
-.timeline-tail-line-left-flat::before {
-  right: -5px;
-  border-width: $timeline-arrow-width 0 $timeline-arrow-width $timeline-arrow-width;
-  border-color: transparent transparent transparent var(--background-secondary);
-
-  // for testing
-  // border-color: transparent transparent transparent aliceblue;
-}
-
-// arrow on the tail for right side range events
-.timeline-tail-line-right-flat::before {
-  left: -10px;
-  border-width: $timeline-arrow-width $timeline-arrow-width $timeline-arrow-width 0;
-  border-color: transparent var(--background-secondary) transparent transparent;
-
-  // for testing
-  // border-color: transparent pink transparent transparent;
-}
-
 /* Container around content */
 .timeline-container {
   padding: 10px $timeline-note-padding;
@@ -85,7 +36,15 @@ $event-widget-border-width: 4px;
   width: calc(50% - (var(--timeline-indent) * $timeline-indent-gap));
 
   /* Arrow pointing from note to widget */
-  .timeline-card {
+  & {
+    &.timeline-left > h2 {
+      margin-left: $timeline-indent-gap;
+    }
+
+    &.timeline-right > h2 {
+      margin-right: $timeline-indent-gap;
+    }
+
     &::before {
       content: " ";
       width: 0;
@@ -95,20 +54,18 @@ $event-widget-border-width: 4px;
       z-index: 2;
       border: medium solid var(--background-secondary);
     }
-  }
 
-  /* Arrow pointing from note to widget for events on the left */
-  &.timeline-left .timeline-card::before {
-    right: -10px;
-    border-width: $timeline-arrow-width 0 $timeline-arrow-width $timeline-arrow-width;
-    border-color: transparent transparent transparent var(--background-secondary);
-  }
+    &.timeline-left::before {
+      right: $timeline-arrow-margin;
+      border-width: $timeline-arrow-width 0 $timeline-arrow-width $timeline-arrow-width;
+      border-color: transparent transparent transparent var(--background-secondary);
+    }
 
-  /* Arrow pointing from note to widget for events on the right */
-  &.timeline-right .timeline-card::before {
-    left: -10px;
-    border-width: $timeline-arrow-width $timeline-arrow-width $timeline-arrow-width 0;
-    border-color: transparent var(--background-secondary) transparent transparent;
+    &.timeline-right::before {
+      left: $timeline-arrow-margin;
+      border-width: $timeline-arrow-width $timeline-arrow-width $timeline-arrow-width 0;
+      border-color: transparent var(--background-secondary) transparent transparent;
+    }
   }
 
   /* The normal circle widget for events on the timeline */
@@ -135,29 +92,29 @@ $event-widget-border-width: 4px;
   }
 
   /* The elongated circle widget for time spanning events on the timeline */
-  // &.timeline-head {
-  //   &::after {
-  //     content: '';
-  //     position: absolute;
-  //     width:            $range-event-widget-width;
-  //     min-height:       $range-event-widget-width;
-  //     height:           calc(var(--timeline-span-length) + $range-event-widget-width);
-  //     background-color: var(--background-secondary);
-  //     filter: hue-rotate(180deg);
-  //     border: $event-widget-border-width solid var(--text-accent); // old color: #00DB00 (green)
-  //     top: $timeline-widget-inset - $range-event-widget-width * 0.5;
-  //     border-radius: $range-event-widget-width;
-  //     z-index: 1;
-  //   }
+  &.timeline-head {
+    &::after {
+      content: '';
+      position: absolute;
+      width:            $range-event-widget-width;
+      min-height:       $range-event-widget-width;
+      height:           calc(var(--timeline-span-length) + $range-event-widget-width);
+      background-color: var(--background-secondary);
+      filter: hue-rotate(180deg);
+      border: $event-widget-border-width solid var(--text-accent); // old color: #00DB00 (green)
+      top: $timeline-widget-inset - $range-event-widget-width * 0.5;
+      border-radius: $range-event-widget-width;
+      z-index: 1;
+    }
 
-  //   &.timeline-left::after {
-  //     right: - $range-event-widget-width * 0.5 - $event-widget-border-width;
-  //   }
+    &.timeline-left::after {
+      right: - $range-event-widget-width * 0.5 - $event-widget-border-width;
+    }
 
-  //   &.timeline-right::after {
-  //     left: - $range-event-widget-width * 0.5 - $event-widget-border-width;
-  //   }
-  // }
+    &.timeline-right::after {
+      left: - $range-event-widget-width * 0.5 - $event-widget-border-width;
+    }
+  }
 
   /* The line segment joining dates for time spanning events */
   &.timeline-tail {
@@ -166,7 +123,55 @@ $event-widget-border-width: 4px;
 
     & > h2 {
       padding-top: $gap;
-      margin-top: unset;
+      display: flex;
+    }
+
+    & > h2::before {
+      content: "";
+      display: block;
+      width: calc(100% - $timeline-note-padding - $timeline-arrow-width - $timeline-arrow-margin + $border-width);
+      height: $note-segment-width;
+      background-color: var(--background-secondary);
+      position: absolute;
+      top: $timeline-widget-inset;
+      border-bottom: $border-width solid var(--background-primary);
+      z-index: 1;
+    }
+
+    &.timeline-left > h2::before {
+      left: -$border-width;
+      margin-left: $timeline-note-padding;
+      border-left: $border-width solid var(--background-primary);
+      border-bottom-left-radius: $note-segment-width * 2;
+    }
+
+    &.timeline-right > h2::before {
+      right: -$border-width;
+      margin-right: $timeline-note-padding;
+      border-right: $border-width solid var(--background-primary);
+      border-bottom-right-radius: $note-segment-width * 2;
+    }
+
+    & > h2::after {
+      content: "";
+      position: absolute;
+      transform: translateY(calc(-100% - $gap));
+      width: $note-segment-width;
+      height: calc(var(--timeline-span-length));
+      background-color: var(--background-secondary);
+      border-top-left-radius: $note-segment-width;
+      border-top-right-radius: $note-segment-width;
+      z-index: 0;
+    }
+
+    &.timeline-left > h2::after {
+      left: 0;
+      margin-left: $timeline-note-padding;
+    }
+
+    &.timeline-right > h2::after {
+      right: 0;
+      margin-right: $timeline-note-padding;
     }
   }
 }
@@ -179,6 +184,10 @@ $event-widget-border-width: 4px;
 /* Place the container to the right */
 .timeline-right {
   left: 50%;
+
+  &.timeline-timespan-end::after {
+    right: 10px;
+  }
 }
 
 /* The actual content */
