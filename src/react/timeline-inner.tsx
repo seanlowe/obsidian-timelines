@@ -1,4 +1,4 @@
-import { FC, useState, ReactNode } from 'react'
+import { FC, useState, ReactNode, Fragment } from 'react'
 import { TimelineRangeHead } from './timeline-range-head'
 import { TimelineRangeTail } from './timeline-range-tail'
 import { TimelineEvent } from './timeline-event'
@@ -74,7 +74,7 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
         const isFirst = event.startDate.normalizedDateString === firstDate
 
         output.push(
-          <>
+          <Fragment key={`head-${event.id}`}>
             <TimelineRangeHead
               event={event}
               side={side}
@@ -84,7 +84,7 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
               isFirst={isFirst}
             />
             <TimelineHeadDot side={side} eventId={event.id} />
-          </>
+          </Fragment>
         )
 
         actualEventIndex++
@@ -124,7 +124,12 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
         })
 
         const side = determineSide( actualEventIndex )
-        output.push( <TimelineEvent event={event} side={side} depth={indent} /> )
+        output.push(
+          <Fragment key={`event-${event.id}`}>
+            <TimelineEvent event={event} side={side} depth={indent} />
+          </Fragment>
+        )
+
         actualEventIndex++
         break
       }
@@ -146,7 +151,16 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
           return
         }
 
-        output.push( <TimelineRangeTail firstDate={firstDate} event={event} side={side} depth={indent} /> )
+        /* 
+         * If I add a fragment here (the last one to not get a fragment and therefore solve the key warning),
+         * the vertical part of the tails end up moving when I collapse things.
+         */
+        output.push(
+          // <Fragment key={`tail-${event.id}`}>
+          <TimelineRangeTail firstDate={firstDate} event={event} side={side} depth={indent} />
+          // </Fragment>
+        )
+
         activeCollapsedRanges.delete( event.id )
         break
       }
