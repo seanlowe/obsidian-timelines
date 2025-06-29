@@ -9,7 +9,16 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
   renderActions,
   sideStart = 'left',
 }) => {
+  const [collapsedRanges, setCollapsedRanges] = useState<Set<string>>( new Set())
   const [firstDate, ] = useState<string>( renderActions[0].event.startDate.normalizedDateString )
+
+  const toggleRangeCollapse = ( rangeId: string ) => {
+    setCollapsedRanges(( prev ) => {
+      const newSet = new Set( prev )
+      newSet.has( rangeId ) ? newSet.delete( rangeId ) : newSet.add( rangeId )
+      return newSet
+    })
+  }
 
   const oppositeSide = ( s: 'left' | 'right' ) => {
     return ( s === 'left' ? 'right' : 'left' )
@@ -27,10 +36,9 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
     renderActions.forEach(( action ) => {
       const { kind, event, indent } = action
 
-      // console.log({ index, indent, sideStart, isEven: actualEventIndex % 2 === 0, side })
-
       switch ( kind ) {
       case 'HEAD': {
+        const isCollapsed = collapsedRanges.has( event.id )
         const dateLabel = `${event.startDate.readableDateString} to ${event.endDate.readableDateString}`
         const isFirst = event.startDate.normalizedDateString === firstDate
         const side = determineSide( actualEventIndex )
@@ -41,9 +49,8 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
             event={event}
             side={side}
             depth={indent}
-            isCollapsed={false}
-            dateLabel={dateLabel}
-            toggleRangeCollapse={() => {}}
+            dateLabel={isCollapsed ? dateLabel : event.startDate.readableDateString}
+            toggleRangeCollapse={toggleRangeCollapse}
             isFirst={isFirst}
           />
           <TimelineHeadDot side={side} eventId={event.id} />

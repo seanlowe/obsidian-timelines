@@ -202,7 +202,7 @@ export interface TimelineRangeHeadProps {
   event: CardContainer,
   side: 'left' | 'right',
   depth: number,
-  isCollapsed: boolean,
+  // isCollapsed: boolean,
   dateLabel: string,
   toggleRangeCollapse: ( rangeId: string ) => void,
   isFirst?: boolean,
