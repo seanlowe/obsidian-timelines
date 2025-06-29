@@ -41,6 +41,24 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
 
       switch ( kind ) {
       case 'HEAD': {
+        const insideAnotherCollapsed = Array.from( activeCollapsedRanges ).some(( rangeId ) => {
+          if ( rangeId === event.id ) return false // allow its own HEAD
+      
+          const rangeAction = renderActions.find(( a ) => {
+            return a.kind === 'HEAD' && a.event.id === rangeId 
+          })
+          if ( !rangeAction ) return false
+      
+          return (
+            event.startDate.normalizedDateString >= rangeAction.event.startDate.normalizedDateString &&
+            event.endDate.normalizedDateString <= rangeAction.event.endDate.normalizedDateString
+          )
+        })
+      
+        if ( insideAnotherCollapsed ) {
+          return // skip rendering this HEAD
+        }
+      
         const side = determineSide( actualEventIndex )
         headSides.set( event.id, side )
 
