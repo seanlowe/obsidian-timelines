@@ -60,15 +60,15 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
         actualEventIndex++
         break
       }
-      case 'TAIL': {
-        const side = headSides.get( event.id ) ?? sideStart
-        output.push( <TimelineRangeTail firstDate={firstDate} event={event} side={side} depth={indent} /> )
-        break
-      }
       case 'EVENT': {
         const side = determineSide( actualEventIndex )
         output.push( <TimelineEvent event={event} side={side} depth={indent} /> )
         actualEventIndex++
+        break
+      }
+      case 'TAIL': {
+        const side = headSides.get( event.id ) ?? sideStart
+        output.push( <TimelineRangeTail firstDate={firstDate} event={event} side={side} depth={indent} /> )
         break
       }
       }
