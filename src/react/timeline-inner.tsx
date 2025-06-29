@@ -83,7 +83,7 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
               toggleRangeCollapse={toggleRangeCollapse}
               isFirst={isFirst}
             />
-            <TimelineHeadDot side={side} eventId={event.id} />
+            <TimelineHeadDot isCollapsed={isCollapsed} side={side} eventId={event.id} />
           </Fragment>
         )
 
