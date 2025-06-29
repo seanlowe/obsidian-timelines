@@ -30,8 +30,9 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
 
   const renderEvents = () => {
     const output: ReactNode[] = []
-    const headSides = new Map<string, 'left' | 'right'>()
     const activeCollapsedRanges = new Set<string>()
+    const hiddenDueToParent = new Set<string>()
+    const headSides = new Map<string, 'left' | 'right'>()
     const overlapCounts = new Map<string, number>()
 
     let actualEventIndex = 0
@@ -43,22 +44,23 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
       case 'HEAD': {
         const insideAnotherCollapsed = Array.from( activeCollapsedRanges ).some(( rangeId ) => {
           if ( rangeId === event.id ) return false // allow its own HEAD
-      
+
           const rangeAction = renderActions.find(( a ) => {
-            return a.kind === 'HEAD' && a.event.id === rangeId 
+            return a.kind === 'HEAD' && a.event.id === rangeId
           })
           if ( !rangeAction ) return false
-      
+
           return (
             event.startDate.normalizedDateString >= rangeAction.event.startDate.normalizedDateString &&
             event.endDate.normalizedDateString <= rangeAction.event.endDate.normalizedDateString
           )
         })
-      
+
         if ( insideAnotherCollapsed ) {
+          hiddenDueToParent.add( event.id )
           return // skip rendering this HEAD
         }
-      
+
         const side = determineSide( actualEventIndex )
         headSides.set( event.id, side )
 
@@ -93,7 +95,7 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
         // Skip if fully inside any active collapsed range
         const insideCollapsed = Array.from( activeCollapsedRanges ).some(( rangeId ) => {
           const rangeAction = renderActions.find(( a ) => {
-            return a.kind === 'HEAD' && a.event.id === rangeId 
+            return a.kind === 'HEAD' && a.event.id === rangeId
           })
           if ( !rangeAction ) return false
 
@@ -108,7 +110,7 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
         // If overlaps any active collapsed range, increment overlap count
         activeCollapsedRanges.forEach(( rangeId ) => {
           const rangeAction = renderActions.find(( a ) => {
-            return a.kind === 'HEAD' && a.event.id === rangeId 
+            return a.kind === 'HEAD' && a.event.id === rangeId
           })
           if ( !rangeAction ) return
 
@@ -131,6 +133,12 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
         const side = headSides.get( event.id ) ?? sideStart
         const overlaps = overlapCounts.get( event.id ) ?? 0
         const isCollapsed = collapsedRanges.has( event.id )
+
+        // If range was hidden due to a parent being collapsed, skip tail
+        if ( hiddenDueToParent.has( event.id )) {
+          activeCollapsedRanges.delete( event.id )
+          return
+        }
 
         // If collapsed and no overlaps → skip tail
         if ( isCollapsed && overlaps === 0 ) {
