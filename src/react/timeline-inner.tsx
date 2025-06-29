@@ -15,6 +15,10 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
     return ( s === 'left' ? 'right' : 'left' )
   }
 
+  const determineSide = ( index: number ): 'left' | 'right' => {
+    return index % 2 === 0 ? sideStart : oppositeSide( sideStart )
+  }
+
   const renderEvents = () => {
     const output: ReactNode[] = []
     const headSides = new Map<string, 'left' | 'right'>()
@@ -22,19 +26,6 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
     let actualEventIndex = 0
     renderActions.forEach(( action ) => {
       const { kind, event, indent } = action
-      let side: 'left' | 'right'
-
-      if ( kind === 'TAIL' ) {
-        // TAIL should render on same side as its accompanying HEAD
-        side = headSides.get( event.id ) ?? sideStart
-      } else {
-        side = actualEventIndex % 2 === 0 ? sideStart : oppositeSide( sideStart )
-        
-        if ( kind === 'HEAD' ) {
-          // make sure I save what side the HEAD is on
-          headSides.set( event.id, side )
-        }
-      }
 
       // console.log({ index, indent, sideStart, isEven: actualEventIndex % 2 === 0, side })
 
@@ -42,6 +33,8 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
       case 'HEAD': {
         const dateLabel = `${event.startDate.readableDateString} to ${event.endDate.readableDateString}`
         const isFirst = event.startDate.normalizedDateString === firstDate
+        const side = determineSide( actualEventIndex )
+        headSides.set( event.id, side )
 
         const toRender = <>
           <TimelineRangeHead
@@ -60,13 +53,17 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
         actualEventIndex++
         break
       }
-      case 'TAIL':
+      case 'TAIL': {
+        const side = headSides.get( event.id ) ?? sideStart
         output.push( <TimelineRangeTail firstDate={firstDate} event={event} side={side} depth={indent} /> )
         break
-      case 'EVENT':
+      }
+      case 'EVENT': {
+        const side = determineSide( actualEventIndex )
         output.push( <TimelineEvent event={event} side={side} depth={indent} /> )
         actualEventIndex++
         break
+      }
       }
     })
 
