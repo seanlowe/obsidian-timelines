@@ -9,12 +9,12 @@ export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) =
   // console.log({ isHidden: tailRef.current?.hidden, tail: tailRef.current })
 
   useLayoutEffect(() => {
-    const tailEl = tailRef.current
-    const headEl = document.querySelector( `.react-timeline-head[data-id='${eventId}']` ) as HTMLDivElement | null
+    const tailElement = tailRef.current
+    const headElement = document.querySelector( `.react-timeline-head[data-id='${eventId}']` ) as HTMLDivElement | null
 
-    if ( tailEl && headEl ) {
-      const headRect = headEl.getBoundingClientRect()
-      const tailRect = tailEl.getBoundingClientRect()
+    if ( tailElement && headElement ) {
+      const headRect = headElement.getBoundingClientRect()
+      const tailRect = tailElement.getBoundingClientRect()
       const height = tailRect.top - headRect.bottom
 
       // set up some kind of default height for if there are no children
@@ -33,7 +33,7 @@ export const TimelineTailLine: FC<TimelineTailLineProps> = ({ eventId, side }) =
 
       // either way, we need to set the height of the current dot
       currentDotEl.style.setProperty( 'height', `${height + headHeight}px` )
-      if ( firstEventEl && firstEventEl === headEl ) {
+      if ( firstEventEl && firstEventEl === headElement ) {
         // if first event is the current event, set the top to 8.5px
         currentDotEl.style.setProperty( 'top', '8.5px' )
       } else if ( firstEventEl && currentDotEl ) {
