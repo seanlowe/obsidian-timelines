@@ -22,21 +22,46 @@ $event-widget-border-width: 4px;
   min-height: $range-event-widget-width;
   background-color: var(--background-secondary);
   filter: hue-rotate(180deg);
+  z-index: 1;
+
+  // default styles:
+  // - solid + rounded
   border: 4px solid var(--text-accent);
   border-radius: $range-event-widget-width;
-  z-index: 1;
+
+  // other styling notes:
+  // could unset or change the background color
+  // could adjust border thickness
+
+  &.style-dashed {
+    // dashed indicator
+    border: 4px dashed var(--text-accent);
+  }
+
+  &.style-dotted {
+    // dotted indicator
+    border: 4px dotted var(--text-accent);
+  }
+
+  &.style-square {
+    // square indicator
+    border-radius: unset;
+  }
+
+  &-collapsed {
+    height: $range-event-widget-width !important;
+    filter: hue-rotate(90deg);
+  }
 }
 
-.react-timeline-head-dot-collapsed {
-  position: absolute;
-  width: $range-event-widget-width;
-  height: $range-event-widget-width !important;
-  background-color: var(--background-secondary);
-  filter: hue-rotate(90deg);
-  border: 4px solid var(--text-accent);
-  border-radius: $range-event-widget-width;
-  z-index: 1;
-}
+// .react-timeline-head-dot-collapsed {
+//   position: absolute;
+//   width: $range-event-widget-width;
+//   background-color: var(--background-secondary);
+//   border: 4px solid var(--text-accent);
+//   border-radius: $range-event-widget-width;
+//   z-index: 1;
+// }
 
 .react-timeline-tail-line-left,
 .react-timeline-tail-line-right {
@@ -83,9 +108,31 @@ $event-widget-border-width: 4px;
   background-color: inherit;
   width: calc(50% - (var(--react-timeline-indent) * $timeline-indent-gap));
 
-  /* Arrow pointing from note to widget */
   .react-timeline-card {
+    // square event card
+    // border-radius: unset;
+
+    // no background color
+    // background-color: unset;
+
+    // lighter background for cards
+    // background-color: var(--background-secondary-alt);
+
+    // & > article {
+      // border-radius: inherit;
+
+      // background color for title
+      // background-color: var(--background-secondary);
+
+      // lighter background color for title
+      // background-color: var(--background-secondary-alt);
+    // }
+
+    /* Arrow pointing from note to widget */
     &::before {
+      // use if using the lighter background color for cards
+      // background-color: var(--background-secondary-alt);
+
       content: " ";
       width: 0;
       height: 0;
@@ -112,6 +159,22 @@ $event-widget-border-width: 4px;
 
   /* The normal circle widget for events on the timeline */
   &:not(.react-timeline-head):not(.react-timeline-tail) {
+    &.style-square::after {
+      // square indicator
+      border-radius: unset !important;
+    }
+  
+    &.style-diamond::after {
+      // diamond indicator
+      border-radius: unset !important;
+      transform: rotate(45deg) !important;
+    }
+  
+    &.style-filled::after {
+      // solid indicator
+      background-color: var(--text-accent) !important;
+    }
+
     &::after {
       content: '';
       position: absolute;

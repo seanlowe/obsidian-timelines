@@ -127,6 +127,7 @@ export const TimelineInner: FC<InnerTimelineProps> = ({
         output.push(
           <Fragment key={`event-${event.id}`}>
             <TimelineEvent event={event} side={side} depth={indent} />
+            <TimelineHeadDot isRange={false} isCollapsed={false} side={side} eventId={event.id} />
           </Fragment>
         )
 
